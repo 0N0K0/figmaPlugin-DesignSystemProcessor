@@ -1,11 +1,11 @@
 import { createZipForCollection } from './utils';
-import { exampleCollection } from './collections/example-collection';
+import { breakpointsCollection } from './collections/breakpoints';
 
 /**
  * Collections à traiter
  */
 const collections = [
-  exampleCollection,
+  breakpointsCollection,
 ];
 
 /**
@@ -17,7 +17,7 @@ async function main() {
   for (const collection of collections) {
     try {
       console.log(`📦 Génération de la collection: ${collection.name}`);
-      console.log(`   Modes: ${collection.modes.map(m => m.name).join(', ')}`);
+      console.log(`   Modes: ${collection.modes}`);
       console.log(`   Variables: ${collection.variables.length}`);
 
       const zipPath = await createZipForCollection(collection);

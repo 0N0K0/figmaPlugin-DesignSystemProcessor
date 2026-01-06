@@ -12,28 +12,28 @@ export interface FigmaColorValue {
  * Interface pour une variable Figma
  */
 export interface FigmaVariable {
-  id: string;
-  name: string;
-  type: 'color' | 'number' | 'string' | 'boolean';
-  scopes: string[];
-  hiddenFromPublishing?: boolean;
-  values: Record<string, any>;
+  $type: 'color' | 'number' | 'string';
+  $value: number | string | FigmaColorValue;
+  $extensions: {
+    'com.figma.scopes': string[];
+    'com.figma.hiddenFromPublishing'?: boolean;
+    'com.figma.type'?: 'boolean' | 'string';
+  };
 }
 
 /**
  * Interface pour un mode d'une collection
  */
 export interface FigmaMode {
-  modeId: string;
   name: string;
+  variables: Record<string, FigmaVariable>;
 }
 
 /**
  * Interface pour une collection de variables
  */
 export interface FigmaCollection {
-  id: string;
   name: string;
-  modes: FigmaMode[];
-  variables: Record<string, FigmaVariable[]> | FigmaVariable[];
+  modes: string[];
+  variables: Record<string, string>;
 }

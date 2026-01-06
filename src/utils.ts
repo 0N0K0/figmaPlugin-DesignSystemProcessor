@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import JSZip from 'jszip';
 import { OUTPUT_DIR } from './constants';
-import { FigmaCollection } from './types';
+import { FigmaCollection, FigmaColorValue, FigmaVariable } from './types';
 
 /**
  * Crée le dossier de sortie s'il n'existe pas
@@ -17,98 +17,14 @@ export function ensureOutputDir(): void {
  * Génère un fichier JSON pour un mode spécifique d'une collection
  */
 export function generateModeJson(
-  collection: FigmaCollection,
-  modeId: string
+  name: string,
+  variables: FigmaVariable[] | Record<string, FigmaVariable>
 ): string {
-  const mode = collection.modes.find(m => m.modeId === modeId);
-  if (!mode) {
-    throw new Error(`Mode ${modeId} not found in collection ${collection.name}`);
-  }
-
-  const modeData: Record<string, any> = {};
-
-  // Fonction récursive pour traiter les variables et les groupes
-  function processVariables(variables: any, target: Record<string, any>) {
-    if (Array.isArray(variables)) {
-      // C'est un tableau de variables
-      variables.forEach(variable => {
-        const rawValue = variable.values[modeId];
-        if (rawValue === undefined) return;
-
-        target[variable.name] = formatVariable(variable, rawValue);
-      });
-    } else {
-      // C'est un objet avec des groupes
-      Object.keys(variables).forEach(key => {
-        const value = variables[key];
-        
-        if (Array.isArray(value)) {
-          // C'est un groupe de variables
-          if (value.length > 0 && 'values' in value[0]) {
-            // Ce sont des variables Figma
-            target[key] = {};
-            value.forEach(variable => {
-              const rawValue = variable.values[modeId];
-              if (rawValue !== undefined) {
-                target[key][variable.name] = formatVariable(variable, rawValue);
-              }
-            });
-          }
-        } else if (typeof value === 'object') {
-          // C'est un sous-groupe, traiter récursivement
-          target[key] = {};
-          processVariables(value, target[key]);
-        }
-      });
-    }
-  }
-
-  function formatVariable(variable: any, rawValue: any) {
-    const extensions: Record<string, any> = {
-      'com.figma.scopes': variable.scopes,
-    };
-
-    if (variable.hiddenFromPublishing) {
-      extensions['com.figma.hiddenFromPublishing'] = true;
-    }
-
-    let $type: string;
-    let $value: any;
-
-    switch (variable.type) {
-      case 'color':
-        $type = 'color';
-        $value = formatColorValue(rawValue);
-        break;
-      case 'boolean':
-        $type = 'number';
-        $value = rawValue ? 1 : 0;
-        extensions['com.figma.type'] = 'boolean';
-        break;
-      case 'string':
-        $type = 'string';
-        $value = rawValue;
-        extensions['com.figma.type'] = 'string';
-        break;
-      case 'number':
-      default:
-        $type = 'number';
-        $value = rawValue;
-        break;
-    }
-
-    return {
-      $type,
-      $value,
-      $extensions: extensions,
-    };
-  }
-
-  processVariables(collection.variables, modeData);
+  const modeData: Record<string, any>  = variables;
 
   // Ajouter les extensions du mode
   modeData.$extensions = {
-    'com.figma.modeName': mode.name,
+    'com.figma.modeName': name,
   };
 
   return JSON.stringify(modeData, null, 2);
@@ -125,9 +41,8 @@ export async function createZipForCollection(
 
   // Générer un JSON par mode
   collection.modes.forEach(mode => {
-    const jsonContent = generateModeJson(collection, mode.modeId);
-    const filename = `${sanitizeFilename(mode.name)}.json`;
-    zip.file(filename, jsonContent);
+    const filename = `${sanitizeFilename(mode)}.tokens.json`;
+    zip.file(filename, collection.variables[mode]);
   });
 
   // Générer le ZIP
@@ -151,6 +66,31 @@ export function sanitizeFilename(name: string): string {
     .replace(/[^a-z0-9_-]/gi, '_')
     .replace(/_+/g, '_')
     .toLowerCase();
+}
+
+/**
+ * Génère une variable Figma
+ */
+export function generateVariable(
+    type: "number" | "string" | "boolean" | "color",
+    value: number | string | boolean | FigmaColorValue,
+    scopes: string[],
+    hiddenFromPublishing: boolean = false,
+) : FigmaVariable {
+    let variable : FigmaVariable = {
+        $type: type === 'boolean' ? 'number' : type,
+        $value: typeof value === 'boolean' ? (value ? 1 : 0) : value as number | string | FigmaColorValue,
+        $extensions: {
+            'com.figma.scopes': scopes,
+        }
+    };
+    if (type === 'boolean' || type === 'string') {
+        variable.$extensions['com.figma.type'] = type;
+    }
+    if (hiddenFromPublishing) {
+        variable.$extensions['com.figma.hiddenFromPublishing'] = true;
+    }
+    return variable;
 }
 
 /**

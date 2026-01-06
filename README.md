@@ -51,7 +51,6 @@ import { FigmaCollection } from '../utils';
 import { SCOPES } from '../constants';
 
 export const myCollection: FigmaCollection = {
-  id: 'unique-id',
   name: 'Ma Collection',
   modes: [
     { modeId: 'mode-1', name: 'Mode 1' },
