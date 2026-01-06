@@ -1,5 +1,5 @@
 import { FigmaCollection, FigmaVariable } from '../types';
-import { MIN_COLUMN_WIDTH, GUTTER, HORIZONTAL_PADDING, COLUMNS, RATIOS, ORIENTATIONS, MIN_VIEWPORT_HEIGHT, SCOPES } from '../constants';
+import { GUTTER, HORIZONTAL_PADDING, COLUMNS, SCOPES, OFFSET_HEIGHT, BASELINE_GRID } from '../constants';
 import { generateModeJson, generateVariable } from '../utils';
 
 const config: Record<string, Record<string, number | Record<string, number>>> = {
@@ -30,25 +30,32 @@ const config: Record<string, Record<string, number | Record<string, number>>> = 
     ratio: 20/9,
   }
 }
-const collection : Record<string, Record<string, Record<string, Record<string, FigmaVariable | Record<string, Record<string, FigmaVariable>>>>>> = {};
+const collection : Record<string, Record<string, Record<string, Record<string, FigmaVariable | Record<string, Record<string, FigmaVariable | Record<string, FigmaVariable>>>>>>> = {};
 for (const [device, modes] of Object.entries(config)) {
   for (const [mode, values] of Object.entries(modes)) {
     if (mode === 'ratio') continue;
+    const heights: Record<string, number> = {};
     for (const [size, value] of Object.entries(values as Record<string, number>)) {
-      const height = mode === 'landscape' ? value / (modes['ratio'] as number) : value * (modes['ratio'] as number);
+      heights[mode] = mode === 'landscape' ? value / (modes['ratio'] as number) : value * (modes['ratio'] as number);
       collection[device][mode][size] = {
         'width': generateVariable('number', value, [SCOPES.FLOAT.WIDTH_HEIGHT], true),
-        'height': generateVariable('number', height, [SCOPES.FLOAT.WIDTH_HEIGHT], true)
+        'height': generateVariable('number', heights[mode], [SCOPES.FLOAT.WIDTH_HEIGHT], true)
       };
 
       const columns = COLUMNS[size as keyof typeof COLUMNS];
       const columnWidth = Math.floor(value - HORIZONTAL_PADDING * 2 - GUTTER * (columns - 1) ) / columns;
-      const contentWidths : Record<string, Record<string, FigmaVariable>> = {
-        columns: {},
-        divisions: {}
+      const content : Record<string, Record<string, Record<string, FigmaVariable>>> = {
+        widths: {
+          columns: {},
+          divisions: {}
+        },
+        heights: {
+          full: {},
+          minusOffset: {}
+        }
       };
 
-      // Largeurs pour chaque nombre de colonnes
+      // Largeurs du contenu pour chaque nombre de colonnes
       for (let i = 1; i <= 12; i++) {
         let width: number;
         if (i > columns) {
@@ -56,10 +63,10 @@ for (const [device, modes] of Object.entries(config)) {
         } else {
           width = columnWidth * i + GUTTER * (i - 1);
         }
-        contentWidths['columns'][i] = generateVariable('number', Math.min(width, value - HORIZONTAL_PADDING * 2), [], true);
+        content['widths']['columns'][i] = generateVariable('number', Math.min(width, value - HORIZONTAL_PADDING * 2), [], true);
       }
 
-      // Largeurs pour chaque division
+      // Largeurs du contenu pour chaque division
       const divisions = [4, 3, 2, 1];
       divisions.forEach(division => {
         let width: number;
@@ -69,10 +76,19 @@ for (const [device, modes] of Object.entries(config)) {
           const validDivision = divisions.slice(divisions.indexOf(division) + 1).find(d => columns % d === 0)!;
           width = columnWidth * columns / validDivision + GUTTER * ((columns / validDivision) - 1);
         }
-        contentWidths['divisions'][`1:${division}`] = generateVariable('number', Math.min(width, value - HORIZONTAL_PADDING * 2), [], true);
+        content['widths']['divisions'][`1:${division}`] = generateVariable('number', Math.min(width, value - HORIZONTAL_PADDING * 2), [], true);
       });
 
-      collection[device][mode][size]['contentWidths'] = contentWidths;
+      // Hauteurs du contenu dynamiques
+      const pourcentages = [100, 75, 50];
+      pourcentages.forEach(pourcentage => {
+        const fullHeight = Math.round(heights[mode] * pourcentage / 100);
+        content['heights']['full'][`${pourcentage}%`] = generateVariable('number', fullHeight, [], true);
+        const minusOffsetHeight = Math.round((heights[mode] - OFFSET_HEIGHT - BASELINE_GRID * 2) * pourcentage / 100);
+        content['heights']['minusOffset'][`${pourcentage}%`] = generateVariable('number', minusOffsetHeight, [], true);
+      });
+
+      collection[device][mode][size]['content'] = content;
     }
   }
 }
