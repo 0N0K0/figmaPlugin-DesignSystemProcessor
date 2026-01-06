@@ -1,22 +1,11 @@
 import { FigmaCollection, FigmaVariable } from '../types';
-import { MIN_COLUMN_WIDTH, GUTTER, HORIZONTAL_PADDING, RATIOS, ORIENTATIONS, MIN_VIEWPORT_HEIGHT } from '../constants';
+import { MIN_COLUMN_WIDTH, GUTTER, HORIZONTAL_PADDING, COLUMNS, RATIOS, ORIENTATIONS, MIN_VIEWPORT_HEIGHT } from '../constants';
 import { generateModeJson, generateVariable } from '../utils';
 
-/***
- * Configuration des modes de la collection
- */
-const columns = {
-  xs: 3,
-  sm: 4,
-  md: 6,
-  lg: 9,
-  xl: 12,
-  xxl: 12
-}
 
 const modesConfig: Record<string, { columns: number; widths: { minWidth: number; maxWidth: number }; heights: Record<string, Record<string, Record<string, FigmaVariable>>>; contentWidths: Record<string, Record<string, Record<string, FigmaVariable>>> }> = {};
-for (const [key, value] of Object.entries(columns)) {
-  modesConfig[key as keyof typeof columns] = {
+for (const [key, value] of Object.entries(COLUMNS)) {
+  modesConfig[key as keyof typeof COLUMNS] = {
     columns: value,
     widths: {
       minWidth: 0,
@@ -26,8 +15,8 @@ for (const [key, value] of Object.entries(columns)) {
     contentWidths: {}
   };
   if (key === 'xxl') {
-    modesConfig[key as keyof typeof columns].widths.minWidth = 1920;
-    modesConfig[key as keyof typeof columns].widths.maxWidth = 9999;
+    modesConfig[key as keyof typeof COLUMNS].widths.minWidth = 1920;
+    modesConfig[key as keyof typeof COLUMNS].widths.maxWidth = 9999;
   }
 }
 
@@ -97,21 +86,23 @@ for (const [key, mode] of Object.entries(modesConfig)) {
 
   // Largeurs pour chaque nombre de colonnes
   for (let i = 1; i <= 12; i++) {
+    const maxContentWidth = 1920 - HORIZONTAL_PADDING * 2;
+
     let minwidth: number;
     if (i > mode.columns) {
-      minwidth = mode.widths.maxWidth + 1;
+      minwidth = mode.widths.maxWidth - HORIZONTAL_PADDING * 2;
     } else {
       minwidth = MIN_COLUMN_WIDTH * i + GUTTER * (i - 1);
     }
-    contentWidths['columns'][i] = { 'minWidth': generateVariable('number', minwidth, [], true) };
+    contentWidths['columns'][i] = { 'minWidth': generateVariable('number', Math.min(minwidth, maxContentWidth), [], true) };
 
     let maxwidth: number;
     if (i >= mode.columns) {
-      maxwidth = mode.widths.maxWidth - HORIZONTAL_PADDING * 2;
+      maxwidth = mode.widths.maxWidth - HORIZONTAL_PADDING;
     } else {
       maxwidth = maxColumnWidths[key] * i + GUTTER * (i - 1);
     }
-    contentWidths['columns'][i]['maxWidth'] = generateVariable('number', maxwidth, [], true);
+    contentWidths['columns'][i]['maxWidth'] = generateVariable('number', Math.min(maxwidth, maxContentWidth), [], true);
   }
 
   // Largeurs pour chaque division des colonnes

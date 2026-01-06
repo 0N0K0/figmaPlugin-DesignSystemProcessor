@@ -18,7 +18,7 @@ export function ensureOutputDir(): void {
  */
 export function generateModeJson(
   name: string,
-  variables: FigmaVariable[] | Record<string, FigmaVariable>
+  variables: FigmaVariable[] | Record<string, any>
 ): string {
   const modeData: Record<string, any>  = variables;
 
@@ -76,6 +76,8 @@ export function generateVariable(
     value: number | string | boolean | FigmaColorValue,
     scopes: string[],
     hiddenFromPublishing: boolean = false,
+    targetVariableName?: string,
+    targetVariableSetName?: string
 ) : FigmaVariable {
     let variable : FigmaVariable = {
         $type: type === 'boolean' ? 'number' : type,
@@ -89,6 +91,12 @@ export function generateVariable(
     }
     if (hiddenFromPublishing) {
         variable.$extensions['com.figma.hiddenFromPublishing'] = true;
+    }
+    if (targetVariableName && targetVariableSetName) {
+        variable.$extensions['com.figma.aliasdata'] = {
+            'targetVariableName': targetVariableName,
+            'targetVariableSetName': targetVariableSetName
+        };
     }
     return variable;
 }

@@ -1,11 +1,15 @@
 import { createZipForCollection } from './utils';
 import { breakpointsCollection } from './collections/breakpoints';
+import { ratiosCollection } from './collections/ratios';
+import { orientationsCollection } from './collections/orientations';
 
 /**
  * Collections à traiter
  */
 const collections = [
   breakpointsCollection,
+  ratiosCollection,
+  orientationsCollection
 ];
 
 /**
