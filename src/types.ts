@@ -35,5 +35,5 @@ export interface FigmaCollection {
   id: string;
   name: string;
   modes: FigmaMode[];
-  variables: FigmaVariable[];
+  variables: Record<string, FigmaVariable[]> | FigmaVariable[];
 }

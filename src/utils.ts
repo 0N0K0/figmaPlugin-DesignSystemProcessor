@@ -27,10 +27,43 @@ export function generateModeJson(
 
   const modeData: Record<string, any> = {};
 
-  collection.variables.forEach(variable => {
-    const rawValue = variable.values[modeId];
-    if (rawValue === undefined) return;
+  // Fonction récursive pour traiter les variables et les groupes
+  function processVariables(variables: any, target: Record<string, any>) {
+    if (Array.isArray(variables)) {
+      // C'est un tableau de variables
+      variables.forEach(variable => {
+        const rawValue = variable.values[modeId];
+        if (rawValue === undefined) return;
 
+        target[variable.name] = formatVariable(variable, rawValue);
+      });
+    } else {
+      // C'est un objet avec des groupes
+      Object.keys(variables).forEach(key => {
+        const value = variables[key];
+        
+        if (Array.isArray(value)) {
+          // C'est un groupe de variables
+          if (value.length > 0 && 'values' in value[0]) {
+            // Ce sont des variables Figma
+            target[key] = {};
+            value.forEach(variable => {
+              const rawValue = variable.values[modeId];
+              if (rawValue !== undefined) {
+                target[key][variable.name] = formatVariable(variable, rawValue);
+              }
+            });
+          }
+        } else if (typeof value === 'object') {
+          // C'est un sous-groupe, traiter récursivement
+          target[key] = {};
+          processVariables(value, target[key]);
+        }
+      });
+    }
+  }
+
+  function formatVariable(variable: any, rawValue: any) {
     const extensions: Record<string, any> = {
       'com.figma.scopes': variable.scopes,
     };
@@ -64,12 +97,14 @@ export function generateModeJson(
         break;
     }
 
-    modeData[variable.name] = {
+    return {
       $type,
       $value,
       $extensions: extensions,
     };
-  });
+  }
+
+  processVariables(collection.variables, modeData);
 
   // Ajouter les extensions du mode
   modeData.$extensions = {
