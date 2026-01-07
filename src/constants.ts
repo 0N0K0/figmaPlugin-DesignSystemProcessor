@@ -64,4 +64,3 @@ export const OFFSET_HEIGHT = 96;
 
 export const BASELINE_GRID = 24;
 export const BASE_FONT_SIZE = 16;
-export const BASE_LINE_HEIGHT = 24;

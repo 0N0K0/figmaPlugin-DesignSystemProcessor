@@ -1,5 +1,5 @@
 import { FigmaCollection, FigmaVariable } from '../types';
-import { RATIOS, ORIENTATIONS, SCOPES } from '../constants';
+import { RATIOS, ORIENTATIONS } from '../constants';
 import { generateModeJson, generateVariable } from '../utils';
 
 const modes: Record<string, Record<string, Record<string, Record<string, FigmaVariable>>>> = {}
