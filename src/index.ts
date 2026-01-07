@@ -3,6 +3,11 @@ import { breakpointsCollection } from './collections/breakpoints';
 import { ratiosCollection } from './collections/ratios';
 import { orientationsCollection } from './collections/orientations';
 import { verticalDensityCollection } from './collections/vertical-density';
+import { colorsCollection } from './collections/colors';
+import { paletteCollection } from './collections/palette';
+import { brandCollection } from './collections/brand';
+import { feedbackCollection } from './collections/feedback';
+import { neutralCollection } from './collections/neutral';
 
 /**
  * Collections à traiter
@@ -11,7 +16,12 @@ const collections = [
   breakpointsCollection,
   ratiosCollection,
   orientationsCollection,
-  verticalDensityCollection
+  verticalDensityCollection,
+  colorsCollection,
+  paletteCollection,
+  brandCollection,
+  feedbackCollection,
+  neutralCollection,
 ];
 
 /**
