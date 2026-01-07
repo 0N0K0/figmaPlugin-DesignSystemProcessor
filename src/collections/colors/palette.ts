@@ -1,4 +1,4 @@
-import { FigmaCollection } from '../types';
+import { FigmaCollection } from "../../types";
 
 const modes = ["light", "dark"];
 
@@ -42,7 +42,7 @@ const black = "#000000";
  *   state :
  *     selected
  *     hover
- *     focus 
+ *     focus
  *     disabled
  *****************************************************************************
  * for neutral colors :
@@ -53,13 +53,13 @@ const black = "#000000";
  *     state :
  *       selected
  *       hover
- *       focus 
+ *       focus
  *       disabled
  *   background :
  *     state :
  *       selected
  *       hover
- *       focus 
+ *       focus
  *       disabled
  ***************************************************************************
  * for all colors :
@@ -78,7 +78,7 @@ const black = "#000000";
  */
 
 export const paletteCollection: FigmaCollection = {
-    name: 'Palette',
-    modes: modes,
-    variables: {}
+  name: "Palette",
+  modes: modes,
+  variables: {},
 };

@@ -1,4 +1,4 @@
-import { FigmaCollection } from '../types';
+import { FigmaCollection } from "../../types";
 
 const modes = ["primary", "secondary", "accent"];
 
@@ -7,7 +7,7 @@ const modes = ["primary", "secondary", "accent"];
  */
 
 export const brandCollection: FigmaCollection = {
-    name: 'Brand',
-    modes: modes,
-    variables: {}
+  name: "Brand",
+  modes: modes,
+  variables: {},
 };

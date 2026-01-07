@@ -1,4 +1,4 @@
-import { FigmaCollection } from '../types';
+import { FigmaCollection } from "../../types";
 
 const modes = ["white", "grey", "black"];
 
@@ -7,7 +7,7 @@ const modes = ["white", "grey", "black"];
  */
 
 export const neutralCollection: FigmaCollection = {
-    name: 'Neutral',
-    modes: modes,
-    variables: {}
+  name: "Neutral",
+  modes: modes,
+  variables: {},
 };
