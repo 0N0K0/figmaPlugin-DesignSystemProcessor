@@ -2,6 +2,7 @@ import { createZipForCollection } from './utils';
 import { breakpointsCollection } from './collections/breakpoints';
 import { ratiosCollection } from './collections/ratios';
 import { orientationsCollection } from './collections/orientations';
+import { verticalDensityCollection } from './collections/vertical-density';
 
 /**
  * Collections à traiter
@@ -9,7 +10,8 @@ import { orientationsCollection } from './collections/orientations';
 const collections = [
   breakpointsCollection,
   ratiosCollection,
-  orientationsCollection
+  orientationsCollection,
+  verticalDensityCollection
 ];
 
 /**
