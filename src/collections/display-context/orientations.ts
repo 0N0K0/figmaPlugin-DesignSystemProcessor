@@ -13,7 +13,7 @@ ORIENTATIONS.forEach((orientation) => {
         0,
         [SCOPES.FLOAT.WIDTH_HEIGHT],
         false,
-        `{heights.${orientation}.minHeight}`,
+        `{${orientation}.viewportHeight.minHeight}`,
         "Ratios"
       ),
       maxHeight: generateVariable(
@@ -21,7 +21,7 @@ ORIENTATIONS.forEach((orientation) => {
         0,
         [SCOPES.FLOAT.WIDTH_HEIGHT],
         false,
-        `{heights.${orientation}.maxHeight}`,
+        `{${orientation}.viewportHeight.maxHeight}`,
         "Ratios"
       ),
     },

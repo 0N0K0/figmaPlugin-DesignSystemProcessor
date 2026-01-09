@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Importer des tokens</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2em;
+      }
+      input[type="file"] {
+        margin-bottom: 1em;
+      }
+      #log {
+        white-space: pre;
+        background: #f4f4f4;
+        padding: 1em;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Importer des tokens</h2>
+    <input type="file" id="fileInput" accept="application/json" multiple />
+    <button id="importBtn">Importer</button>
+    <div id="log"></div>
+    <script>
+      const fileInput = document.getElementById("fileInput");
+      const importBtn = document.getElementById("importBtn");
+      const log = document.getElementById("log");
+      let filesContent = [];
+      fileInput.addEventListener("change", (e) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
+        filesContent = [];
+        let loaded = 0;
+        files.forEach((file, idx) => {
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            filesContent[idx] = { name: file.name, content: evt.target.result };
+            loaded++;
+            if (loaded === files.length) {
+              log.textContent = `${files.length} fichier(s) chargé(s).`;
+            }
+          };
+          reader.readAsText(file);
+        });
+      });
+      importBtn.onclick = () => {
+        if (!filesContent.length) {
+          log.textContent = "Veuillez sélectionner au moins un fichier.";
+          return;
+        }
+        parent.postMessage(
+          { pluginMessage: { type: "import-tokens", files: filesContent } },
+          "*"
+        );
+        log.textContent = "Import en cours...";
+      };
+      window.onmessage = (event) => {
+        const { type, message } = event.data.pluginMessage || {};
+        if (type === "log") {
+          log.textContent += (log.textContent ? "\n" : "") + message;
+          log.scrollTop = log.scrollHeight;
+        }
+      };
+    </script>
+  </body>
+</html>
