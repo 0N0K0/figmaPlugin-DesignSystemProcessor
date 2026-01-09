@@ -14,8 +14,9 @@ for (let i = BASELINE_GRID; i <= MAX_CONTENT_HEIGHT; i += BASELINE_GRID) {
 }
 
 const mode = "value";
+const collectionName = "Content Height";
 export const contentHeightCollection: FigmaCollection = {
-  name: "Content Height",
+  name: collectionName,
   modes: [mode],
-  variables: { [mode]: generateModeJson(mode, variables) },
+  variables: { [mode]: generateModeJson(collectionName, mode, variables) },
 };

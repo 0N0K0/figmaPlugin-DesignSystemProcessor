@@ -8,6 +8,8 @@ export interface FigmaColorValue {
   hex: string;
 }
 
+export type CoreShades = Record<"light" | "main" | "dark", FigmaVariable>;
+
 /**
  * Interface pour une variable Figma
  */

@@ -4,6 +4,7 @@ import { generateModeJson, generateVariable } from "../../utils";
 
 const modes: Record<string, Record<string, Record<string, FigmaVariable>>> = {};
 const collection: Record<string, string> = {};
+const collectionName = "Orientations";
 ORIENTATIONS.forEach((orientation) => {
   modes[orientation] = {
     viewportHeight: {
@@ -25,11 +26,15 @@ ORIENTATIONS.forEach((orientation) => {
       ),
     },
   };
-  collection[orientation] = generateModeJson(orientation, modes[orientation]);
+  collection[orientation] = generateModeJson(
+    collectionName,
+    orientation,
+    modes[orientation]
+  );
 });
 
 export const orientationsCollection: FigmaCollection = {
-  name: "Orientations",
+  name: collectionName,
   modes: ORIENTATIONS,
   variables: collection,
 };

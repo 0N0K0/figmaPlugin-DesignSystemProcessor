@@ -7,6 +7,7 @@ const modes: Record<
   Record<string, Record<string, Record<string, FigmaVariable>>>
 > = {};
 const collection: Record<string, string> = {};
+const collectionName = "Ratios";
 RATIOS.forEach((ratio) => {
   modes[ratio] = {};
   ORIENTATIONS.forEach((orientation) => {
@@ -31,11 +32,11 @@ RATIOS.forEach((ratio) => {
       },
     };
   });
-  collection[ratio] = generateModeJson(ratio, modes[ratio]);
+  collection[ratio] = generateModeJson(collectionName, ratio, modes[ratio]);
 });
 
 export const ratiosCollection: FigmaCollection = {
-  name: "Ratios",
+  name: collectionName,
   modes: RATIOS,
   variables: collection,
 };

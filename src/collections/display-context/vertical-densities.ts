@@ -204,13 +204,14 @@ for (const [index, [mode, values]] of Object.entries(config).entries()) {
   );
 }
 
+const collectionName = "Vertical Densities";
 const variables: Record<string, string> = {};
 modes.forEach((mode) => {
-  variables[mode] = generateModeJson(mode, collection[mode]);
+  variables[mode] = generateModeJson(collectionName, mode, collection[mode]);
 });
 
-export const verticalDensityCollection: FigmaCollection = {
-  name: "Vertical Density",
+export const verticalDensitiesCollection: FigmaCollection = {
+  name: collectionName,
   modes: modes,
   variables: variables,
 };

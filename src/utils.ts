@@ -1,7 +1,16 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "fs";
+import path from "path";
 import JSZip from "jszip";
-import { OUTPUT_DIR } from "./constants";
+import {
+  converter,
+  hsl,
+  rgb,
+  formatHex,
+  clampChroma,
+  Rgb,
+  wcagContrast,
+} from "culori";
+import { COLOR_STEPS, COLORS, OUTPUT_DIR, SCOPES } from "./constants";
 import { FigmaCollection, FigmaColorValue, FigmaVariable } from "./types";
 
 /**
@@ -17,45 +26,46 @@ export function ensureOutputDir(): void {
  * Génère un fichier JSON pour un mode spécifique d'une collection
  */
 export function generateModeJson(
-  name: string,
+  collectionName: string,
+  modeName: string,
   variables: FigmaVariable[] | Record<string, any>
 ): string {
   const modeData: Record<string, any> = variables;
 
   // Ajouter les extensions du mode
   modeData.$extensions = {
-    "com.figma.modeName": name,
+    "com.figma.modeName": modeName,
+    "com.figma.collectionName": collectionName,
   };
 
   return JSON.stringify(modeData, null, 2);
 }
 
 /**
- * Crée un fichier ZIP contenant tous les JSON pour une collection
+ * Crée un dossier contenant tous les JSON pour une collection
  */
-export async function createZipForCollection(
-  collection: FigmaCollection,
-  outputFilename?: string
-): Promise<string> {
-  const zip = new JSZip();
-
-  // Générer un JSON par mode
-  collection.modes.forEach((mode) => {
-    const filename = `${sanitizeFilename(mode)}.tokens.json`;
-    zip.file(filename, collection.variables[mode]);
-  });
-
-  // Générer le ZIP
-  const content = await zip.generateAsync({ type: "nodebuffer" });
-
+export async function createDirForCollection(collection: FigmaCollection) {
   ensureOutputDir();
 
-  const filename = outputFilename || `${sanitizeFilename(collection.name)}.zip`;
-  const outputPath = path.join(OUTPUT_DIR, filename);
-
-  fs.writeFileSync(outputPath, content);
-
-  return outputPath;
+  const collectionDir = path.join(OUTPUT_DIR, collection.name);
+  if (!fs.existsSync(collectionDir)) {
+    fs.mkdirSync(collectionDir, { recursive: true });
+  }
+  // Générer un JSON par mode
+  collection.modes.forEach((mode) => {
+    const filePath = path.join(
+      collectionDir,
+      `${sanitizeFilename(mode)}.tokens.json`
+    );
+    const data = collection.variables[mode];
+    if (data === undefined) {
+      console.warn(
+        `Aucune donnée pour le mode "${mode}" dans la collection "${collection.name}"`
+      );
+      return;
+    }
+    fs.writeFileSync(filePath, data, "utf-8");
+  });
 }
 
 /**
@@ -113,22 +123,24 @@ export function generateVariable(
 /**
  * Convertit une couleur HSLA en RGBA
  */
-export function hslaToRgba(
-  h: number,
-  s: number,
-  l: number,
-  a: number
-): [number, number, number, number] {
-  s /= 100;
-  l /= 100;
-  const k = (n: number) => (n + h / 30) % 12;
-  const chroma = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const color =
-      l - chroma * Math.max(-1, Math.min(Math.min(k(n) - 3, 9 - k(n)), 1));
-    return Math.round(255 * color);
+export function hslaToRgba(h: number, s: number, l: number, a: number): Rgb {
+  const color = hsl({ mode: "hsl", h, s: s, l: l, alpha: a });
+  const rgbColor = converter("rgb")(color);
+  return {
+    mode: "rgb",
+    r: Math.round((rgbColor.r ?? 0) * 255),
+    g: Math.round((rgbColor.g ?? 0) * 255),
+    b: Math.round((rgbColor.b ?? 0) * 255),
+    alpha: rgbColor.alpha ?? 1,
   };
-  return [f(0), f(8), f(4), a];
+}
+
+/**
+ * Convertit une couleur HSLA en format hexadécimal
+ */
+export function hslaToHex(h: number, s: number, l: number, a: number): string {
+  const color = hsl({ mode: "hsl", h, s: s, l: l, alpha: a });
+  return formatHex(color);
 }
 
 /**
@@ -140,83 +152,65 @@ export function rgbaToHex(
   b: number,
   a: number = 1
 ): string {
-  const toHex = (n: number) => {
-    const hex = Math.round(n * 255).toString(16);
-    return hex.length === 1 ? "0" + hex : hex;
-  };
-
-  const hex = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-
-  if (a < 1) {
-    return `${hex}${toHex(a)}`;
-  }
-
-  return hex;
+  const color = rgb({
+    mode: "rgb",
+    r: r,
+    g: g,
+    b: b,
+    alpha: a,
+  });
+  return formatHex(color);
 }
 
 /**
  * Convertit une couleur hexadécimale en format RGBA
  */
-export function hexToRgba(hex: string): {
-  r: number;
-  g: number;
-  b: number;
-  a: number;
-} {
-  // Retirer le # si présent
-  hex = hex.replace(/^#/, "");
-
-  // Gérer les formats courts (#RGB)
-  if (hex.length === 3) {
-    hex = hex
-      .split("")
-      .map((char) => char + char)
-      .join("");
-  }
-
-  // Extraire les composants
-  const r = parseInt(hex.substring(0, 2), 16) / 255;
-  const g = parseInt(hex.substring(2, 4), 16) / 255;
-  const b = parseInt(hex.substring(4, 6), 16) / 255;
-  const a = hex.length === 8 ? parseInt(hex.substring(6, 8), 16) / 255 : 1;
-
-  return { r, g, b, a };
+export function hexToRgba(hex: string): Rgb {
+  const rgbColor = converter("rgb")(hex);
+  if (!rgbColor) return { mode: "rgb", r: 0, g: 0, b: 0, alpha: 1 };
+  return {
+    mode: "rgb",
+    r: Math.round((rgbColor.r ?? 0) * 255),
+    g: Math.round((rgbColor.g ?? 0) * 255),
+    b: Math.round((rgbColor.b ?? 0) * 255),
+    alpha: rgbColor.alpha ?? 1,
+  };
 }
 
 /**
  * Formate une valeur de couleur au format Figma
  */
-export function formatColorValue(color: any): any {
+export function formatColorValue(color: any): FigmaColorValue {
   // Si c'est un objet HSL
   if (typeof color === "object" && "h" in color) {
-    const { h, s, l, a } = color;
-    const [r, g, b, alpha] = hslaToRgba(h, s, l, a);
+    const { h, s, l, alpha: HSLa } = color;
+    const { r, g, b, alpha: RGBa } = hslaToRgba(h, s / 100, l / 100, HSLa);
     return {
       colorSpace: "srgb",
       components: [r / 255, g / 255, b / 255],
-      alpha: a !== undefined ? a : 1,
-      hex: rgbaToHex(r, g, b, a !== undefined ? a : 1),
+      alpha: HSLa !== undefined ? HSLa : 1,
+      hex: hslaToHex(h, s / 100, l / 100, HSLa),
     };
   }
 
   // Si c'est un objet RGBA
   if (typeof color === "object" && "r" in color) {
-    const { r, g, b, a } = color;
+    const { r, g, b, alpha } = color;
     return {
       colorSpace: "srgb",
       components: [r, g, b],
-      alpha: a,
-      hex: rgbaToHex(r, g, b, a),
+      alpha: alpha !== undefined ? alpha : 1,
+      hex: rgbaToHex(r, g, b, alpha),
     };
   }
 
   // Si c'est une chaîne hexadécimale
   if (typeof color === "string" && color.match(/^#?[0-9A-Fa-f]{3,8}$/)) {
-    const { r, g, b, a } = hexToRgba(color);
+    const { r, g, b, alpha } = hexToRgba(color);
     return {
       colorSpace: "srgb",
-      components: [r, g, b],
-      alpha: a,
+      components: [r / 255, g / 255, b / 255],
+      alpha: alpha !== undefined ? alpha : 1,
       hex: color.startsWith("#")
         ? color.toUpperCase()
         : `#${color.toUpperCase()}`,
@@ -224,4 +218,80 @@ export function formatColorValue(color: any): any {
   }
 
   return color;
+}
+
+export function generateShades(
+  colorHex: string
+): { step: string; color: Rgb }[] {
+  // Convertir la couleur de base en OKLCH
+  const base = converter("oklch")(colorHex);
+  if (!base) return [];
+  const { c: CO, h: H0 } = base;
+
+  // Générer les nuances
+  const lMax = 0.95;
+  const lMin = 0.15;
+
+  // Interpolation sur la valeur réelle du step
+  const stepNumbers = COLOR_STEPS.map(Number);
+  const minStep = Math.min(...stepNumbers);
+  const maxStep = Math.max(...stepNumbers);
+
+  return COLOR_STEPS.map((step) => {
+    const stepValue = parseInt(step); // Convertir en nombre
+    const t = (stepValue - minStep) / (maxStep - minStep); // Normaliser entre 0 et 1
+    const l = lMax - Math.pow(t, 1.15) * (lMax - lMin); // Ajuster la courbe de luminosité
+    const c = CO * Math.pow(Math.sin(Math.PI * t), 0.9);
+    const color = clampChroma({ mode: "oklch", l, c, h: H0 }); // Clamper la chroma
+    const rgb = converter("rgb")(color);
+    return { step, color: converter("rgb")(color) }; // Convertir en RGB
+  });
+}
+
+export function generateGreyShades() {
+  const greyShades: Record<
+    string,
+    { mode: "hsl"; h: number | undefined; s: number; l: number }
+  > = {};
+  // Générer les nuances de gris
+  greyShades["0"] = {
+    mode: "hsl",
+    h: 0,
+    s: 0,
+    l: 100,
+  };
+  for (const step of COLOR_STEPS) {
+    const lightness = 100 - parseInt(step) / 10;
+    const shadeColor = { mode: "hsl" as const, h: 0, s: 0, l: lightness };
+    greyShades[step] = shadeColor;
+  }
+  greyShades["1000"] = {
+    mode: "hsl",
+    h: 0,
+    s: 0,
+    l: 0,
+  };
+  return greyShades;
+}
+
+export function getContrastColor(
+  bgHex: string,
+  lightShade: {
+    mode: "hsl";
+    h: number | undefined;
+    s: number;
+    l: number;
+  },
+  darkShade: {
+    mode: "hsl";
+    h: number | undefined;
+    s: number;
+    l: number;
+  }
+): string {
+  const light = formatColorValue(lightShade).hex;
+  const dark = formatColorValue(darkShade).hex;
+  const contrastWithLight = wcagContrast(bgHex, light);
+  const contrastWithDark = wcagContrast(bgHex, dark);
+  return contrastWithLight >= contrastWithDark ? light : dark;
 }

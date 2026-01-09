@@ -30,21 +30,21 @@ const hues = {
 
 const variables: Record<string, Record<string, FigmaVariable>> = {};
 
-for (let s = 10; s <= 100; s += 10) {
+for (let s = 100; s >= 10; s -= 10) {
   for (const [colorName, h] of Object.entries(hues)) {
-    variables[colorName] = {
-      [s.toString()]: generateVariable(
-        "color",
-        formatColorValue({ h: h, s: s, l: 50, a: 1 }),
-        [SCOPES.COLOR.ALL]
-      ),
-    };
+    if (!variables[colorName]) variables[colorName] = {};
+    variables[colorName][s.toString()] = generateVariable(
+      "color",
+      formatColorValue({ h: h, s: s, l: 50, a: 1 }),
+      [SCOPES.COLOR.ALL]
+    );
   }
 }
 
 const mode = "value";
+const collectionName = "Colors";
 export const colorsCollection: FigmaCollection = {
-  name: "Colors",
+  name: collectionName,
   modes: [mode],
-  variables: { [mode]: generateModeJson(mode, variables) },
+  variables: { [mode]: generateModeJson(collectionName, mode, variables) },
 };

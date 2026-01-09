@@ -22,6 +22,7 @@ const modesConfig: Record<
     contentWidth: Record<string, Record<string, Record<string, FigmaVariable>>>;
   }
 > = {};
+
 for (const [key, value] of Object.entries(COLUMNS)) {
   modesConfig[key as keyof typeof COLUMNS] = {
     columns: value,
@@ -192,6 +193,7 @@ for (const [key, mode] of Object.entries(modesConfig)) {
  * Génération de la collection
  */
 const collection: Record<string, string> = {};
+const collectionName = "Breakpoints";
 Object.entries(modesConfig).forEach(([modeId, mode]) => {
   const variables: Record<string, any> = {
     viewportWidth: {},
@@ -206,14 +208,14 @@ Object.entries(modesConfig).forEach(([modeId, mode]) => {
       true
     );
   });
-  collection[modeId] = generateModeJson(modeId, variables);
+  collection[modeId] = generateModeJson(collectionName, modeId, variables);
 });
 
 /**
  * Collection Breakpoints
  */
 export const breakpointsCollection: FigmaCollection = {
-  name: "Breakpoints",
+  name: collectionName,
   modes: Object.keys(modesConfig),
   variables: collection,
 };

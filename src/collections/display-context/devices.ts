@@ -171,8 +171,12 @@ for (const [device, modes] of Object.entries(config)) {
 /**
  * Collection Devices
  */
+const collectionName = "Devices";
+const modeName = "Value";
 export const devicesCollection: FigmaCollection = {
-  name: "Devices",
-  modes: ["Value"],
-  variables: { Value: generateModeJson("Value", collection) },
+  name: collectionName,
+  modes: [modeName],
+  variables: {
+    [modeName]: generateModeJson(collectionName, modeName, collection),
+  },
 };
