@@ -60,6 +60,8 @@ const collection: Record<
 for (const [device, modes] of Object.entries(config)) {
   for (const [mode, values] of Object.entries(modes)) {
     if (mode === "ratio") continue;
+    if (!collection[device]) collection[device] = {};
+    if (!collection[device][mode]) collection[device][mode] = {};
     const heights: Record<string, number> = {};
     for (const [size, value] of Object.entries(
       values as Record<string, number>
@@ -68,6 +70,7 @@ for (const [device, modes] of Object.entries(config)) {
         mode === "landscape"
           ? value / (modes["ratio"] as number)
           : value * (modes["ratio"] as number);
+      if (!collection[device][mode][size]) collection[device][mode][size] = {};
       collection[device][mode][size] = {
         width: generateVariable(
           "number",

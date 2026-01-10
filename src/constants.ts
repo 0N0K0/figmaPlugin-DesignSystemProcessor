@@ -111,44 +111,47 @@ export const THEME_CONFIG = {
         focused: "300",
       },
     },
-    // neutral: {
-    //   text: {
-    //     core: {
-    //       primary: "grey.950",
-    //       secondary: "darkGrey.opacities.600",
-    //     },
-    //     states: {
-    //       hover: "darkGrey.opacities.50",
-    //       selected: "darkGrey.opacities.400",
-    //       focus: "darkGrey.opacities.100",
-    //       disabled: "darkGrey.opacities.300",
-    //     },
-    //   },
-    //   background: {
-    //     elevations: {
-    //       0: "grey.50",
-    //       1: "grey.0",
-    //       2: "grey.0",
-    //       3: "grey.0",
-    //       4: "grey.0",
-    //       5: "grey.0",
-    //       6: "grey.0",
-    //       7: "grey.0",
-    //       8: "grey.0",
-    //       9: "grey.0",
-    //       10: "grey.0",
-    //       11: "grey.0",
-    //       12: "grey.0",
-    //     },
-    //     states: {
-    //       active: "darkGrey.opacities.600",
-    //       hover: "darkGrey.opacities.50",
-    //       selected: "darkGrey.opacities.100",
-    //       focus: "darkGrey.opacities.100",
-    //       disabled: "darkGrey.opacities.100",
-    //     },
-    //   },
-    // },
+    /**
+     * @TODO gérer le cas neutral
+     * neutral: {
+     *   text: {
+     *     core: {
+     *       primary: "grey.950",
+     *       secondary: "darkGrey.opacities.600",
+     *     },
+     *     states: {
+     *       hover: "darkGrey.opacities.50",
+     *       selected: "darkGrey.opacities.400",
+     *       focus: "darkGrey.opacities.100",
+     *       disabled: "darkGrey.opacities.300",
+     *     },
+     *   },
+     *   background: {
+     *     elevations: {
+     *       0: "grey.50",
+     *       1: "grey.0",
+     *       2: "grey.0",
+     *       3: "grey.0",
+     *       4: "grey.0",
+     *       5: "grey.0",
+     *       6: "grey.0",
+     *       7: "grey.0",
+     *       8: "grey.0",
+     *       9: "grey.0",
+     *       10: "grey.0",
+     *       11: "grey.0",
+     *       12: "grey.0",
+     *     },
+     *     states: {
+     *       active: "darkGrey.opacities.600",
+     *       hover: "darkGrey.opacities.50",
+     *       selected: "darkGrey.opacities.100",
+     *       focus: "darkGrey.opacities.100",
+     *       disabled: "darkGrey.opacities.100",
+     *     },
+     *   },
+     * },
+     */
   },
   dark: {
     colors: {

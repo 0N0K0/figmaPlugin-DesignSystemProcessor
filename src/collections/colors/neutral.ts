@@ -3,6 +3,7 @@ import { FigmaCollection } from "../../types";
 const modes = ["lightGrey", "grey", "darkGrey"];
 
 /**
+ * @TODO gérer le cas neutral
  * Target : neutral colors from palette
  */
 

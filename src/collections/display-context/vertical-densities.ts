@@ -90,6 +90,7 @@ const config: ConfigType = {
   },
 };
 
+const collectionName = "System/Vertical Densities";
 const collection: Record<string, any> = {};
 
 for (const [index, [mode, values]] of Object.entries(config).entries()) {
@@ -146,15 +147,19 @@ for (const [index, [mode, values]] of Object.entries(config).entries()) {
         collection[mode].typography[category][size] = {
           fontSize: generateVariable(
             "number",
-            `{typography.${category}.${aliasTarget}.fontSize}`,
+            0,
             [SCOPES.FLOAT.FONT_SIZE],
-            false
+            false,
+            `typography.${category}.${aliasTarget}.fontSize`,
+            collectionName
           ),
           lineHeight: generateVariable(
             "number",
-            `{typography.${category}.${aliasTarget}.lineHeight}`,
+            0,
             [SCOPES.FLOAT.LINE_HEIGHT],
-            false
+            false,
+            `typography.${category}.${aliasTarget}.lineHeight`,
+            collectionName
           ),
         };
       } else {
@@ -184,9 +189,11 @@ for (const [index, [mode, values]] of Object.entries(config).entries()) {
       const aliasTarget = maxSpacing.toString();
       collection[mode].spacing[key] = generateVariable(
         "number",
-        `{spacing.${aliasTarget}}`,
+        0, // valeur factice
         [SCOPES.FLOAT.GAP],
-        false
+        false,
+        `spacing.${aliasTarget}`,
+        collectionName
       );
     } else {
       collection[mode].spacing[key] = generateVariable(
@@ -204,7 +211,6 @@ for (const [index, [mode, values]] of Object.entries(config).entries()) {
   );
 }
 
-const collectionName = "System/Vertical Densities";
 const variables: Record<string, string> = {};
 modes.forEach((mode) => {
   variables[mode] = generateModeJson(collectionName, mode, collection[mode]);

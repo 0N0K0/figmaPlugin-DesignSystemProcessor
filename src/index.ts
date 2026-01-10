@@ -1,6 +1,7 @@
 import { breakpointsCollection } from "./collections/display-context/breakpoints";
 import { ratiosCollection } from "./collections/display-context/ratios";
 import { orientationsCollection } from "./collections/display-context/orientations";
+import { devicesCollection } from "./collections/display-context/devices";
 import { verticalDensitiesCollection } from "./collections/display-context/vertical-densities";
 import { colorsCollection } from "./collections/colors/colors";
 import { paletteCollection } from "./collections/colors/palette";
@@ -12,12 +13,13 @@ import { themeCollection } from "./collections/colors/theme";
 import { createDirForCollection } from "./utils";
 
 /**
- * Collections à traiter (avec mapping nom -> objet)
+ * Collections à traiter
  */
 const allCollections: Record<string, any> = {
   breakpoints: breakpointsCollection,
   ratios: ratiosCollection,
   orientations: orientationsCollection,
+  devices: devicesCollection,
   verticalDensities: verticalDensitiesCollection,
   contentHeight: contentHeightCollection,
   colors: colorsCollection,
@@ -25,7 +27,10 @@ const allCollections: Record<string, any> = {
   theme: themeCollection,
   brand: brandCollection,
   feedback: feedbackCollection,
-  // neutral: neutralCollection,
+  /**
+   * @TODO gérer le cas neutral
+   * neutral: neutralCollection,
+   */
 };
 
 // Sélection des collections à générer via argument CLI ou variable d'environnement
@@ -74,7 +79,7 @@ async function main() {
       console.log(`📦 Génération de la collection: ${collection.name}`);
       console.log(`   Modes: ${collection.modes}`);
 
-      const dirPath = await createDirForCollection(collection);
+      await createDirForCollection(collection);
 
       console.log(`✅ Dossier créé pour la collection: ${collection.name}\n`);
     } catch (error) {

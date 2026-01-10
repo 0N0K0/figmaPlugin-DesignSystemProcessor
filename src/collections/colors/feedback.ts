@@ -1,4 +1,3 @@
-import { format } from "node:path";
 import { THEME_CONFIG, SCOPES } from "../../constants";
 import { FigmaCollection } from "../../types";
 import {
@@ -6,6 +5,10 @@ import {
   generateModeJson,
   generateVariable,
 } from "../../utils";
+
+/**
+ * @TODO optimiser et gérer les scopes
+ */
 
 const modes = ["info", "success", "warning", "error"];
 

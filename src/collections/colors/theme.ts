@@ -96,6 +96,11 @@ for (const [mode, modeConfig] of Object.entries(THEME_CONFIG)) {
           ),
         };
       }
+      /**
+       * @TODO gérer le cas neutral
+       */
+
+      // Ajouter la variable de bordure
       variables[colorCategory][colorName] = {
         ...(variables[colorCategory][colorName] || {}),
         borderColor: makeColorVariable(

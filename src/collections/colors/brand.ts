@@ -6,6 +6,10 @@ import {
   generateVariable,
 } from "../../utils";
 
+/**
+ * @TODO optimiser et gérer les scopes
+ */
+
 const modes = ["primary", "secondary", "accent"];
 
 const collectionName = "Style/Colors/Brand";
