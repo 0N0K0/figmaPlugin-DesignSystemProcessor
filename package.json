@@ -24,7 +24,8 @@
     "feedback": "npm start -- --collections=feedback",
     "neutral": "npm start -- --collections=neutral",
     "typography": "npm start -- --collections=typography",
-    "radius": "npm start -- --collections=radius"
+    "radius": "npm start -- --collections=radius",
+    "placeholders": "npm start -- --collections=placeholders"
   },
   "keywords": [
     "figma",
