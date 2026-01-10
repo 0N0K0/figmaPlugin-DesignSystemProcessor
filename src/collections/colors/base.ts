@@ -39,9 +39,9 @@ for (let s = 100; s >= 10; s -= 10) {
   }
 }
 
-const mode = "value";
-const collectionName = "Style/Colors";
-export const colorsCollection: FigmaCollection = {
+const mode = "Value";
+const collectionName = "Style/Colors/Base";
+export const baseCollection: FigmaCollection = {
   name: collectionName,
   modes: [mode],
   variables: { [mode]: generateModeJson(collectionName, mode, variables) },

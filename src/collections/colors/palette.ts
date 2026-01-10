@@ -120,7 +120,7 @@ const { r: rG50, g: gG50, b: bG50 } = greyShades["50"];
 generateOpacities("neutral", "lightGrey", rG50 / 255, gG50 / 255, bG50 / 255);
 
 // Collection Palette
-const mode = "value";
+const mode = "Value";
 const collectionName = "Style/Colors/Palette";
 export const paletteCollection: FigmaCollection = {
   name: collectionName,

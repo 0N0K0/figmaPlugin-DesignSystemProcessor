@@ -3,7 +3,7 @@ import { ratiosCollection } from "./collections/display-context/ratios";
 import { orientationsCollection } from "./collections/display-context/orientations";
 import { devicesCollection } from "./collections/display-context/devices";
 import { verticalDensitiesCollection } from "./collections/display-context/vertical-densities";
-import { colorsCollection } from "./collections/colors/colors";
+import { baseCollection } from "./collections/colors/base";
 import { paletteCollection } from "./collections/colors/palette";
 import { brandCollection } from "./collections/colors/brand";
 import { feedbackCollection } from "./collections/colors/feedback";
@@ -22,7 +22,7 @@ const allCollections: Record<string, any> = {
   devices: devicesCollection,
   verticalDensities: verticalDensitiesCollection,
   contentHeight: contentHeightCollection,
-  colors: colorsCollection,
+  base: baseCollection,
   palette: paletteCollection,
   theme: themeCollection,
   brand: brandCollection,

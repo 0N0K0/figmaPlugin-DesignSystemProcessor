@@ -137,7 +137,7 @@ for (const mode of Object.keys(THEME_PRESET)) {
 }
 
 // Collection Neutral
-const mode = "value";
+const mode = "Value";
 const collectionName = "Style/Colors/Neutral";
 export const neutralCollection: FigmaCollection = {
   name: collectionName,

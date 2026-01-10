@@ -18,7 +18,7 @@ for (let i = BASELINE_GRID; i <= MAX_CONTENT_HEIGHT; i += BASELINE_GRID) {
   );
 }
 
-const mode = "value";
+const mode = "Value";
 const collectionName = "System/Content Height";
 export const contentHeightCollection: FigmaCollection = {
   name: collectionName,
