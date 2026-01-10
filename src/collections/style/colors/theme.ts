@@ -1,21 +1,21 @@
-import { CoreShades, FigmaCollection, FigmaVariable } from "../../types";
+import { CoreShades, FigmaCollection, FigmaVariable } from "../../../types";
 import { formatHex } from "culori/require";
 import {
   formatColorValue,
   generateGreyShades,
   generateShades,
   getContrastColor,
-} from "../../utils/colorUtils";
-import { generateVariable } from "../../utils/figmaUtils";
-import { generateModeJson } from "../../utils/jsonUtils";
+} from "../../../utils/colorUtils";
+import { generateVariable } from "../../../utils/figmaUtils";
+import { generateModeJson } from "../../../utils/jsonUtils";
 import { rgb } from "culori";
 import {
   COLOR_STEPS,
   COLORS,
   THEME_PRESET,
   THEME_SCHEMA,
-} from "../../constants/colorConstants";
-import { SCOPES } from "../../constants/figmaConstants";
+} from "../../../constants/colorConstants";
+import { SCOPES } from "../../../constants/figmaConstants";
 
 const modes = ["light", "dark"];
 

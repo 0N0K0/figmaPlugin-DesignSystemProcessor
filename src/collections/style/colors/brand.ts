@@ -1,6 +1,6 @@
-import { generateColorCollection } from "../../utils/collectionGenerator";
-import { FigmaCollection } from "../../types";
-import { generateModeJson } from "../../utils/jsonUtils";
+import { generateColorCollection } from "../../../utils/collectionGenerator";
+import { FigmaCollection } from "../../../types";
+import { generateModeJson } from "../../../utils/jsonUtils";
 
 const modes = ["primary", "secondary", "accent"];
 const collectionName = "Style/Colors/Brand";

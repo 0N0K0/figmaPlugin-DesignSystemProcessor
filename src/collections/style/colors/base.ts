@@ -1,8 +1,8 @@
-import { SCOPES } from "../../constants/figmaConstants";
-import { FigmaCollection, FigmaVariable } from "../../types";
-import { formatColorValue } from "../../utils/colorUtils";
-import { generateVariable } from "../../utils/figmaUtils";
-import { generateModeJson } from "../../utils/jsonUtils";
+import { SCOPES } from "../../../constants/figmaConstants";
+import { FigmaCollection, FigmaVariable } from "../../../types";
+import { formatColorValue } from "../../../utils/colorUtils";
+import { generateVariable } from "../../../utils/figmaUtils";
+import { generateModeJson } from "../../../utils/jsonUtils";
 
 const hues = {
   red: 10,
