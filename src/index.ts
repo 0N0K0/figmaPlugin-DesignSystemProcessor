@@ -11,6 +11,8 @@ import { brandCollection } from "./collections/style/colors/brand";
 import { feedbackCollection } from "./collections/style/colors/feedback";
 import { neutralCollection } from "./collections/style/colors/neutral";
 import { createDirForCollection } from "./utils/fsUtils";
+import { typographyCollection } from "./collections/style/typography";
+import { radiusCollection } from "./collections/style/radius";
 
 /**
  * Collections à traiter
@@ -28,6 +30,8 @@ const allCollections: Record<string, any> = {
   brand: brandCollection,
   feedback: feedbackCollection,
   neutral: neutralCollection,
+  typographyCollection: typographyCollection,
+  radiusCollection: radiusCollection,
 };
 
 // Sélection des collections à générer via argument CLI ou variable d'environnement
