@@ -39,6 +39,7 @@
   "dependencies": {
     "@types/culori": "^4.0.1",
     "culori": "^4.0.2",
+    "dotenv": "^17.2.3",
     "jszip": "^3.10.1"
   }
 }

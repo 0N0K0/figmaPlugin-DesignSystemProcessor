@@ -2,7 +2,6 @@ import {
   COLUMNS,
   GUTTER,
   HORIZONTAL_PADDING,
-  MIN_COLUMN_WIDTH,
   MIN_VIEWPORT_HEIGHT,
   ORIENTATIONS,
   RATIOS,
@@ -10,6 +9,11 @@ import {
 import { FigmaCollection, FigmaVariable } from "../../types";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const minColumnWidth = Number(process.env.MIN_COLUMN_WIDTH) || 96;
 
 const modesConfig: Record<
   string,
@@ -46,7 +50,7 @@ for (const [key, value] of Object.entries(COLUMNS)) {
 for (const [key, value] of Object.entries(modesConfig)) {
   if (key === "xxl") continue;
   modesConfig[key as keyof typeof modesConfig].viewportWidth.minWidth =
-    MIN_COLUMN_WIDTH * value.columns +
+    minColumnWidth * value.columns +
     GUTTER * (value.columns - 1) +
     HORIZONTAL_PADDING * 2;
 }
@@ -134,7 +138,7 @@ for (const [key, mode] of Object.entries(modesConfig)) {
     if (i > mode.columns) {
       minwidth = mode.viewportWidth.maxWidth - HORIZONTAL_PADDING * 2;
     } else {
-      minwidth = MIN_COLUMN_WIDTH * i + GUTTER * (i - 1);
+      minwidth = minColumnWidth * i + GUTTER * (i - 1);
     }
     contentWidth["columns"][i] = {
       minWidth: generateVariable(
@@ -147,7 +151,7 @@ for (const [key, mode] of Object.entries(modesConfig)) {
 
     let maxwidth: number;
     if (i >= mode.columns) {
-      maxwidth = mode.viewportWidth.maxWidth - HORIZONTAL_PADDING;
+      maxwidth = mode.viewportWidth.maxWidth - HORIZONTAL_PADDING * 2;
     } else {
       maxwidth = maxColumnWidth[key] * i + GUTTER * (i - 1);
     }
@@ -166,7 +170,7 @@ for (const [key, mode] of Object.entries(modesConfig)) {
     let maxWidth: number;
     if (mode.columns % division === 0) {
       minWidth =
-        (MIN_COLUMN_WIDTH * mode.columns) / division +
+        (minColumnWidth * mode.columns) / division +
         GUTTER * (mode.columns / division - 1);
       maxWidth =
         (maxColumnWidth[key] * mode.columns) / division +
@@ -176,7 +180,7 @@ for (const [key, mode] of Object.entries(modesConfig)) {
         .slice(divisions.indexOf(division) + 1)
         .find((d) => mode.columns % d === 0)!;
       minWidth =
-        (MIN_COLUMN_WIDTH * mode.columns) / validDivision +
+        (minColumnWidth * mode.columns) / validDivision +
         GUTTER * (mode.columns / validDivision - 1);
       maxWidth =
         (maxColumnWidth[key] * mode.columns) / validDivision +

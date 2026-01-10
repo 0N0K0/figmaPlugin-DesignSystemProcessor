@@ -1,16 +1,19 @@
 import { SCOPES } from "../constants/figmaConstants";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const COLORS: Record<string, Record<string, string>> = {
   brand: {
-    primary: "#0DB9F2",
-    secondary: "#4DB2A1",
-    accent: "#A68659",
+    primary: process.env.BRAND_PRIMARY || "#0DB9F2",
+    secondary: process.env.BRAND_SECONDARY || "#4DB2A1",
+    accent: process.env.BRAND_ACCENT || "#A68659",
   },
   feedback: {
-    info: "#1AE5C3",
-    success: "#C3E51A",
-    warning: "#E5801A",
-    error: "#E53C1A",
+    info: process.env.FEEDBACK_INFO || "#1AE5C3",
+    success: process.env.FEEDBACK_SUCCESS || "#C3E51A",
+    warning: process.env.FEEDBACK_WARNING || "#E5801A",
+    error: process.env.FEEDBACK_ERROR || "#E53C1A",
   },
 };
 
@@ -37,11 +40,11 @@ export const THEME_PRESET = {
         dark: "600",
       },
       state: {
-        enabled: "100",
-        disabled: "100",
-        hovered: "50",
-        selected: "150",
-        focused: "300",
+        enabled: process.env.LIGHT_COLORS_ENABLED_OPACITY || "100",
+        disabled: process.env.LIGHT_COLORS_DISABLED_OPACITY || "100",
+        hovered: process.env.LIGHT_COLORS_HOVERED_OPACITY || "50",
+        selected: process.env.LIGHT_COLORS_SELECTED_OPACITY || "150",
+        focused: process.env.LIGHT_COLORS_FOCUSED_OPACITY || "300",
       },
     },
     neutral: {
@@ -77,11 +80,11 @@ export const THEME_PRESET = {
         dark: "500",
       },
       state: {
-        enabled: "100",
-        disabled: "100",
-        hovered: "100",
-        selected: "150",
-        focused: "300",
+        enabled: process.env.DARK_COLORS_ENABLED_OPACITY || "100",
+        disabled: process.env.DARK_COLORS_DISABLED_OPACITY || "100",
+        hovered: process.env.DARK_COLORS_HOVERED_OPACITY || "100",
+        selected: process.env.DARK_COLORS_SELECTED_OPACITY || "150",
+        focused: process.env.DARK_COLORS_FOCUSED_OPACITY || "300",
       },
     },
     neutral: {
@@ -130,7 +133,9 @@ export const THEME_SCHEMA = {
           toneTarget: "grey",
         },
         secondary: {
-          variableTarget: "opacities.600",
+          variableTarget: `opacities.${
+            process.env.NEUTRAL_TEXT_SECONDARY_OPACITY || "600"
+          }`,
           toneTarget: { light: "darkGrey", dark: "lightGrey" },
         },
       },
@@ -138,10 +143,10 @@ export const THEME_SCHEMA = {
         scaleTarget: "opacities",
         toneTarget: { light: "darkGrey", dark: "lightGrey" },
         variations: {
-          hover: "50",
-          selected: "400",
-          focus: "100",
-          disabled: "300",
+          hovered: process.env.NEUTRAL_TEXT_HOVERED_OPACITY || "50",
+          selected: process.env.NEUTRAL_TEXT_SELECTED_OPACITY || "400",
+          focused: process.env.NEUTRAL_TEXT_FOCUSED_OPACITY || "100",
+          disabled: process.env.NEUTRAL_TEXT_DISABLED_OPACITY || "300",
         },
       },
       scope: [SCOPES.COLOR.TEXT_FILL],
@@ -155,18 +160,18 @@ export const THEME_SCHEMA = {
         scaleTarget: "opacities",
         toneTarget: { light: "darkGrey", dark: "lightGrey" },
         variations: {
-          active: "600",
-          hover: "50",
-          selected: "100",
-          focus: "100",
-          disabled: "100",
+          active: process.env.NEUTRAL_BACKGROUND_ACTIVE_OPACITY || "600",
+          hovered: process.env.NEUTRAL_BACKGROUND_HOVERED_OPACITY || "50",
+          selected: process.env.NEUTRAL_BACKGROUND_SELECTED_OPACITY || "100",
+          focused: process.env.NEUTRAL_BACKGROUND_FOCUSED_OPACITY || "100",
+          disabled: process.env.NEUTRAL_BACKGROUND_DISABLED_OPACITY || "100",
         },
       },
       scope: [SCOPES.COLOR.FRAME_FILL, SCOPES.COLOR.SHAPE_FILL],
     },
   },
   borderColor: {
-    variableTarget: "opacities.500",
+    variableTarget: `opacities.${process.env.BORDER_COLOR_OPACITY || "500"}`,
     scopes: [SCOPES.COLOR.STROKE_COLOR],
   },
 };

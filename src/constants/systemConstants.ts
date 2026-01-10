@@ -1,6 +1,9 @@
-export const MIN_COLUMN_WIDTH = 96;
-export const GUTTER = 16;
-export const HORIZONTAL_PADDING = 32;
+import dotenv from "dotenv";
+
+dotenv.config();
+
+export const GUTTER = Number(process.env.GUTTER) || 16;
+export const HORIZONTAL_PADDING = Number(process.env.HORIZONTAL_PADDING) || 32;
 export const COLUMNS = {
   xs: 3,
   sm: 4,
@@ -13,9 +16,11 @@ export const COLUMNS = {
 export const RATIOS = ["1:1", "4:3", "16:10", "16:9", "18:9", "20:9", "21:9"];
 export const ORIENTATIONS = ["portrait", "landscape"];
 
-export const MIN_VIEWPORT_HEIGHT = 312;
-export const MAX_CONTENT_HEIGHT = 1080;
-export const OFFSET_HEIGHT = 96;
+export const MIN_VIEWPORT_HEIGHT =
+  Number(process.env.MIN_VIEWPORT_HEIGHT) || 312;
+export const MAX_CONTENT_HEIGHT =
+  Number(process.env.MAX_CONTENT_HEIGHT) || 1080;
+export const OFFSET_HEIGHT = Number(process.env.OFFSET_HEIGHT) || 96;
 
-export const BASELINE_GRID = 24;
-export const BASE_FONT_SIZE = 16;
+export const BASELINE_GRID = Number(process.env.BASELINE_GRID) || 24;
+export const BASE_FONT_SIZE = Number(process.env.BASE_FONT_SIZE) || 16;

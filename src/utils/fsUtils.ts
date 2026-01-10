@@ -1,17 +1,21 @@
 import fs from "fs";
 import path from "path";
 import { FigmaCollection } from "../types";
-import { OUTPUT_DIR } from "../constants/fsConstants";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const outputDir = process.env.OUTPUT_DIR || "./output";
 
 export function ensureOutputDir(): void {
-  if (!fs.existsSync(OUTPUT_DIR)) {
-    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
   }
 }
 
 export async function createDirForCollection(collection: FigmaCollection) {
   ensureOutputDir();
-  const collectionDir = path.join(OUTPUT_DIR, ...collection.name.split("/"));
+  const collectionDir = path.join(outputDir, ...collection.name.split("/"));
   if (!fs.existsSync(collectionDir)) {
     fs.mkdirSync(collectionDir, { recursive: true });
   }
