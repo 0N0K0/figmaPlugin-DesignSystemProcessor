@@ -193,7 +193,8 @@ for (const [key, mode] of Object.entries(modesConfig)) {
  * Génération de la collection
  */
 const collection: Record<string, string> = {};
-const collectionName = "Breakpoints";
+const collectionName = "System/Breakpoints";
+
 Object.entries(modesConfig).forEach(([modeId, mode]) => {
   const variables: Record<string, any> = {
     viewportWidth: {},

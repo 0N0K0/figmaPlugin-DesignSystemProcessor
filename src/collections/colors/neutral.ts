@@ -1,13 +1,13 @@
 import { FigmaCollection } from "../../types";
 
-const modes = ["white", "grey", "black"];
+const modes = ["lightGrey", "grey", "darkGrey"];
 
 /**
  * Target : neutral colors from palette
  */
 
 export const neutralCollection: FigmaCollection = {
-  name: "Neutral",
+  name: "Style/Colors/Neutral",
   modes: modes,
   variables: {},
 };

@@ -47,7 +47,8 @@ export function generateModeJson(
 export async function createDirForCollection(collection: FigmaCollection) {
   ensureOutputDir();
 
-  const collectionDir = path.join(OUTPUT_DIR, collection.name);
+  // Supporte les noms de collection composés avec des / pour créer une arborescence
+  const collectionDir = path.join(OUTPUT_DIR, ...collection.name.split("/"));
   if (!fs.existsSync(collectionDir)) {
     fs.mkdirSync(collectionDir, { recursive: true });
   }
@@ -249,48 +250,34 @@ export function generateShades(
 }
 
 export function generateGreyShades() {
-  const greyShades: Record<
-    string,
-    { mode: "hsl"; h: number | undefined; s: number; l: number }
-  > = {};
+  const greyShades: Record<string, Rgb> = {};
   // Générer les nuances de gris
-  greyShades["0"] = {
-    mode: "hsl",
-    h: 0,
-    s: 0,
-    l: 100,
-  };
   for (const step of COLOR_STEPS) {
-    const lightness = 100 - parseInt(step) / 10;
-    const shadeColor = { mode: "hsl" as const, h: 0, s: 0, l: lightness };
-    greyShades[step] = shadeColor;
+    // COLOR_STEPS va de 50 à 950, on veut interpoler de 100 (blanc) à 0 (noir)
+    const t = parseInt(step) / 1000; // 0.05 à 0.95
+    const lightness = 1 - t * 1; // 0.95 à 0.05
+    greyShades[step] = hslaToRgba(0, 0, lightness, 1);
   }
-  greyShades["1000"] = {
-    mode: "hsl",
-    h: 0,
-    s: 0,
-    l: 0,
-  };
+  greyShades["0"] = hslaToRgba(0, 0, 1, 1);
+  greyShades["1000"] = hslaToRgba(0, 0, 0, 1);
   return greyShades;
 }
 
 export function getContrastColor(
   bgHex: string,
-  lightShade: {
-    mode: "hsl";
-    h: number | undefined;
-    s: number;
-    l: number;
-  },
-  darkShade: {
-    mode: "hsl";
-    h: number | undefined;
-    s: number;
-    l: number;
-  }
+  lightShade: Rgb,
+  darkShade: Rgb
 ): string {
-  const light = formatColorValue(lightShade).hex;
-  const dark = formatColorValue(darkShade).hex;
+  const light = rgbaToHex(
+    lightShade.r / 255,
+    lightShade.g / 255,
+    lightShade.b / 255
+  );
+  const dark = rgbaToHex(
+    darkShade.r / 255,
+    darkShade.g / 255,
+    darkShade.b / 255
+  );
   const contrastWithLight = wcagContrast(bgHex, light);
   const contrastWithDark = wcagContrast(bgHex, dark);
   return contrastWithLight >= contrastWithDark ? light : dark;

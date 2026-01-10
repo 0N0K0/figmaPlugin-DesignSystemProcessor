@@ -1,4 +1,3 @@
-import { createDirForCollection } from "./utils";
 import { breakpointsCollection } from "./collections/display-context/breakpoints";
 import { ratiosCollection } from "./collections/display-context/ratios";
 import { orientationsCollection } from "./collections/display-context/orientations";
@@ -10,20 +9,53 @@ import { feedbackCollection } from "./collections/colors/feedback";
 import { neutralCollection } from "./collections/colors/neutral";
 import { contentHeightCollection } from "./collections/display-context/content-height";
 import { themeCollection } from "./collections/colors/theme";
+import { createDirForCollection } from "./utils";
 
 /**
- * Collections à traiter
+ * Collections à traiter (avec mapping nom -> objet)
  */
-const collections = [
-  breakpointsCollection,
-  ratiosCollection,
-  orientationsCollection,
-  verticalDensitiesCollection,
-  contentHeightCollection,
-  colorsCollection,
-  paletteCollection,
-  themeCollection,
-];
+const allCollections: Record<string, any> = {
+  breakpoints: breakpointsCollection,
+  ratios: ratiosCollection,
+  orientations: orientationsCollection,
+  verticalDensities: verticalDensitiesCollection,
+  contentHeight: contentHeightCollection,
+  colors: colorsCollection,
+  palette: paletteCollection,
+  theme: themeCollection,
+  brand: brandCollection,
+  feedback: feedbackCollection,
+  // neutral: neutralCollection,
+};
+
+// Sélection des collections à générer via argument CLI ou variable d'environnement
+function getSelectedCollections(): any[] {
+  // Priorité à l'argument CLI --collections=theme,brand
+  const cliArg = process.argv.find((arg) => arg.startsWith("--collections="));
+  let selected: string | undefined = undefined;
+  if (cliArg) {
+    selected = cliArg.split("=")[1];
+  } else if (process.env.COLLECTIONS) {
+    selected = process.env.COLLECTIONS;
+  }
+  if (selected) {
+    const names = selected
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    return names
+      .map((name) => {
+        if (!allCollections[name]) {
+          console.warn(`⚠️  Collection inconnue ignorée: ${name}`);
+          return undefined;
+        }
+        return allCollections[name];
+      })
+      .filter(Boolean);
+  }
+  // Par défaut, tout générer
+  return Object.values(allCollections);
+}
 
 /**
  * Point d'entrée principal
@@ -31,12 +63,18 @@ const collections = [
 async function main() {
   console.log("🚀 Génération des variables Figma...\n");
 
+  const collections = getSelectedCollections();
+  if (collections.length === 0) {
+    console.log("Aucune collection à générer. Vérifiez vos paramètres.");
+    return;
+  }
+
   for (const collection of collections) {
     try {
       console.log(`📦 Génération de la collection: ${collection.name}`);
       console.log(`   Modes: ${collection.modes}`);
 
-      const zipPath = await createDirForCollection(collection);
+      const dirPath = await createDirForCollection(collection);
 
       console.log(`✅ Dossier créé pour la collection: ${collection.name}\n`);
     } catch (error) {

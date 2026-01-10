@@ -7,10 +7,62 @@ import {
   generateShades,
   generateVariable,
 } from "../../utils";
-import { SCOPES, COLORS, COLOR_STEPS } from "../../constants";
+import { SCOPES, COLORS } from "../../constants";
 
 // Récupérer les nuances de gris
 const greyShades = generateGreyShades();
+
+const opacitiesSteps = [
+  "50",
+  "100",
+  "150",
+  "200",
+  "250",
+  "300",
+  "350",
+  "400",
+  "450",
+  "500",
+  "550",
+  "600",
+  "650",
+  "700",
+  "750",
+  "800",
+  "850",
+  "900",
+  "950",
+];
+// Fonction utilitaire pour générer les opacités d'une teinte de gris
+const generateOpacities = (
+  categoryName: string,
+  colorName: string,
+  r: number,
+  g: number,
+  b: number
+) => {
+  if (!variables[categoryName]) variables[categoryName] = {};
+  if (!variables[categoryName][colorName])
+    variables[categoryName][colorName] = {};
+  if (!variables[categoryName][colorName]["opacities"])
+    variables[categoryName][colorName]["opacities"] = {};
+
+  for (const step of opacitiesSteps) {
+    const a = parseInt(step) / 1000;
+    const colorWithOpacity = {
+      mode: "rgb" as const,
+      r,
+      g,
+      b,
+      alpha: a,
+    };
+    variables[categoryName][colorName]["opacities"][step] = generateVariable(
+      "color",
+      formatColorValue(colorWithOpacity),
+      [SCOPES.COLOR.ALL]
+    );
+  }
+};
 
 // Stocker toutes les variables de la palette
 const variables: Record<
@@ -39,86 +91,35 @@ for (const [colorCategory, colorValues] of Object.entries(COLORS)) {
       }
     }
 
-    // Générer les opacités
-    if (!variables[colorCategory][colorName]["opacities"])
-      variables[colorCategory][colorName]["opacities"] = {};
-
-    if (colorName !== "white" && colorName !== "black") {
-      let r: number, g: number, b: number;
-      if (colorCategory !== "neutral") {
-        ({ r, g, b } = shades.find((shade) => shade.step === "500")?.color!);
-      } else {
-        ({ r, g, b } = converter("rgb")(colorHex) as Rgb);
-      }
-      for (const step of COLOR_STEPS) {
-        const a = parseInt(step) / 1000;
-        const colorWithOpacity = { mode: "rgb" as const, r, g, b, alpha: a };
-        variables[colorCategory][colorName]["opacities"][step] =
-          generateVariable("color", formatColorValue(colorWithOpacity), [
-            SCOPES.COLOR.ALL,
-          ]);
-      }
+    let r: number, g: number, b: number;
+    if (colorCategory !== "neutral") {
+      ({ r, g, b } = shades.find((shade) => shade.step === "500")?.color!);
+    } else {
+      ({ r, g, b } = converter("rgb")(colorHex) as Rgb);
     }
+    generateOpacities(colorCategory, colorName, r, g, b);
   }
 }
 
 // Générer les variables de nuances de gris
 for (const [step, shade] of Object.entries(greyShades)) {
+  const { r, g, b } = shade;
   variables["neutral"]["grey"]["shades"][step] = generateVariable(
     "color",
-    formatColorValue(shade),
+    formatColorValue({ mode: "rgb", r: r / 255, g: g / 255, b: b / 255 }),
     [SCOPES.COLOR.ALL]
   );
 }
 
-if (!variables["neutral"]) variables["neutral"] = {};
-
-// Générer les opacités pour darkGrey
-if (!variables["neutral"]["darkGrey"]) variables["neutral"]["darkGrey"] = {};
-if (!variables["neutral"]["darkGrey"]["opacities"])
-  variables["neutral"]["darkGrey"]["opacities"] = {};
-const { h: hG50, s: sG50, l: lG50 } = greyShades["950"];
-for (const step of COLOR_STEPS) {
-  const a = parseInt(step) / 1000;
-  const colorWithOpacity = {
-    mode: "hsl" as const,
-    h: hG50,
-    s: sG50,
-    l: lG50,
-    alpha: a,
-  };
-  variables["neutral"]["darkGrey"]["opacities"][step] = generateVariable(
-    "color",
-    formatColorValue(colorWithOpacity),
-    [SCOPES.COLOR.ALL]
-  );
-}
-
-// Générer les opacités pour lightGrey
-if (!variables["neutral"]["lightGrey"]) variables["neutral"]["lightGrey"] = {};
-if (!variables["neutral"]["lightGrey"]["opacities"])
-  variables["neutral"]["lightGrey"]["opacities"] = {};
-
-const { h: hG950, s: sG950, l: lG950 } = greyShades["50"];
-for (const step of COLOR_STEPS) {
-  const a = parseInt(step) / 1000;
-  const colorWithOpacity = {
-    mode: "hsl" as const,
-    h: hG950,
-    s: sG950,
-    l: lG950,
-    alpha: a,
-  };
-  variables["neutral"]["lightGrey"]["opacities"][step] = generateVariable(
-    "color",
-    formatColorValue(colorWithOpacity),
-    [SCOPES.COLOR.ALL]
-  );
-}
+// Générer les opacités pour darkGrey et lightGrey
+const { r: rG950, g: gG950, b: bG950 } = greyShades["950"];
+generateOpacities("neutral", "darkGrey", rG950 / 255, gG950 / 255, bG950 / 255);
+const { r: rG50, g: gG50, b: bG50 } = greyShades["50"];
+generateOpacities("neutral", "lightGrey", rG50 / 255, gG50 / 255, bG50 / 255);
 
 // Collection Palette
 const mode = "value";
-const collectionName = "Palette";
+const collectionName = "Style/Colors/Palette";
 export const paletteCollection: FigmaCollection = {
   name: collectionName,
   modes: [mode],

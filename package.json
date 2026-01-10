@@ -1,14 +1,28 @@
 {
-  "name": "figma-display-context-variables",
+  "name": "figma-design-system-variables",
   "version": "1.0.0",
-  "description": "Generate Figma variable collections as JSON files packaged in ZIP",
+  "description": "Generate Figma variable collections as JSON files",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
     "build": "vite build",
     "start": "node dist/index.js",
     "dev": "vite",
-    "generate": "npm run build && npm start"
+    "generate": "npm run build && npm start",
+    "display-context": "npm start -- --collections=breakpoints,ratios,orientations,devices,content-height,vertical-densities",
+    "colors-collections": "npm start -- --collections=colors,palette,theme,brand,feedback,neutral",
+    "breakpoints": "npm start -- --collections=breakpoints",
+    "ratios": "npm start -- --collections=ratios",
+    "orientations": "npm start -- --collections=orientations",
+    "devices": "npm start -- --collections=devices",
+    "content-height": "npm start -- --collections=content-height",
+    "vertical-densities": "npm start -- --collections=vertical-densities",
+    "colors": "npm start -- --collections=colors",
+    "palette": "npm start -- --collections=palette",
+    "theme": "npm start -- --collections=theme",
+    "brand": "npm start -- --collections=brand",
+    "feedback": "npm start -- --collections=feedback",
+    "neutral": "npm start -- --collections=neutral"
   },
   "keywords": [
     "figma",

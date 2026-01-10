@@ -6,8 +6,10 @@ const modes: Record<
   string,
   Record<string, Record<string, Record<string, FigmaVariable>>>
 > = {};
+
 const collection: Record<string, string> = {};
-const collectionName = "Ratios";
+const collectionName = "System/Ratios";
+
 RATIOS.forEach((ratio) => {
   modes[ratio] = {};
   ORIENTATIONS.forEach((orientation) => {
@@ -19,7 +21,7 @@ RATIOS.forEach((ratio) => {
           [],
           false,
           `{viewportHeight.${orientation}.${ratio}.minHeight}`,
-          "Breakpoints"
+          "System/Breakpoints"
         ),
         maxHeight: generateVariable(
           "number",
@@ -27,7 +29,7 @@ RATIOS.forEach((ratio) => {
           [],
           false,
           `{viewportHeight.${orientation}.${ratio}.maxHeight}`,
-          "Breakpoints"
+          "System/Breakpoints"
         ),
       },
     };

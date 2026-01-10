@@ -204,7 +204,7 @@ for (const [index, [mode, values]] of Object.entries(config).entries()) {
   );
 }
 
-const collectionName = "Vertical Densities";
+const collectionName = "System/Vertical Densities";
 const variables: Record<string, string> = {};
 modes.forEach((mode) => {
   variables[mode] = generateModeJson(collectionName, mode, collection[mode]);

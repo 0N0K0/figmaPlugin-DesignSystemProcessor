@@ -171,7 +171,7 @@ for (const [device, modes] of Object.entries(config)) {
 /**
  * Collection Devices
  */
-const collectionName = "Devices";
+const collectionName = "System/Devices";
 const modeName = "Value";
 export const devicesCollection: FigmaCollection = {
   name: collectionName,

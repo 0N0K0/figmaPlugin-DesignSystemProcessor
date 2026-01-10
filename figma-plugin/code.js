@@ -188,10 +188,17 @@ figma.ui.onmessage = async (msg) => {
                 return;
               }
             }
-            // 4. Appliquer hiddenFromPublishing si besoin
+            // 4. Appliquer hiddenFromPublishing et scopes si besoin
             try {
               variable.hiddenFromPublishing = !!hidden;
             } catch (e) {}
+            try {
+              if (Array.isArray(scopes) && scopes.length > 0) {
+                variable.scopes = scopes;
+              }
+            } catch (e) {
+              log(`Erreur lors de l'application des scopes: ${e}`);
+            }
 
             // 5. Stocker pour les alias
             globalThis.__allCollections[collectionName].variables[varName] =

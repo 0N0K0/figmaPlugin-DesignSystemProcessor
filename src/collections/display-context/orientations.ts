@@ -3,8 +3,10 @@ import { ORIENTATIONS, SCOPES } from "../../constants";
 import { generateModeJson, generateVariable } from "../../utils";
 
 const modes: Record<string, Record<string, Record<string, FigmaVariable>>> = {};
+
 const collection: Record<string, string> = {};
-const collectionName = "Orientations";
+const collectionName = "System/Orientations";
+
 ORIENTATIONS.forEach((orientation) => {
   modes[orientation] = {
     viewportHeight: {
@@ -14,7 +16,7 @@ ORIENTATIONS.forEach((orientation) => {
         [SCOPES.FLOAT.WIDTH_HEIGHT],
         false,
         `{${orientation}.viewportHeight.minHeight}`,
-        "Ratios"
+        "System/Ratios"
       ),
       maxHeight: generateVariable(
         "number",
@@ -22,7 +24,7 @@ ORIENTATIONS.forEach((orientation) => {
         [SCOPES.FLOAT.WIDTH_HEIGHT],
         false,
         `{${orientation}.viewportHeight.maxHeight}`,
-        "Ratios"
+        "System/Ratios"
       ),
     },
   };
