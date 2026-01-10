@@ -3,13 +3,13 @@ import { ratiosCollection } from "./collections/display-context/ratios";
 import { orientationsCollection } from "./collections/display-context/orientations";
 import { devicesCollection } from "./collections/display-context/devices";
 import { verticalDensitiesCollection } from "./collections/display-context/vertical-densities";
-import { baseCollection } from "./collections/colors/base";
-import { paletteCollection } from "./collections/colors/palette";
-import { brandCollection } from "./collections/colors/brand";
-import { feedbackCollection } from "./collections/colors/feedback";
-import { neutralCollection } from "./collections/colors/neutral";
 import { contentHeightCollection } from "./collections/display-context/content-height";
-import { themeCollection } from "./collections/colors/theme";
+import { baseCollection } from "./collections/style/colors/base";
+import { paletteCollection } from "./collections/style/colors/palette";
+import { themeCollection } from "./collections/style/colors/theme";
+import { brandCollection } from "./collections/style/colors/brand";
+import { feedbackCollection } from "./collections/style/colors/feedback";
+import { neutralCollection } from "./collections/style/colors/neutral";
 import { createDirForCollection } from "./utils/fsUtils";
 
 /**
