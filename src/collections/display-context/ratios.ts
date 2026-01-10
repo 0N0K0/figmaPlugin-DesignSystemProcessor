@@ -1,6 +1,7 @@
 import { FigmaCollection, FigmaVariable } from "../../types";
 import { RATIOS, ORIENTATIONS } from "../../constants";
-import { generateModeJson, generateVariable } from "../../utils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const modes: Record<
   string,

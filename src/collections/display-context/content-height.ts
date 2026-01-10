@@ -1,6 +1,7 @@
 import { FigmaCollection, FigmaVariable } from "../../types";
 import { MAX_CONTENT_HEIGHT, BASELINE_GRID, SCOPES } from "../../constants";
-import { generateModeJson, generateVariable } from "../../utils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const variables: Record<string, FigmaVariable> = {};
 for (let i = BASELINE_GRID; i <= MAX_CONTENT_HEIGHT; i += BASELINE_GRID) {

@@ -8,7 +8,8 @@ import {
   ORIENTATIONS,
   MIN_VIEWPORT_HEIGHT,
 } from "../../constants";
-import { generateModeJson, generateVariable } from "../../utils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const modesConfig: Record<
   string,

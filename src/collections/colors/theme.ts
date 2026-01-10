@@ -1,14 +1,14 @@
 import { CoreShades, FigmaCollection, FigmaVariable } from "../../types";
+import { SCOPES, COLORS, THEME_PRESET, THEME_SCHEMA } from "../../constants";
+import { formatHex } from "culori/require";
 import {
   formatColorValue,
   generateGreyShades,
-  generateModeJson,
   generateShades,
-  generateVariable,
   getContrastColor,
-} from "../../utils";
-import { SCOPES, COLORS, THEME_CONFIG } from "../../constants";
-import { formatHex } from "culori/require";
+} from "../../utils/colorUtils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const modes = ["light", "dark"];
 
@@ -41,7 +41,9 @@ const makeColorVariable = (value: string, scope: string[], alias?: string) => {
   );
 };
 
-for (const [mode, modeConfig] of Object.entries(THEME_CONFIG)) {
+const borderColorSchema = THEME_SCHEMA.borderColor;
+
+for (const [mode, modeConfig] of Object.entries(THEME_PRESET)) {
   // Helper pour créer les core shades et contrast
   const makeCoreShades = (
     fn: (step: string, key: "light" | "main" | "dark") => FigmaVariable
@@ -56,6 +58,18 @@ for (const [mode, modeConfig] of Object.entries(THEME_CONFIG)) {
   for (const [colorCategory, colorValues] of Object.entries(COLORS)) {
     variables[colorCategory] = {};
 
+    // Fonction utilitaire pour ajouter la variable de bordure
+    const addBorderColor = (name: string, value: string) => {
+      variables[colorCategory][name] = {
+        ...(variables[colorCategory][name] || {}),
+        borderColor: makeColorVariable(
+          value,
+          borderColorSchema.scopes,
+          `{${colorCategory}.${name}.${borderColorSchema.variableTarget}}`
+        ),
+      };
+    };
+
     for (const [colorName, colorHex] of Object.entries(colorValues)) {
       // Helper pour récupérer une shade hex
       const getShade = (step: string) =>
@@ -63,67 +77,61 @@ for (const [mode, modeConfig] of Object.entries(THEME_CONFIG)) {
           generateShades(colorHex).find((s) => s.step === step)?.color
         ) ?? colorHex;
 
-      if (["brand", "feedback"].includes(colorCategory)) {
-        // Générer les core shades, contrast et states
-        variables[colorCategory][colorName] = {
-          core: makeCoreShades((step) =>
-            makeColorVariable(
+      // Utiliser THEME_SCHEMA pour déduire categoryTarget et scopes
+      const coreSchema = THEME_SCHEMA.colors.core;
+      const stateSchema = THEME_SCHEMA.colors.state;
+
+      variables[colorCategory][colorName] = {
+        core: makeCoreShades((step) =>
+          makeColorVariable(
+            getShade(step),
+            coreSchema.scopes,
+            `{${colorCategory}.${colorName}.${coreSchema.categoryTarget}.${step}}`
+          )
+        ),
+        contrast: makeCoreShades((step, _) =>
+          makeColorVariable(
+            getContrastColor(
               getShade(step),
-              [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
-              `{${colorCategory}.${colorName}.shades.${step}}`
-            )
-          ),
-          contrast: makeCoreShades((step, key) =>
-            makeColorVariable(
-              getContrastColor(
-                getShade(step),
-                greyShades["50"],
-                greyShades["950"]
-              ),
-              [SCOPES.COLOR.TEXT_FILL]
-            )
-          ),
-          state: Object.entries(modeConfig.colors.state).reduce(
-            (acc, [state, step]) => {
-              acc[state] = makeColorVariable(
-                getShade(step),
-                [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
-                `{${colorCategory}.${colorName}.opacities.${step}}`
-              );
-              return acc;
-            },
-            {} as Record<string, FigmaVariable>
-          ),
-        };
-      }
+              greyShades["50"],
+              greyShades["950"]
+            ),
+            coreSchema.scopes
+          )
+        ),
+        state: Object.entries(modeConfig.colors.state).reduce(
+          (acc, [state, step]) => {
+            acc[state] = makeColorVariable(
+              getShade(step),
+              stateSchema.scopes || [
+                SCOPES.COLOR.SHAPE_FILL,
+                SCOPES.COLOR.FRAME_FILL,
+              ],
+              `{${colorCategory}.${colorName}.${stateSchema.categoryTarget}.${step}}`
+            );
+            return acc;
+          },
+          {} as Record<string, FigmaVariable>
+        ),
+      };
       /**
        * @TODO gérer le cas neutral
        */
 
-      // Ajouter la variable de bordure
-      variables[colorCategory][colorName] = {
-        ...(variables[colorCategory][colorName] || {}),
-        borderColor: makeColorVariable(
-          colorHex,
-          [SCOPES.COLOR.STROKE_COLOR],
-          `{${colorCategory}.${colorName}.opacities.500}`
-        ),
-      };
+      addBorderColor(colorName, colorHex);
     }
-    // Ajout des variables de bordure pour lightGrey et darkGrey
-    if (colorCategory === "neutral") {
-      ["lightGrey", "darkGrey"].forEach((greyName) => {
-        variables[colorCategory][greyName] = {
-          borderColor: makeColorVariable(
-            formatHex(
-              greyName === "lightGrey" ? greyShades["100"] : greyShades["900"]
-            ),
-            [SCOPES.COLOR.STROKE_COLOR],
-            `{${colorCategory}.${greyName}.opacities.500}`
-          ),
-        };
-      });
-    }
+
+    // Ajout des variables de bordure pour grey, lightGrey et darkGrey
+    ["grey", "lightGrey", "darkGrey"].forEach((greyName) => {
+      const value = formatHex(
+        greyName === "grey"
+          ? greyShades["500"]
+          : greyName === "lightGrey"
+          ? greyShades["50"]
+          : greyShades["950"]
+      );
+      addBorderColor(greyName, value);
+    });
   }
   collection[mode] = generateModeJson(collectionName, mode, variables);
 }

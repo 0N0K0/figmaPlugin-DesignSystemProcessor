@@ -7,7 +7,8 @@ import {
   OFFSET_HEIGHT,
   BASELINE_GRID,
 } from "../../constants";
-import { generateModeJson, generateVariable } from "../../utils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const config: Record<
   string,

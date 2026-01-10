@@ -76,9 +76,9 @@ export const COLORS: Record<string, Record<string, string>> = {
     warning: "#E5801A",
     error: "#E53C1A",
   },
-  neutral: {
-    grey: "#808080",
-  },
+  // neutral: {
+  //   grey: "#808080",
+  // },
 };
 
 export const COLOR_STEPS = [
@@ -95,7 +95,7 @@ export const COLOR_STEPS = [
   "950",
 ];
 
-export const THEME_CONFIG = {
+export const THEME_PRESET = {
   light: {
     colors: {
       core: {
@@ -206,5 +206,23 @@ export const THEME_CONFIG = {
     //     },
     //   },
     // },
+  },
+};
+
+export const THEME_SCHEMA = {
+  colors: {
+    core: {
+      categoryTarget: "shades",
+      scopes: [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
+    },
+    state: {
+      categoryTarget: "opacities",
+      scopes: [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
+    },
+  },
+  neutral: {},
+  borderColor: {
+    variableTarget: "opacities.500",
+    scopes: [SCOPES.COLOR.STROKE_COLOR],
   },
 };

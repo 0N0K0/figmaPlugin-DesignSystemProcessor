@@ -1,6 +1,7 @@
 import { FigmaCollection } from "../../types";
 import { BASELINE_GRID, BASE_FONT_SIZE, SCOPES } from "../../constants";
-import { generateModeJson, generateVariable } from "../../utils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 const modes = ["tight", "compact", "loose"];
 

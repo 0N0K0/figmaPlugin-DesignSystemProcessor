@@ -1,13 +1,13 @@
 import { converter, Rgb } from "culori";
 import { FigmaCollection, FigmaVariable } from "../../types";
+import { SCOPES, COLORS } from "../../constants";
 import {
   formatColorValue,
   generateGreyShades,
-  generateModeJson,
   generateShades,
-  generateVariable,
-} from "../../utils";
-import { SCOPES, COLORS } from "../../constants";
+} from "../../utils/colorUtils";
+import { generateVariable } from "../../utils/figmaUtils";
+import { generateModeJson } from "../../utils/jsonUtils";
 
 // Récupérer les nuances de gris
 const greyShades = generateGreyShades();
@@ -80,23 +80,17 @@ for (const [colorCategory, colorValues] of Object.entries(COLORS)) {
       variables[colorCategory][colorName]["shades"] = {};
 
     let shades: { step: string; color: Rgb }[] = [];
-    if (colorCategory !== "neutral") {
-      // Générer les nuances de couleurs
-      shades = generateShades(colorHex);
-      for (const shade of shades) {
-        variables[colorCategory][colorName]["shades"][shade.step] =
-          generateVariable("color", formatColorValue(shade.color), [
-            SCOPES.COLOR.ALL,
-          ]);
-      }
+    // Générer les nuances de couleurs
+    shades = generateShades(colorHex);
+    for (const shade of shades) {
+      variables[colorCategory][colorName]["shades"][shade.step] =
+        generateVariable("color", formatColorValue(shade.color), [
+          SCOPES.COLOR.ALL,
+        ]);
     }
 
     let r: number, g: number, b: number;
-    if (colorCategory !== "neutral") {
-      ({ r, g, b } = shades.find((shade) => shade.step === "500")?.color!);
-    } else {
-      ({ r, g, b } = converter("rgb")(colorHex) as Rgb);
-    }
+    ({ r, g, b } = shades.find((shade) => shade.step === "500")?.color!);
     generateOpacities(colorCategory, colorName, r, g, b);
   }
 }
@@ -111,7 +105,9 @@ for (const [step, shade] of Object.entries(greyShades)) {
   );
 }
 
-// Générer les opacités pour darkGrey et lightGrey
+// Générer les opacités pour grey, darkGrey et lightGrey
+const { r: rG500, g: gG500, b: bG500 } = greyShades["500"];
+generateOpacities("neutral", "grey", rG500 / 255, gG500 / 255, bG500 / 255);
 const { r: rG950, g: gG950, b: bG950 } = greyShades["950"];
 generateOpacities("neutral", "darkGrey", rG950 / 255, gG950 / 255, bG950 / 255);
 const { r: rG50, g: gG50, b: bG50 } = greyShades["50"];
