@@ -76,9 +76,6 @@ export const COLORS: Record<string, Record<string, string>> = {
     warning: "#E5801A",
     error: "#E53C1A",
   },
-  // neutral: {
-  //   grey: "#808080",
-  // },
 };
 
 export const COLOR_STEPS = [

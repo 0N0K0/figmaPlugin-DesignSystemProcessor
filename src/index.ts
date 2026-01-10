@@ -7,7 +7,6 @@ import { colorsCollection } from "./collections/colors/colors";
 import { paletteCollection } from "./collections/colors/palette";
 import { brandCollection } from "./collections/colors/brand";
 import { feedbackCollection } from "./collections/colors/feedback";
-import { neutralCollection } from "./collections/colors/neutral";
 import { contentHeightCollection } from "./collections/display-context/content-height";
 import { themeCollection } from "./collections/colors/theme";
 import { createDirForCollection } from "./utils/fsUtils";
@@ -27,10 +26,6 @@ const allCollections: Record<string, any> = {
   theme: themeCollection,
   brand: brandCollection,
   feedback: feedbackCollection,
-  /**
-   * @TODO gérer le cas neutral
-   * neutral: neutralCollection,
-   */
 };
 
 // Sélection des collections à générer via argument CLI ou variable d'environnement
