@@ -104,9 +104,9 @@ export function generateShades(
   });
 }
 
-export function generateGreyShades() {
+export function generateGreyShades(steps: string[]): Record<string, Rgb> {
   const greyShades: Record<string, Rgb> = {};
-  for (const step of COLOR_STEPS) {
+  for (const step of steps) {
     const t = parseInt(step) / 1000;
     const lightness = 1 - t * 1;
     greyShades[step] = hslaToRgba(0, 0, lightness, 1);

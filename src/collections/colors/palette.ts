@@ -1,6 +1,6 @@
-import { converter, Rgb } from "culori";
+import { Rgb } from "culori";
 import { FigmaCollection, FigmaVariable } from "../../types";
-import { SCOPES, COLORS } from "../../constants";
+import { SCOPES, COLORS, COLOR_STEPS } from "../../constants";
 import {
   formatColorValue,
   generateGreyShades,
@@ -10,7 +10,7 @@ import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 
 // Récupérer les nuances de gris
-const greyShades = generateGreyShades();
+const greyShades = generateGreyShades(COLOR_STEPS);
 
 const opacitiesSteps = [
   "50",
@@ -95,6 +95,11 @@ for (const [colorCategory, colorValues] of Object.entries(COLORS)) {
   }
 }
 
+// Initialisation défensive pour neutral.grey.shades
+if (!variables["neutral"]) variables["neutral"] = {};
+if (!variables["neutral"]["grey"]) variables["neutral"]["grey"] = {};
+if (!variables["neutral"]["grey"]["shades"])
+  variables["neutral"]["grey"]["shades"] = {};
 // Générer les variables de nuances de gris
 for (const [step, shade] of Object.entries(greyShades)) {
   const { r, g, b } = shade;

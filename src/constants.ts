@@ -111,47 +111,30 @@ export const THEME_PRESET = {
         focused: "300",
       },
     },
-    /**
-     * @TODO gérer le cas neutral
-     * neutral: {
-     *   text: {
-     *     core: {
-     *       primary: "grey.950",
-     *       secondary: "darkGrey.opacities.600",
-     *     },
-     *     states: {
-     *       hover: "darkGrey.opacities.50",
-     *       selected: "darkGrey.opacities.400",
-     *       focus: "darkGrey.opacities.100",
-     *       disabled: "darkGrey.opacities.300",
-     *     },
-     *   },
-     *   background: {
-     *     elevations: {
-     *       0: "grey.50",
-     *       1: "grey.0",
-     *       2: "grey.0",
-     *       3: "grey.0",
-     *       4: "grey.0",
-     *       5: "grey.0",
-     *       6: "grey.0",
-     *       7: "grey.0",
-     *       8: "grey.0",
-     *       9: "grey.0",
-     *       10: "grey.0",
-     *       11: "grey.0",
-     *       12: "grey.0",
-     *     },
-     *     states: {
-     *       active: "darkGrey.opacities.600",
-     *       hover: "darkGrey.opacities.50",
-     *       selected: "darkGrey.opacities.100",
-     *       focus: "darkGrey.opacities.100",
-     *       disabled: "darkGrey.opacities.100",
-     *     },
-     *   },
-     * },
-     */
+    neutral: {
+      text: {
+        core: {
+          primary: "950",
+        },
+      },
+      background: {
+        elevations: {
+          0: "50",
+          1: "0",
+          2: "0",
+          3: "0",
+          4: "0",
+          5: "0",
+          6: "0",
+          7: "0",
+          8: "0",
+          9: "0",
+          10: "0",
+          11: "0",
+          12: "0",
+        },
+      },
+    },
   },
   dark: {
     colors: {
@@ -168,59 +151,87 @@ export const THEME_PRESET = {
         focused: "300",
       },
     },
-    // neutral: {
-    //   text: {
-    //     core: {
-    //       primary: "grey.50",
-    //       secondary: "lightGrey.opacities.600",
-    //     },
-    //     state: {
-    //       hover: "lightGrey.opacities.50",
-    //       selected: "lightGrey.opacities.400",
-    //       focus: "lightGrey.opacities.100",
-    //       disabled: "lightGrey.opacities.300",
-    //     },
-    //   },
-    //   background: {
-    //     elevations: {
-    //       0: "grey.950",
-    //       1: "grey.1000",
-    //       2: "grey.975",
-    //       3: "grey.950",
-    //       4: "grey.925",
-    //       5: "grey.900",
-    //       6: "grey.875",
-    //       7: "grey.850",
-    //       8: "grey.825",
-    //       9: "grey.800",
-    //       10: "grey.775",
-    //       11: "grey.750",
-    //       12: "grey.725",
-    //     },
-    //     state: {
-    //       active: "lightGrey.opacities.600",
-    //       hover: "lightGrey.opacities.50",
-    //       selected: "lightGrey.opacities.100",
-    //       focus: "lightGrey.opacities.100",
-    //       disabled: "lightGrey.opacities.100",
-    //     },
-    //   },
-    // },
+    neutral: {
+      text: {
+        core: {
+          primary: "50",
+        },
+      },
+      background: {
+        elevations: {
+          0: "950",
+          1: "1000",
+          2: "975",
+          3: "950",
+          4: "925",
+          5: "900",
+          6: "875",
+          7: "850",
+          8: "825",
+          9: "800",
+          10: "775",
+          11: "750",
+          12: "725",
+        },
+      },
+    },
   },
 };
 
 export const THEME_SCHEMA = {
   colors: {
     core: {
-      categoryTarget: "shades",
+      scaleTarget: "shades",
       scopes: [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
     },
     state: {
-      categoryTarget: "opacities",
+      scaleTarget: "opacities",
       scopes: [SCOPES.COLOR.SHAPE_FILL, SCOPES.COLOR.FRAME_FILL],
     },
   },
-  neutral: {},
+  neutral: {
+    text: {
+      core: {
+        primary: {
+          scaleTarget: "shades",
+          toneTarget: "grey",
+        },
+        secondary: {
+          variableTarget: "opacities.600",
+          toneTarget: { light: "darkGrey", dark: "lightGrey" },
+        },
+      },
+      state: {
+        scaleTarget: "opacities",
+        toneTarget: { light: "darkGrey", dark: "lightGrey" },
+        variations: {
+          hover: "50",
+          selected: "400",
+          focus: "100",
+          disabled: "300",
+        },
+      },
+      scope: [SCOPES.COLOR.TEXT_FILL],
+    },
+    background: {
+      elevations: {
+        scaleTarget: "shades",
+        toneTarget: "grey",
+      },
+      states: {
+        scaleTarget: "opacities",
+        toneTarget: { light: "darkGrey", dark: "lightGrey" },
+        variations: {
+          active: "600",
+          hover: "50",
+          selected: "100",
+          focus: "100",
+          disabled: "100",
+        },
+      },
+      scope: [SCOPES.COLOR.FRAME_FILL, SCOPES.COLOR.SHAPE_FILL],
+    },
+  },
   borderColor: {
     variableTarget: "opacities.500",
     scopes: [SCOPES.COLOR.STROKE_COLOR],
