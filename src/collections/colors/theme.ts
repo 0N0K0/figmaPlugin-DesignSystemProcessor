@@ -30,11 +30,12 @@ const variables: Record<
   string,
   Record<
     string,
-    Record<
-      string,
-      | FigmaVariable
-      | Record<string, FigmaVariable | Record<string, FigmaVariable>>
-    >
+    | FigmaVariable
+    | Record<
+        string,
+        | FigmaVariable
+        | Record<string, FigmaVariable | Record<string, FigmaVariable>>
+      >
   >
 > = {};
 
@@ -83,8 +84,8 @@ for (const [mode, modeConfig] of Object.entries(THEME_PRESET)) {
         ),
       };
     } else {
-      variables[colorCategory]["borderColor"] = {
-        ...(variables[colorCategory]["borderColor"] || {}),
+      variables[colorCategory] = {
+        ...(variables[colorCategory] || {}),
         borderColor: makeColorVariable(
           value,
           borderColorSchema.scopes,
@@ -263,7 +264,7 @@ for (const [mode, modeConfig] of Object.entries(THEME_PRESET)) {
   };
 
   // Ajout des variables de bordure
-  if (mode === "light")
+  if (mode === "dark")
     addBorderColor(getNeutralColor("lightGrey", "50"), "neutral", "lightGrey");
   else
     addBorderColor(getNeutralColor("darkGrey", "950"), "neutral", "darkGrey");

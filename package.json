@@ -10,7 +10,7 @@
     "dev": "vite",
     "generate": "npm run build && npm start",
     "display-context": "npm start -- --collections=breakpoints,ratios,orientations,devices,content-height,vertical-densities",
-    "colors-collections": "npm start -- --collections=colors,palette,theme,brand,feedback",
+    "colors-collections": "npm start -- --collections=colors,palette,theme,brand,feedback, neutral",
     "breakpoints": "npm start -- --collections=breakpoints",
     "ratios": "npm start -- --collections=ratios",
     "orientations": "npm start -- --collections=orientations",
@@ -21,7 +21,8 @@
     "palette": "npm start -- --collections=palette",
     "theme": "npm start -- --collections=theme",
     "brand": "npm start -- --collections=brand",
-    "feedback": "npm start -- --collections=feedback"
+    "feedback": "npm start -- --collections=feedback",
+    "neutral": "npm start -- --collections=neutral"
   },
   "keywords": [
     "figma",
