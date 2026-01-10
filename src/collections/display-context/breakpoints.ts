@@ -1,13 +1,13 @@
-import { FigmaCollection, FigmaVariable } from "../../types";
 import {
-  MIN_COLUMN_WIDTH,
+  COLUMNS,
   GUTTER,
   HORIZONTAL_PADDING,
-  COLUMNS,
-  RATIOS,
-  ORIENTATIONS,
+  MIN_COLUMN_WIDTH,
   MIN_VIEWPORT_HEIGHT,
-} from "../../constants";
+  ORIENTATIONS,
+  RATIOS,
+} from "../../constants/systemConstants";
+import { FigmaCollection, FigmaVariable } from "../../types";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 

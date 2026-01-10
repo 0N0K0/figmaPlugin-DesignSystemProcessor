@@ -1,5 +1,6 @@
+import { SCOPES } from "../../constants/figmaConstants";
+import { BASE_FONT_SIZE, BASELINE_GRID } from "../../constants/systemConstants";
 import { FigmaCollection } from "../../types";
-import { BASELINE_GRID, BASE_FONT_SIZE, SCOPES } from "../../constants";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 

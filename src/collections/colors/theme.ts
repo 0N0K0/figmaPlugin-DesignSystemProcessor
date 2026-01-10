@@ -1,11 +1,4 @@
 import { CoreShades, FigmaCollection, FigmaVariable } from "../../types";
-import {
-  SCOPES,
-  COLORS,
-  THEME_PRESET,
-  THEME_SCHEMA,
-  COLOR_STEPS,
-} from "../../constants";
 import { formatHex } from "culori/require";
 import {
   formatColorValue,
@@ -16,6 +9,13 @@ import {
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 import { rgb } from "culori";
+import {
+  COLOR_STEPS,
+  COLORS,
+  THEME_PRESET,
+  THEME_SCHEMA,
+} from "../../constants/colorConstants";
+import { SCOPES } from "../../constants/figmaConstants";
 
 const modes = ["light", "dark"];
 

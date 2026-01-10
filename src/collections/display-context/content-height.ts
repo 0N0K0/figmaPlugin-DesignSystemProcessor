@@ -1,5 +1,9 @@
+import { SCOPES } from "../../constants/figmaConstants";
+import {
+  BASELINE_GRID,
+  MAX_CONTENT_HEIGHT,
+} from "../../constants/systemConstants";
 import { FigmaCollection, FigmaVariable } from "../../types";
-import { MAX_CONTENT_HEIGHT, BASELINE_GRID, SCOPES } from "../../constants";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 

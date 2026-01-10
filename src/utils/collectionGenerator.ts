@@ -1,4 +1,4 @@
-import { THEME_PRESET, THEME_SCHEMA } from "../constants";
+import { THEME_PRESET, THEME_SCHEMA } from "../constants/colorConstants";
 import { formatColorValue } from "./colorUtils";
 import { generateVariable } from "./figmaUtils";
 

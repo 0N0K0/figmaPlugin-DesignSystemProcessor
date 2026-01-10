@@ -1,6 +1,5 @@
 import { Rgb } from "culori";
 import { FigmaCollection, FigmaVariable } from "../../types";
-import { SCOPES, COLORS, COLOR_STEPS } from "../../constants";
 import {
   formatColorValue,
   generateGreyShades,
@@ -8,6 +7,8 @@ import {
 } from "../../utils/colorUtils";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
+import { SCOPES } from "../../constants/figmaConstants";
+import { COLOR_STEPS, COLORS } from "../../constants/colorConstants";
 
 // Récupérer les nuances de gris
 const greyShades = generateGreyShades(COLOR_STEPS);

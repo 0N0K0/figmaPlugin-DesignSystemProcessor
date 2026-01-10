@@ -1,12 +1,12 @@
-import { FigmaCollection, FigmaVariable } from "../../types";
+import { SCOPES } from "../../constants/figmaConstants";
 import {
+  BASELINE_GRID,
+  COLUMNS,
   GUTTER,
   HORIZONTAL_PADDING,
-  COLUMNS,
-  SCOPES,
   OFFSET_HEIGHT,
-  BASELINE_GRID,
-} from "../../constants";
+} from "../../constants/systemConstants";
+import { FigmaCollection, FigmaVariable } from "../../types";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 

@@ -1,9 +1,13 @@
 import { formatHex } from "culori/require";
-import { COLOR_STEPS, THEME_PRESET, THEME_SCHEMA } from "../../constants";
 import { FigmaCollection, FigmaVariable } from "../../types";
 import { formatColorValue, generateGreyShades } from "../../utils/colorUtils";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
+import {
+  COLOR_STEPS,
+  THEME_PRESET,
+  THEME_SCHEMA,
+} from "../../constants/colorConstants";
 
 const variables: Record<
   string,

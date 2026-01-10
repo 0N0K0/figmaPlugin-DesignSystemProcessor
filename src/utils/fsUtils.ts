@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import { OUTPUT_DIR } from "../constants";
 import { FigmaCollection } from "../types";
+import { OUTPUT_DIR } from "../constants/fsConstants";
 
 export function ensureOutputDir(): void {
   if (!fs.existsSync(OUTPUT_DIR)) {

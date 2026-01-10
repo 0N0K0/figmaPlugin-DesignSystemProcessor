@@ -7,8 +7,8 @@ import {
   Rgb,
   wcagContrast,
 } from "culori";
-import { COLOR_STEPS } from "../constants";
 import { FigmaColorValue } from "../types";
+import { COLOR_STEPS } from "../constants/colorConstants";
 
 export function hslaToRgba(h: number, s: number, l: number, a: number): Rgb {
   const color = hsl({ mode: "hsl", h, s: s, l: l, alpha: a });

@@ -1,5 +1,5 @@
+import { ORIENTATIONS, RATIOS } from "../../constants/systemConstants";
 import { FigmaCollection, FigmaVariable } from "../../types";
-import { RATIOS, ORIENTATIONS } from "../../constants";
 import { generateVariable } from "../../utils/figmaUtils";
 import { generateModeJson } from "../../utils/jsonUtils";
 
