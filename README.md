@@ -4,13 +4,18 @@ Générateur d'environnement de Design pour Figma
 
 ## 🧩 Fonctionnalités
 
-L'applicatif génère des Variables pour Figma et permet de les importer.
+L'applicatif permet de :
+
+- génèrer des Variables pour Figma
+- les importer via un pluggin
+- générer un composant pour différentes tailles de Viewport
+- générer des pages de présentation pour ces différentes tailles de Viewport
+-
 
 ### Fonctionnalité à venir :
 
 - génération de styles
 - génération de composants à partir d'images
-- génération de pages de présentation par device
 - génération des variables pour CSS
 
 ## 📦 Installation
@@ -259,7 +264,7 @@ Vous pouvez importer les fichiers JSON directement dans la **fenêtre de gestion
 
 ### 2. Import via le plugin Token Importer (recommandé)
 
-Le plugin **Token Importer** automatise et enrichit le processus d'import.
+Le plugin `Token Importer` automatise et enrichit le processus d'import.
 
 **Avantages** :
 
@@ -277,4 +282,46 @@ Le plugin **Token Importer** automatise et enrichit le processus d'import.
 
 1. Lancez le plugin depuis `Plugins > Token Importer`
 2. Sélectionnez les fichiers JSON à importer
-3. Cliquez sur **Importer**
+3. Cliquez sur `Importer`
+
+## 🔌 Viewport Plugins
+
+### Viewport variants generator
+
+`Viewport variants generator` permet de générer un composant avec 7 variantes définies :
+
+- le device : desktop | tablet | mobile
+- l'orientation : landcape | portrait
+- la taille : xl | lg | md | sm | xs
+
+Une variante libre est également présente pour les développeurs Front.
+
+Ces variantes sont des frames auxquelles est appliqué un Autolayout vertical et qui héritent des variables width et height définies dans la collection de variables `System/Devices`.
+
+### Viewport pages generator
+
+`Viewport pages generator` permet de générer un ensemble de 8 pages vides, destinées à recevoir les futures présentations, selon cette arborescence :
+
+- Desktop
+  - xl
+  - lg
+- Tablet
+  - portrait
+    - md
+    - sm
+  - landscape
+- Mobile
+  - portrait
+  - landscape
+- ⚡ DEV ONLY (destinée à la manipulation des frames par les Développeurs Front)
+
+#### Installation des plugins
+
+1. Allez dans `Plugins`
+2. Cliquez sur `Import from manifest`
+3. Pointez vers le fichier `manifest.json` du plugin à installer
+
+#### Utilisation
+
+1. Lancez le plugin depuis `Plugins`
+2. Cliquez sur `Générer`
