@@ -3,7 +3,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const GUTTER = Number(process.env.GUTTER) || 16;
-export const HORIZONTAL_PADDING = Number(process.env.HORIZONTAL_PADDING) || 32;
+export const HORIZONTAL_BODY_PADDING =
+  Number(process.env.HORIZONTAL_BODY_PADDING) || 32;
+export const HORIZONTAL_MAIN_PADDING =
+  Number(process.env.HORIZONTAL_MAIN_PADDING) || 0;
 export const COLUMNS = {
   xs: 3,
   sm: 4,

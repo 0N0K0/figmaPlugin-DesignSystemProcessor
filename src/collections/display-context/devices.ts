@@ -3,7 +3,8 @@ import {
   BASELINE_GRID,
   COLUMNS,
   GUTTER,
-  HORIZONTAL_PADDING,
+  HORIZONTAL_BODY_PADDING,
+  HORIZONTAL_MAIN_PADDING,
   OFFSET_HEIGHT,
 } from "../../constants/systemConstants";
 import { FigmaCollection, FigmaVariable } from "../../types";
@@ -89,8 +90,12 @@ for (const [device, modes] of Object.entries(config)) {
 
       const columns = COLUMNS[size as keyof typeof COLUMNS];
       const columnWidth =
-        Math.floor(value - HORIZONTAL_PADDING * 2 - GUTTER * (columns - 1)) /
-        columns;
+        Math.floor(
+          value -
+            HORIZONTAL_BODY_PADDING * 2 -
+            HORIZONTAL_MAIN_PADDING * 2 -
+            GUTTER * (columns - 1)
+        ) / columns;
       const content: Record<
         string,
         Record<string, Record<string, FigmaVariable>>
@@ -109,13 +114,17 @@ for (const [device, modes] of Object.entries(config)) {
       for (let i = 1; i <= 12; i++) {
         let width: number;
         if (i > columns) {
-          width = value - HORIZONTAL_PADDING * 2;
+          width =
+            value - HORIZONTAL_BODY_PADDING * 2 - HORIZONTAL_MAIN_PADDING * 2;
         } else {
           width = columnWidth * i + GUTTER * (i - 1);
         }
         content["widths"]["columns"][i] = generateVariable(
           "number",
-          Math.min(width, value - HORIZONTAL_PADDING * 2),
+          Math.min(
+            width,
+            value - HORIZONTAL_BODY_PADDING * 2 - HORIZONTAL_MAIN_PADDING * 2
+          ),
           [],
           true
         );
@@ -139,7 +148,10 @@ for (const [device, modes] of Object.entries(config)) {
         }
         content["widths"]["divisions"][`1:${division}`] = generateVariable(
           "number",
-          Math.min(width, value - HORIZONTAL_PADDING * 2),
+          Math.min(
+            width,
+            value - HORIZONTAL_BODY_PADDING * 2 - HORIZONTAL_MAIN_PADDING * 2
+          ),
           [],
           true
         );

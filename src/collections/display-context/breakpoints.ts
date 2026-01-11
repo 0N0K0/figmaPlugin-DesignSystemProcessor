@@ -1,7 +1,8 @@
 import {
   COLUMNS,
   GUTTER,
-  HORIZONTAL_PADDING,
+  HORIZONTAL_BODY_PADDING,
+  HORIZONTAL_MAIN_PADDING,
   MIN_VIEWPORT_HEIGHT,
   ORIENTATIONS,
   RATIOS,
@@ -52,7 +53,8 @@ for (const [key, value] of Object.entries(modesConfig)) {
   modesConfig[key as keyof typeof modesConfig].viewportWidth.minWidth =
     minColumnWidth * value.columns +
     GUTTER * (value.columns - 1) +
-    HORIZONTAL_PADDING * 2;
+    HORIZONTAL_BODY_PADDING * 2 +
+    HORIZONTAL_MAIN_PADDING * 2;
 }
 
 /***
@@ -116,7 +118,8 @@ const maxColumnWidth: Record<string, number> = {};
 for (const [key, mode] of Object.entries(modesConfig)) {
   maxColumnWidth[key] =
     (mode.viewportWidth.maxWidth -
-      HORIZONTAL_PADDING * 2 -
+      HORIZONTAL_BODY_PADDING * 2 -
+      HORIZONTAL_MAIN_PADDING * 2 -
       GUTTER * (mode.columns - 1)) /
     mode.columns;
 }
@@ -132,11 +135,15 @@ for (const [key, mode] of Object.entries(modesConfig)) {
 
   // Largeurs pour chaque nombre de colonnes
   for (let i = 1; i <= 12; i++) {
-    const maxContentWidth = 1920 - HORIZONTAL_PADDING * 2;
+    const maxContentWidth =
+      1920 - HORIZONTAL_BODY_PADDING * 2 - HORIZONTAL_MAIN_PADDING * 2;
 
     let minwidth: number;
     if (i > mode.columns) {
-      minwidth = mode.viewportWidth.maxWidth - HORIZONTAL_PADDING * 2;
+      minwidth =
+        mode.viewportWidth.maxWidth -
+        HORIZONTAL_BODY_PADDING * 2 -
+        HORIZONTAL_MAIN_PADDING * 2;
     } else {
       minwidth = minColumnWidth * i + GUTTER * (i - 1);
     }
@@ -151,7 +158,10 @@ for (const [key, mode] of Object.entries(modesConfig)) {
 
     let maxwidth: number;
     if (i >= mode.columns) {
-      maxwidth = mode.viewportWidth.maxWidth - HORIZONTAL_PADDING * 2;
+      maxwidth =
+        mode.viewportWidth.maxWidth -
+        HORIZONTAL_BODY_PADDING * 2 -
+        HORIZONTAL_MAIN_PADDING * 2;
     } else {
       maxwidth = maxColumnWidth[key] * i + GUTTER * (i - 1);
     }
