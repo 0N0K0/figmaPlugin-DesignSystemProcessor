@@ -10,7 +10,6 @@ L'applicatif permet de :
 - les importer via un pluggin
 - générer un composant pour différentes tailles de Viewport
 - générer des pages de présentation pour ces différentes tailles de Viewport
--
 
 ### Fonctionnalité à venir :
 
