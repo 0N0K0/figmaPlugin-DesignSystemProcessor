@@ -1,5 +1,17 @@
-# figma-DisplayContextVariables
-Générateur de variables Figma au format JSON.
+# figma-Foundation
+
+Générateur d'environnement de Design pour Figma
+
+## 🧩 Fonctionnalités
+
+L'applicatif génère des Variables pour Figma et permet de les importer.
+
+### Fonctionnalité à venir :
+
+- génération de styles
+- génération de composants à partir d'images
+- génération de pages de présentation par device
+- génération des variables pour CSS
 
 ## 📦 Installation
 
@@ -12,79 +24,172 @@ npm install
 ### Générer les collections
 
 ```bash
-npm run generate
+npm run generate # compile et génère toutes les collections
+npm run display-context # génère les collections du display-context
+npm run colors # génère les collections de couleurs
+
+# Génère une collection :
+npm run breakpoints
+npm run ratios
+npm run orientations
+npm run devices
+npm run content-height
+npm run vertical-densities
+npm run colors-base
+npm run palette
+npm run theme
+npm run brand
+npm run feedback
+npm run neutral
+npm run typography
+npm run radius
+npm run placeholders
 ```
 
-Cela va :
-1. Compiler le TypeScript
-2. Générer un fichier ZIP par collection dans le dossier `output/`
-3. Chaque ZIP contient un JSON par mode + un manifest
+Cela permet de :
+
+1. Compiler éventuellement le TypeScript
+2. Générer un dossier par collection dans le dossier `output/` contenant un JSON par mode
 
 ### Développement
 
 ```bash
-# Exécuter sans compiler
-npm run dev
-
-# Compiler uniquement
-npm run build
+npm run dev      # Exécuter sans compiler
+npm run build    # Compiler uniquement
 ```
 
 ## 📁 Structure du projet
 
 ```
 src/
-├── constants.ts              # Constantes et enums (types de variables, scopes)
-├── utils.ts                  # Fonctions utilitaires (génération JSON, ZIP)
-├── collections/              # Fichiers de collections
-│   └── example-collection.ts # Exemple de collection
-└── index.ts                  # Point d'entrée principal
+├── index.ts                  # Point d'entrée principal
+├── types.ts                  # Types TypeScript
+├── constants/                # Constantes
+│   ├── colorConstants.ts
+│   ├── figmaConstants.ts
+│   └── systemConstants.ts
+├── utils/                    # Fonctions utilitaires
+│   ├── collectionGenerator.ts
+│   ├── colorUtils.ts
+│   ├── figmaUtils.ts
+│   ├── fsUtils.ts
+│   └── jsonUtils.ts
+└── collections/              # Collections de variables
+    ├── placeholders.ts
+    ├── display-context/
+    │   ├── breakpoints.ts
+    │   ├── content-height.ts
+    │   ├── devices.ts
+    │   ├── orientations.ts
+    │   ├── ratios.ts
+    │   └── vertical-densities.ts
+    └── style/
+        ├── colors/
+        │   ├── base.ts
+        │   ├── brand.ts
+        │   ├── feedback.ts
+        │   ├── neutral.ts
+        │   ├── palette.ts
+        │   └── theme.ts
+        ├── typography.ts
+        └── radius.ts
+```
+
+## ⚙️ Configuration (.env)
+
+### Fichier de configuration
+
+Le projet utilise un fichier `.env` pour personnaliser les variables de design. Un fichier `.env.example` est fourni en modèle.
+
+### Installation
+
+1. Dupliquez `.env.example` en `.env` :
+2. Modifiez les valeurs selon votre design system
+
+### Variables disponibles
+
+1. 📁 Répertoire de sortie
+2. 🎨 Couleurs de marque
+3. ⚠️ Couleurs de feedback
+4. 🌓 Opacités de thème (light/dark)
+5. 🎯 Opacités des couleurs neutres
+6. 📐 Layout horizontal et vertical
+7. 🔤 Typographie
+
+### Utilisation dans le code
+
+Les variables .env sont chargées automatiquement et utilisées lors de la génération des collections. Modifiez-les puis relancez:
+
+```bash
+npm run generate
 ```
 
 ## ✨ Créer une nouvelle collection
 
-1. Créez un fichier dans `src/collections/`, ex: `my-collection.ts`
+1. Créez un fichier dans `src/collections/`, ex: `example-collection.ts`
 2. Définissez votre collection :
 
 ```typescript
-import { FigmaCollection } from '../utils';
-import { SCOPES } from '../constants';
+import { FigmaCollection, FigmaVariable } from "../types";
+import { SCOPES } from "../constants/figmaConstants";
+import { generateVariable } from "../utils/figmaUtils";
+import { generateModeJson } from "../utils/jsonUtils";
 
-export const myCollection: FigmaCollection = {
-  name: 'Ma Collection',
-  modes: [
-    { modeId: 'mode-1', name: 'Mode 1' },
-    { modeId: 'mode-2', name: 'Mode 2' },
-  ],
-  variables: [
-    {
-      id: 'var-1',
-      name: 'colors/primary',
-      type: 'number' | 'color' | 'string' | 'boolean',
-      scopes: [SCOPES.ALL],
-      values: {
-        'mode-1': { r: 0.2, g: 0.4, b: 0.8, a: 1 },
-        'mode-2': { r: 0.4, g: 0.6, b: 1, a: 1 },
-      },
-    },
-  ],
+const variables: { [key: string]: FigmaVariable } = {};
+
+// Exemple 1 : Couleur
+variables["primary-color"] = generateVariable("color", "#FF5733", [
+  SCOPES.COLOR.FILL,
+  SCOPES.COLOR.STROKE,
+]);
+
+// Exemple 2 : Nombre
+variables["spacing-base"] = generateVariable("number", 8, [
+  SCOPES.DIMENSION.SIZE,
+]);
+
+// Exemple 3 : Texte
+variables["brand-name"] = generateVariable("string", "My Brand", [
+  SCOPES.STRING.TEXT_CONTENT,
+]);
+
+const mode = "Default";
+const collectionName = "My Collection";
+
+export const exampleCollection: FigmaCollection = {
+  name: collectionName,
+  modes: [mode],
+  variables: { [mode]: generateModeJson(collectionName, mode, variables) },
 };
 ```
 
 3. Importez et ajoutez-la dans `src/index.ts` :
 
 ```typescript
-import { myCollection } from './collections/my-collection';
+import { exampleCollection } from "./collections/example-collection";
 
-const collections = [
-  exampleCollection,
-  myCollection, // Ajoutez ici
-];
+const collections = {
+  // ... Collections existantes
+  example: exampleCollection, // Ajoutez ici
+};
+```
+
+4. Ajouter un script dans package.json pour générer uniquement cette collection au besoin
+
+```json
+  "scripts": {
+    "build": "vite build",
+    "start": "node dist/index.js",
+    "dev": "vite",
+    "generate": "npm run build && npm start",
+    // ... Collections existantes
+    "example": "npm start -- --collections=example" // Ajoutez ici
+  }
 ```
 
 ## 📄 Format de sortie
 
-Chaque ZIP contient un fichier JSON par mode (`mode-name.json`) au format Figma.
+Chaque dossier contient un fichier JSON par mode (`mode-name.token.json`) au format Figma.
 
 Exemple de structure JSON :
 
@@ -127,14 +232,49 @@ Exemple de structure JSON :
     }
   },
   "$extensions": {
-    "com.figma.modeName": "Mode 1"
+    "com.figma.modeName": "Mode 1",
+    "com.figma.setName": "Example Collection"
   }
 }
 ```
 
-## 🔧 Types de variables supportés
+## 📥 Import des variables
 
-- `color` : Couleurs (RGBA ou hex)
-- `number` : Nombres décimaux
-- `string` : Chaînes de caractères
-- `boolean` : Booléens (stockés comme 0/1)
+Les variables générées peuvent être importées de deux manières :
+
+### 1. Import direct (natif Figma)
+
+Vous pouvez importer les fichiers JSON directement dans la **fenêtre de gestion des variables** de Figma :
+
+- Assurez vous de n'avoir aucun objet sélectionné et d'être en mode `Design`
+- Dans le menu latéral droit, cliquez sur `Variables`
+- Créez une nouvelle collection
+- Cliquez sur `Importer`
+- Sélectionnez tous les fichiers JSON de la collection que vous souhaitez importer
+
+⚠️ **Limitations** :
+
+- Les **scopes** ne sont pas appliqués automatiquement
+- Les **alias** ne sont pas reconnus
+
+### 2. Import via le plugin Token Importer (recommandé)
+
+Le plugin **Token Importer** automatise et enrichit le processus d'import.
+
+**Avantages** :
+
+- ✅ Application automatique des **scopes** (FILL, STROKE, TEXT_CONTENT, etc.)
+- ✅ Gestion correcte des **alias** et références entre variables
+- ✅ Création des collections
+
+#### Installation du plugin
+
+1. Allez dans `Plugins`
+2. Cliquez sur `Import from manifest`
+3. Pointez vers le fichier `token-importer-plugin/manifest.json`
+
+#### Utilisation
+
+1. Lancez le plugin depuis `Plugins > Token Importer`
+2. Sélectionnez les fichiers JSON à importer
+3. Cliquez sur **Importer**
