@@ -1,4 +1,4 @@
-figma.showUI(__html__, { width: 400, height: 350 });
+figma.showUI(__html__, { width: 240, height: 196 });
 
 function log(msg) {
   figma.ui.postMessage({ type: "log", message: msg });
