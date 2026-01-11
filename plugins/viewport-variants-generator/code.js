@@ -50,6 +50,11 @@ const VARIANTS = [
     widthFallback: 960,
     minHeightFallback: 432,
   },
+  {
+    path: "all/free/free",
+    widthFallback: 1536,
+    minHeightFallback: 960,
+  },
 ].map((v) => {
   const variantProps = parseVariablePath(v.path);
   return Object.assign({}, v, { variantProps });
@@ -89,7 +94,7 @@ function createAutoLayoutComponent() {
   component.layoutSizingVertical = "HUG";
   component.layoutSizingHorizontal = "FIXED";
   component.primaryAxisAlignItems = "MIN";
-  component.counterAxisAlignItems = "MIN";
+  component.counterAxisAlignItems = "CENTER";
   component.itemSpacing = 0;
   component.paddingLeft = 0;
   component.paddingRight = 0;
@@ -115,36 +120,48 @@ function bindVariable(node, property, variable) {
 
 // Trouve ou crée le composant Instance
 async function findOrCreateInstanceComponent() {
-  // Chercher le composant dans toutes les pages
-  log(`🔍 Recherche du composant "<_Instance>" dans le document...`);
+  // Chercher le composant dans toutes les pages et garder une ref à la page "Instance"
+  log(`🔍 Recherche du composant "_Instance" dans le document...`);
+
+  let instancePage = null;
 
   for (const page of figma.root.children) {
     if (page.type === "PAGE") {
       const found = page.findOne(
-        (node) => node.type === "COMPONENT" && node.name === "<_Instance>"
+        (node) => node.type === "COMPONENT" && node.name === "_Instance"
       );
       if (found) {
         return found;
+      }
+      if (page.name === "    ♢ _Instance") {
+        instancePage = page;
       }
     }
   }
 
   // Si non trouvé, créer une page dédiée et le composant
-  let instancePage = figma.root.children.find(
-    (page) => page.type === "PAGE" && page.name === "Instance"
-  );
   if (!instancePage) {
     log(`🔍 Page "Instance" non trouvée, création en cours...`);
+
+    // Trouver ou créer la page "Miscellaneous"
+    let miscellaneousPage = figma.root.children.find(
+      (page) => page.type === "PAGE" && page.name === "↓ Miscellaneous"
+    );
+    if (!miscellaneousPage) {
+      miscellaneousPage = figma.createPage();
+      miscellaneousPage.name = "↓ Miscellaneous";
+      log(`📄 Page créée: "Miscellaneous"`);
+    }
+
     instancePage = figma.createPage();
-    instancePage.name = "Instance";
+    instancePage.name = "    ♢ _Instance";
     log(`📄 Page créée: "Instance"`);
-  } else {
   }
 
-  log(`🔨 Création du composant "<_Instance>"`);
+  log(`🔨 Création du composant "_Instance"`);
   try {
     const instanceComponent = figma.createComponent();
-    instanceComponent.name = "<_Instance>";
+    instanceComponent.name = "_Instance";
     instanceComponent.layoutMode = "VERTICAL";
     instanceComponent.primaryAxisAlignItems = "CENTER";
     instanceComponent.counterAxisAlignItems = "CENTER";
@@ -188,12 +205,10 @@ async function findOrCreateInstanceComponent() {
     instanceContent.layoutSizingVertical = "FILL";
 
     instancePage.appendChild(instanceComponent);
-    log(`✅ Composant "<_Instance>" créé sur la page "Instance"`);
+    log(`✅ Composant "_Instance" créé sur la page "Instance"`);
     return instanceComponent;
   } catch (e) {
-    log(
-      `❌ Erreur lors de la création du composant "<_Instance>": ${e.message}`
-    );
+    log(`❌ Erreur lors de la création du composant "_Instance": ${e.message}`);
     return null;
   }
 }
@@ -201,13 +216,99 @@ async function findOrCreateInstanceComponent() {
 figma.ui.onmessage = async (msg) => {
   if (msg.type !== "generate-viewport-variants") return;
 
-  // Créer une page dédiée pour le composant de présentations
+  // Trouver ou créer la page "PRESENTATIONS"
+  let presentationsPage = figma.root.children.find(
+    (page) => page.type === "PAGE" && page.name === "PRESENTATIONS"
+  );
+  if (!presentationsPage) {
+    presentationsPage = figma.createPage();
+    presentationsPage.name = "PRESENTATIONS";
+    log(`📄 Page créée: "PRESENTATIONS"`);
+  }
+
+  for (const deviceName of ["↓ Desktop", "↓ Tablet", "↓ Mobile"]) {
+    let devicePage = figma.root.children.find(
+      (page) => page.type === "PAGE" && page.name === deviceName
+    );
+    if (!devicePage) {
+      devicePage = figma.createPage();
+      devicePage.name = deviceName;
+      log(`📄 Page créée: "${deviceName}"`);
+    }
+    if (deviceName === "↓ Desktop") {
+      for (const sizeName of ["    ♢ XL", "    ♢ LG"]) {
+        let sizePage = figma.root.children.find(
+          (page) => page.type === "PAGE" && page.name === sizeName
+        );
+        if (!sizePage) {
+          sizePage = figma.createPage();
+          sizePage.name = sizeName;
+          log(`📄 Page créée: "${sizeName}"`);
+        }
+      }
+    } else if (deviceName === "↓ Tablet" || deviceName === "↓ Mobile") {
+      for (const orientationName of ["  ► Portrait", "  ► Landscape"]) {
+        let orientationPage = figma.root.children.find(
+          (page) => page.type === "PAGE" && page.name === orientationName
+        );
+        orientationPage = figma.createPage();
+        orientationPage.name = orientationName;
+        log(`📄 Page créée: "${orientationName}" pour "${deviceName}`);
+        if (deviceName === "↓ Tablet" && orientationName === "  ► Portrait") {
+          for (const sizeName of ["    ♢ MD", "    ♢ SM"]) {
+            let sizePage = figma.root.children.find(
+              (page) => page.type === "PAGE" && page.name === sizeName
+            );
+            sizePage = figma.createPage();
+            sizePage.name = sizeName;
+            log(`📄 Page créée: "${sizeName}"`);
+          }
+        }
+      }
+    }
+  }
+
+  // Trouver ou créer la page "⚡ DEV ONLY"
+  let devOnlyPage = figma.root.children.find(
+    (page) => page.type === "PAGE" && page.name === "⚡ DEV ONLY"
+  );
+  if (!devOnlyPage) {
+    const separatorPage = figma.createPage();
+    separatorPage.name = "------------------------------";
+    devOnlyPage = figma.createPage();
+    devOnlyPage.name = "⚡ DEV ONLY";
+    log(`📄 Page créée: "DEV ONLY"`);
+  }
+
+  // Trouver ou créer la page "COMPONENTS"
+  let componentPage = figma.root.children.find(
+    (page) => page.type === "PAGE" && page.name === "COMPONENTS"
+  );
+  if (!componentPage) {
+    const separatorPage = figma.createPage();
+    separatorPage.name = "------------------------------";
+    componentPage = figma.createPage();
+    componentPage.name = "COMPONENTS";
+    log(`📄 Page créée: "COMPONENTS"`);
+  }
+
+  // Trouver ou créer la page "Layout"
+  let layoutPage = figma.root.children.find(
+    (page) => page.type === "PAGE" && page.name === "↓ Layout"
+  );
+  if (!layoutPage) {
+    layoutPage = figma.createPage();
+    layoutPage.name = "↓ Layout";
+    log(`📄 Page créée: "Layout"`);
+  }
+
+  // Créer une page dédiée pour le composant de viewport
   let targetPage = figma.root.children.find(
-    (page) => page.type === "PAGE" && page.name === "Viewport"
+    (page) => page.type === "PAGE" && page.name === "    ♢ Viewport"
   );
   if (!targetPage) {
     targetPage = figma.createPage();
-    targetPage.name = "Viewport";
+    targetPage.name = "    ♢ Viewport";
     log(`📄 Page créée: "Viewport"`);
   } else {
   }
