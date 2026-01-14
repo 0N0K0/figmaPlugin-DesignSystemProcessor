@@ -1,0 +1,45 @@
+/* Global Styles */
+body,
+* {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--figma-color-text, #ffffff);
+  font-weight: 450;
+
+  // Firefox scrollbar styles
+  scrollbar-width: auto;
+  scrollbar-color: #b3b3b380 transparent;
+}
+
+body {
+  padding-bottom: 107px;
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 10px;
+
+  &-track {
+    background: transparent;
+  }
+
+  &-thumb {
+    width: 6px;
+    background: #b3b3b380;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 6px;
+
+    &:hover {
+      background: #b3b3b3bb;
+      background-clip: padding-box;
+    }
+  }
+
+  &-btn {
+    display: none;
+  }
+}

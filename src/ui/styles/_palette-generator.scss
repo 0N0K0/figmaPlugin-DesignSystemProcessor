@@ -1,0 +1,104 @@
+/* Palette Generator Styles */
+.palette {
+  &-generator {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &-controls {
+    display: flex;
+    gap: 4px;
+  }
+
+  &-colors {
+    display: grid;
+    border-radius: 5px;
+    overflow: hidden;
+
+    &.palette-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    &.palette-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    &.palette-cols-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    &.palette-cols-5 {
+      grid-template-columns: repeat(5, 1fr);
+    }
+  }
+
+  &-color {
+    &-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    &-square {
+      position: relative;
+      height: 80px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      overflow: hidden;
+      cursor: default;
+
+      &:hover {
+        .palette-color-overlay {
+          opacity: 1;
+        }
+      }
+    }
+
+    &-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    &-name {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &-lock-btn,
+  &-remove-btn,
+  &-copy-btn {
+    position: absolute;
+  }
+  &-lock-btn {
+    top: 4px;
+    left: 4px;
+  }
+  &-remove-btn {
+    top: 4px;
+    right: 4px;
+  }
+  &-lock-btn,
+  &-remove-btn {
+    border-radius: 100%;
+  }
+  &-copy-btn {
+    width: auto;
+    padding: 0 6px;
+    justify-content: space-between;
+    gap: 4px;
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+  }
+}

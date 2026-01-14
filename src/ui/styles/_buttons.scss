@@ -1,0 +1,64 @@
+/* Buttons Styles */
+.btn,
+.icon-btn,
+input[type="file"]::file-selector-button {
+  color: var(--figma-color-text, #ffffff);
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+}
+
+.btn,
+input[type="file"]::file-selector-button {
+  padding: 4px 7px;
+  background-color: var(--figma-color-bg-secondary, #383838);
+
+  &:hover {
+    background-color: var(--figma-color-bg-tertiary, #444444);
+  }
+}
+
+.btn {
+  font-size: 13px;
+  line-height: 24px;
+  font-weight: 550;
+}
+
+/* Icon Button Base Style */
+.icon-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  flex-shrink: 0;
+
+  i {
+    font-size: 16px;
+  }
+
+  &:hover {
+    background-color: var(--figma-color-bg-hover, #383838);
+  }
+
+  &:disabled {
+    color: var(--figma-color-text-disabled, #ffffff66);
+    cursor: not-allowed;
+  }
+}
+
+.actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: var(--figma-color-bg, #2c2c2c);
+}

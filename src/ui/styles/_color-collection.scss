@@ -1,0 +1,17 @@
+/* Color Collection Styles */
+.color-collection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &-remove-btn,
+  &-add-btn {
+    flex-shrink: 0;
+  }
+}

@@ -1,0 +1,94 @@
+// File List Styles
+
+// Cacher l'input file
+.file-input-hidden {
+  display: none;
+}
+
+// Wrapper pour les boutons
+.file-input-wrapper {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.file-select-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.file-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &[data-image-preview="true"]:not(:has(.file-list-empty)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 58.25px);
+  }
+}
+
+.file-list-empty {
+  color: var(--figma-color-text-disabled);
+}
+
+.file-list-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+
+  .file-name {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .file-remove-btn {
+    margin-left: auto;
+  }
+}
+
+// Image preview mode
+.file-list-items[data-image-preview="true"] {
+  .file-list-item {
+    width: 58.25px;
+    height: 58.25px;
+    overflow: hidden;
+    flex-direction: column;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: transparent;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    &:hover::before {
+      background: rgba(0, 0, 0, 0.75);
+    }
+  }
+
+  .file-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .file-remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 2;
+    border-radius: 100%;
+  }
+}

@@ -1,0 +1,127 @@
+/* Color Selector Component */
+.color {
+  &-selector {
+    &-wrapper {
+      position: relative;
+
+      label {
+        width: 100%;
+      }
+    }
+
+    &-btn {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 0 4px 0 0;
+      width: 94px;
+    }
+
+    &-popup {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 1000;
+      background: #1e1e1e;
+      border: 1px solid var(--figma-color-border, #444444);
+      border-radius: 13px;
+      padding: 16px 0 16px 16px;
+      display: none;
+      overflow-y: auto;
+      width: 206px;
+      max-height: 304px;
+      box-shadow: var(--fpl-dialog-elevation, var(--elevation-500));
+
+      &.active {
+        display: block;
+      }
+    }
+
+    &-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+
+  &-label-input {
+    width: 100%;
+    flex-shrink: 1 !important;
+  }
+
+  &-custom {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-right: 1px;
+
+    input {
+      width: 100%;
+      flex: 1;
+    }
+
+    button {
+      width: 24px;
+      height: 24px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      line-height: 16px;
+      padding: 0;
+      background: transparent;
+    }
+  }
+
+  &-preview {
+    width: 14px;
+    height: 14px;
+    margin: 5px 5px 5px 4px;
+    border-radius: 2px;
+    flex-shrink: 0;
+
+    &.empty {
+      border: 1px solid var(--figma-color-border, #4444);
+      background-color: transparent;
+    }
+  }
+
+  &-text {
+    flex: 1;
+    text-align: left;
+    letter-spacing: 0.05504px;
+  }
+
+  &-family {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+
+    &-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    &:hover {
+      transform: scale(1.15);
+      border: 2px solid var(--figma-color-border-onselected, #667799);
+      z-index: 10;
+    }
+
+    &.selected {
+      border: 2px solid var(--figma-color-border-selected, #0c8ce9);
+    }
+  }
+}
