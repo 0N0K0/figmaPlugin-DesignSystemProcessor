@@ -35,7 +35,9 @@ export class HtmlBuilder {
     if (config.type === "button") {
       return `
       <div class="input-row">
-        <button type="button" id="${config.id}" class="btn" data-action="${config.action || config.id}">
+        <button type="button" id="${config.id}" class="btn" data-action="${
+        config.action || config.id
+      }">
           ${config.label}
         </button>
       </div>`;
@@ -122,9 +124,7 @@ export class HtmlBuilder {
       .join("\n");
 
     const colorCollectionHtml = config.colorCollection
-      ? `<div class="color-collection" data-collection-id="${config.colorCollection.id}" data-max-colors="${config.colorCollection.maxColors}">
-          <div class="color-collection-items"></div>
-        </div>`
+      ? `<div class="color-collection" data-collection-id="${config.colorCollection.id}" data-max-colors="${config.colorCollection.maxColors}"></div>`
       : "";
 
     const paletteGen = config.paletteGenerator

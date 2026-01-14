@@ -1,5 +1,8 @@
 import type { ColorSelectorConfig } from "../types/colors";
 import { initColorSelector } from "./colorSelector";
+import { SHADE_STEPS } from "../../common/constants/colorConstants";
+import { generateShades } from "../../common/utils/colorUtils";
+import { ShadeSelector, type ShadeOption } from "./shadeSelector";
 
 export class ColorCollection {
   private container: HTMLElement;
@@ -9,6 +12,7 @@ export class ColorCollection {
   private maxColors: number;
   private colors: ColorSelectorConfig[] = [];
   private counter: number = 0;
+  private shadeSelectors: Map<string, ShadeSelector[]> = new Map();
 
   constructor(
     container: HTMLElement,
@@ -18,19 +22,16 @@ export class ColorCollection {
     this.collectionId = container.dataset.collectionId || "colors";
     this.maxColors = parseInt(container.dataset.maxColors || "10");
 
-    const itemsEl = container.querySelector<HTMLElement>(
-      ".color-collection-items"
-    );
     const addBtnEl = document.querySelector<HTMLElement>(
       `.color-collection-add-btn[data-collection-id="${this.collectionId}"]`
     );
 
-    if (!itemsEl || !addBtnEl) {
+    if (!addBtnEl) {
       console.error("Color collection elements not found");
       return;
     }
 
-    this.itemsContainer = itemsEl;
+    this.itemsContainer = container;
     this.addBtn = addBtnEl;
 
     // Initialiser avec les couleurs initiales
@@ -65,42 +66,146 @@ export class ColorCollection {
     this.colors.push(colorConfig);
 
     const wrapper = document.createElement("div");
-    wrapper.className = "input-row color-selector-wrapper";
+    wrapper.className = "color-selector-wrapper";
     wrapper.dataset.colorId = colorConfig.inputId;
 
-    const isEditable = colorConfig.editableLabel !== false;
-    const labelHtml = isEditable
-      ? colorConfig.label
-        ? `<input type="text" class="color-label-input" data-input-id="${colorConfig.inputId}-label" value="${colorConfig.label}" placeholder="Label" />`
-        : `<input type="text" class="color-label-input" data-input-id="${colorConfig.inputId}-label" placeholder="Label" />`
-      : colorConfig.label
-      ? `<label>${colorConfig.label}</label>`
-      : "";
+    // Créer un wrapper pour base-color-input et shades-selector
+    const colorAndShadesWrapper = document.createElement("div");
+    colorAndShadesWrapper.className = "color-and-shades-wrapper";
 
-    const defaultAttr = colorConfig.defaultColor
-      ? ` data-default="${colorConfig.defaultColor}"`
-      : "";
+    // Créer un wrapper pour le label input et le button
+    const colorInputWrapper = document.createElement("div");
+    colorInputWrapper.className = "base-color-input-wrapper";
 
-    wrapper.innerHTML = `
-      ${labelHtml}
-      <button type="button" class="color-selector-btn" data-input-id="${colorConfig.inputId}"${defaultAttr}>
-        <span class="color-preview"></span>
-        <span class="color-text"></span>
-      </button>
-      <div class="color-selector-popup">
-        <div class="color-selector-grid"></div>
-      </div>
-      <button type="button" class="color-collection-remove-btn icon-btn" title="Remove"><i class="mdi mdi-close"></i></button>
-    `;
+    // Créer le label input (editable)
+    const labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "color-label-input";
+    labelInput.dataset.inputId = `${colorConfig.inputId}-label`;
+    labelInput.placeholder = "Label";
+    if (colorConfig.label) {
+      labelInput.value = colorConfig.label;
+    }
+    colorInputWrapper.appendChild(labelInput);
+
+    // Créer le bouton color selector
+    const colorBtn = document.createElement("button");
+    colorBtn.type = "button";
+    colorBtn.className = "color-selector-btn";
+    colorBtn.dataset.inputId = colorConfig.inputId;
+    if (colorConfig.defaultColor) {
+      colorBtn.dataset.default = colorConfig.defaultColor;
+    }
+
+    const colorPreview = document.createElement("span");
+    colorPreview.className = "color-preview";
+    colorBtn.appendChild(colorPreview);
+
+    const colorText = document.createElement("span");
+    colorText.className = "color-text";
+    colorBtn.appendChild(colorText);
+
+    colorInputWrapper.appendChild(colorBtn);
+
+    // Créer le popup pour le color selector
+    const popup = document.createElement("div");
+    popup.className = "color-selector-popup";
+    const grid = document.createElement("div");
+    grid.className = "color-selector-grid";
+    popup.appendChild(grid);
+    colorInputWrapper.appendChild(popup);
+
+    colorAndShadesWrapper.appendChild(colorInputWrapper);
+
+    // Ajouter les selects pour light, main, dark
+    const shadesRow = document.createElement("div");
+    shadesRow.className = "shades-selector-row";
+
+    // Générer les shades initialement avec une couleur par défaut ou celle fournie
+    const baseColor = colorConfig.defaultColor || "#808080";
+    const shades = generateShades(baseColor);
+    const shadeOptions: ShadeOption[] = [];
+    for (const shade of shades) {
+      shadeOptions.push({
+        value: shade.step,
+        label: String(shade.step),
+        color: shade.color,
+      });
+    }
+
+    const shadeTypes = [
+      { type: "light", label: "Light", defaultValue: 400 },
+      { type: "main", label: "Main", defaultValue: 500 },
+      { type: "dark", label: "Dark", defaultValue: 600 },
+    ];
+
+    const selectors: ShadeSelector[] = [];
+
+    shadeTypes.forEach(({ type, label, defaultValue }) => {
+      const column = document.createElement("div");
+      column.className = "input-column shade-selector-column";
+
+      const labelEl = document.createElement("label");
+      labelEl.textContent = label;
+      labelEl.htmlFor = `${colorConfig.inputId}-${type}`;
+      column.appendChild(labelEl);
+
+      // Créer le shade selector
+      const shadeSelector = new ShadeSelector(
+        shadeOptions,
+        defaultValue,
+        `${colorConfig.inputId}-${type}`
+      );
+
+      selectors.push(shadeSelector);
+      column.appendChild(shadeSelector.getElement());
+      shadesRow.appendChild(column);
+    });
+
+    // Stocker les selectors pour pouvoir les mettre à jour plus tard
+    this.shadeSelectors.set(colorConfig.inputId, selectors);
+
+    colorAndShadesWrapper.appendChild(shadesRow);
+    wrapper.appendChild(colorAndShadesWrapper);
+
+    // Ajouter le bouton de suppression
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "color-collection-remove-btn icon-btn";
+    removeBtn.title = "Remove";
+    removeBtn.innerHTML = '<i class="mdi mdi-close"></i>';
+    wrapper.appendChild(removeBtn);
 
     this.itemsContainer.appendChild(wrapper);
 
     // Initialiser le color selector pour cet élément
     initColorSelector(wrapper);
 
+    // Fermer les selects personnalisés quand on clique ailleurs
+    document.addEventListener("click", () => {
+      wrapper.querySelectorAll(".custom-shade-select.open").forEach((sel) => {
+        sel.classList.remove("open");
+      });
+    });
+
+    // Écouter les changements de couleur pour mettre à jour les shades
+    colorBtn.addEventListener("click", () => {
+      // Utiliser MutationObserver pour détecter quand la couleur change
+      const observer = new MutationObserver(() => {
+        const newColor = colorText.textContent;
+        if (newColor && newColor !== "transparent") {
+          this.updateShadesForColor(colorConfig.inputId, newColor);
+        }
+      });
+      observer.observe(colorText, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+    });
+
     // Ajouter l'événement de suppression
-    const removeBtn = wrapper.querySelector(".color-collection-remove-btn");
-    removeBtn?.addEventListener("click", () => {
+    removeBtn.addEventListener("click", () => {
       this.removeColor(colorConfig.inputId);
     });
 
@@ -108,11 +213,30 @@ export class ColorCollection {
     this.updateRemoveButtons();
   }
 
+  private updateShadesForColor(inputId: string, colorHex: string): void {
+    const shades = generateShades(colorHex);
+    const shadeOptions: ShadeOption[] = shades.map((shade) => ({
+      value: shade.step,
+      label: String(shade.step),
+      color: shade.color,
+    }));
+
+    const selectors = this.shadeSelectors.get(inputId);
+    if (selectors) {
+      selectors.forEach((selector) => {
+        selector.updateOptions(shadeOptions);
+      });
+    }
+  }
+
   private removeColor(inputId: string): void {
     // Ne pas supprimer si c'est la dernière couleur
     if (this.colors.length <= 1) return;
 
     this.colors = this.colors.filter((c) => c.inputId !== inputId);
+
+    // Nettoyer les selectors stockés
+    this.shadeSelectors.delete(inputId);
 
     const item = this.itemsContainer.querySelector(
       `[data-color-id="${inputId}"]`
@@ -183,7 +307,6 @@ export function initColorCollections(): void {
     console.log(`Initializing color collection: ${collectionId}`);
 
     // Récupérer les couleurs initiales depuis TABS
-    // Pour l'instant, on passe un tableau vide et on les chargera depuis le build
     new ColorCollection(container, []);
   });
 }

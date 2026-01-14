@@ -79,7 +79,7 @@ const pluginBuildOptions = {
   bundle: true,
   outfile: "dist/code.js",
   platform: "node",
-  target: "es2020",
+  target: "es2017",
   logLevel: "info",
   external: [],
   minify: !isWatch,

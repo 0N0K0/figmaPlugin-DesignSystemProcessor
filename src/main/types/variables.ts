@@ -5,7 +5,7 @@ export interface VariableConfig {
   name: string;
   collection: string;
   type: "COLOR" | "FLOAT" | "STRING" | "BOOLEAN";
-  scopes: VariableScope[];
+  scopes?: VariableScope[];
   value?: VariableValue;
   hidden?: boolean;
   description?: string;

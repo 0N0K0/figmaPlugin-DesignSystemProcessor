@@ -2,19 +2,20 @@
 .color {
   &-selector {
     &-wrapper {
-      position: relative;
+      display: flex;
+      gap: 4px;
+
+      &:not(:first-child) {
+        padding-top: 12px;
+      }
+      &:not(:last-child) {
+        padding-bottom: 12px;
+        border-bottom: 1px dashed var(--figma-color-border, #444444);
+      }
 
       label {
         width: 100%;
       }
-    }
-
-    &-btn {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      padding: 0 4px 0 0;
-      width: 94px;
     }
 
     &-popup {
@@ -44,11 +45,6 @@
     }
   }
 
-  &-label-input {
-    width: 100%;
-    flex-shrink: 1 !important;
-  }
-
   &-custom {
     display: flex;
     gap: 8px;
@@ -71,19 +67,6 @@
       line-height: 16px;
       padding: 0;
       background: transparent;
-    }
-  }
-
-  &-preview {
-    width: 14px;
-    height: 14px;
-    margin: 5px 5px 5px 4px;
-    border-radius: 2px;
-    flex-shrink: 0;
-
-    &.empty {
-      border: 1px solid var(--figma-color-border, #4444);
-      background-color: transparent;
     }
   }
 
@@ -122,6 +105,56 @@
 
     &.selected {
       border: 2px solid var(--figma-color-border-selected, #0c8ce9);
+    }
+  }
+  &-and-shades-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .base-color-input-wrapper {
+      position: relative;
+      display: flex;
+      gap: 4px;
+
+      .color-label-input {
+        width: 100%;
+        flex-shrink: 1;
+      }
+    }
+
+    .shades-selector-row {
+      display: flex;
+      gap: 8px;
+
+      .input-column {
+        flex: 1 1 0%;
+        gap: 2px;
+        label {
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.color-selector-btn {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 4px 0 0;
+  width: 94px;
+
+  .color-preview {
+    width: 14px;
+    height: 14px;
+    margin: 5px 5px 5px 4px;
+    border-radius: 2px;
+    flex-shrink: 0;
+
+    &.empty {
+      border: 1px solid var(--figma-color-border, #4444);
+      background-color: transparent;
     }
   }
 }

@@ -8,10 +8,12 @@ import type {
   //   VariableValue,
   //   VariableAlias,
 } from "../../types/variables";
+import type { IVariableBuilder } from "../../types/variableBuilder";
+import { SCOPES } from "../../constants/variablesConstants";
+import { hexToFigmaRgba } from "../../utils/colorConversion";
 // import { SCOPES } from "../../constants/variablesConstants";
 
-export class VariableBuilder {
-  private collections: Map<string, VariableCollection> = new Map();
+export class VariableBuilder implements IVariableBuilder {
   private variables: Map<string, Variable> = new Map();
 
   /**
@@ -28,7 +30,7 @@ export class VariableBuilder {
   }
 
   /**
-   * Crée une variable simple
+   * Crée une variable
    */
   async createVariable(config: VariableConfig): Promise<Variable> {
     const collection = await this.getOrCreateCollection(config.collection);
@@ -42,7 +44,9 @@ export class VariableBuilder {
     );
 
     // Configure les scopes
-    variable.scopes = config.scopes;
+    if (config.scopes && config.type !== "BOOLEAN") {
+      variable.scopes = config.scopes;
+    }
 
     // Défini la valeur (si fournie)
     if (config.value !== undefined) {
@@ -60,7 +64,12 @@ export class VariableBuilder {
               id: config.value.id,
             });
           } else {
-            variable.setValueForMode(modeId, config.value);
+            // Convertit les valeurs hex en RGB pour les variables de couleur
+            let valueToSet = config.value;
+            if (config.type === "COLOR" && typeof config.value === "string") {
+              valueToSet = hexToFigmaRgba(config.value);
+            }
+            variable.setValueForMode(modeId, valueToSet);
           }
         }
       } catch (error) {
@@ -86,14 +95,19 @@ export class VariableBuilder {
   }
 
   /**
-   * Crée plusieurs variables en une seule fois
+   * Crée plusieurs variables
    */
   async createVariables(configs: VariableConfig[]): Promise<Variable[]> {
-    return Promise.all(configs.map((config) => this.createVariable(config)));
+    const variables: Variable[] = [];
+    for (const config of configs) {
+      const variable = await this.createVariable(config);
+      variables.push(variable);
+    }
+    return variables;
   }
 
   /**
-   * Crée des variables pour une collection de valeurs
+   * Crée des variables de couleur
    */
   async createColorVariables(
     collectionName: string,
@@ -104,7 +118,7 @@ export class VariableBuilder {
       scopes?: VariableScope[];
     }
   ): Promise<Variable[]> {
-    const scopes = options?.scopes || ["ALL_FILLS"];
+    const scopes = options?.scopes || SCOPES.COLOR.ALL;
     const prefix = options?.prefix ? `${options.prefix}/` : "";
 
     return this.createVariables(
@@ -131,7 +145,7 @@ export class VariableBuilder {
       scopes?: VariableScope[];
     }
   ): Promise<Variable[]> {
-    const scopes = options?.scopes || ["ALL_SCOPES"];
+    const scopes = options?.scopes || SCOPES.FLOAT.ALL;
     const prefix = options?.prefix ? `${options.prefix}/` : "";
 
     return this.createVariables(
@@ -158,7 +172,7 @@ export class VariableBuilder {
       scopes?: VariableScope[];
     }
   ): Promise<Variable[]> {
-    const scopes = options?.scopes || ["ALL_SCOPES"];
+    const scopes = options?.scopes || SCOPES.STRING.ALL;
     const prefix = options?.prefix ? `${options.prefix}/` : "";
 
     return this.createVariables(
@@ -182,10 +196,8 @@ export class VariableBuilder {
     options?: {
       hidden?: boolean;
       prefix?: string;
-      scopes?: VariableScope[];
     }
   ): Promise<Variable[]> {
-    const scopes = options?.scopes || ["ALL_SCOPES"];
     const prefix = options?.prefix ? `${options.prefix}/` : "";
 
     return this.createVariables(
@@ -193,7 +205,6 @@ export class VariableBuilder {
         name: `${prefix}${name}`,
         collection: collectionName,
         type: "BOOLEAN",
-        scopes: scopes as VariableScope[],
         value,
         hidden: options?.hidden ?? false,
       }))
@@ -201,7 +212,7 @@ export class VariableBuilder {
   }
 
   /**
-   * Crée des variables organisées hiérarchiquement (avec slashes)
+   * Crée des variables organisées hiérarchiquement
    */
   async createHierarchicalVariables(
     collectionName: string,
@@ -213,7 +224,8 @@ export class VariableBuilder {
     }
   ): Promise<Variable[]> {
     const scopes =
-      options?.scopes || (type === "COLOR" ? ["ALL_FILLS"] : ["ALL_SCOPES"]);
+      options?.scopes ||
+      (type === "COLOR" ? SCOPES.COLOR.ALL : SCOPES.FLOAT.ALL);
     const configs: VariableConfig[] = [];
 
     for (const [category, values] of Object.entries(hierarchy)) {
@@ -230,58 +242,6 @@ export class VariableBuilder {
     }
 
     return this.createVariables(configs);
-  }
-
-  /**
-   * Obtient toutes les variables d'une collection
-   */
-  async getCollectionVariables(collectionName: string): Promise<Variable[]> {
-    const collections =
-      await figma.variables.getLocalVariableCollectionsAsync();
-    const collection = collections.find((c) => c.name === collectionName);
-    if (!collection) return [];
-
-    const variables = await figma.variables.getLocalVariablesAsync();
-    return variables.filter((v) => v.variableCollectionId === collection.id);
-  }
-
-  /**
-   * Supprime une variable
-   */
-  async deleteVariable(
-    collectionName: string,
-    variableName: string
-  ): Promise<void> {
-    const variable = await this.findVariable(collectionName, variableName);
-    if (variable) {
-      variable.remove();
-      this.variables.delete(`${collectionName}/${variableName}`);
-    }
-  }
-
-  /**
-   * Trouve une variable par collection et nom
-   */
-  private async findVariable(
-    collectionName: string,
-    variableName: string
-  ): Promise<Variable | undefined> {
-    const cached = this.variables.get(`${collectionName}/${variableName}`);
-    if (cached) return cached;
-
-    const vars = await this.getCollectionVariables(collectionName);
-    return vars.find((v) => v.name === variableName);
-  }
-
-  /**
-   * Supprime toutes les variables d'une collection
-   */
-  async deleteCollection(collectionName: string): Promise<void> {
-    const vars = await this.getCollectionVariables(collectionName);
-    vars.forEach((v) => {
-      v.remove();
-      this.variables.delete(`${collectionName}/${v.name}`);
-    });
   }
 
   /**
@@ -310,7 +270,59 @@ export class VariableBuilder {
       collection.renameMode(mode.modeId, newModeName);
     }
   }
+
+  /**
+   * Obtient toutes les variables d'une collection
+   */
+  async getCollectionVariables(collectionName: string): Promise<Variable[]> {
+    const collections =
+      await figma.variables.getLocalVariableCollectionsAsync();
+    const collection = collections.find((c) => c.name === collectionName);
+    if (!collection) return [];
+
+    const variables = await figma.variables.getLocalVariablesAsync();
+    return variables.filter((v) => v.variableCollectionId === collection.id);
+  }
+
+  /**
+   * Trouve une variable par collection et nom
+   */
+  private async findVariable(
+    collectionName: string,
+    variableName: string
+  ): Promise<Variable | undefined> {
+    const cached = this.variables.get(`${collectionName}/${variableName}`);
+    if (cached) return cached;
+
+    const vars = await this.getCollectionVariables(collectionName);
+    return vars.find((v) => v.name === variableName);
+  }
+
+  /**
+   * Supprime une variable
+   */
+  async deleteVariable(
+    collectionName: string,
+    variableName: string
+  ): Promise<void> {
+    const variable = await this.findVariable(collectionName, variableName);
+    if (variable) {
+      variable.remove();
+      this.variables.delete(`${collectionName}/${variableName}`);
+    }
+  }
+
+  /**
+   * Supprime toutes les variables d'une collection
+   */
+  async deleteCollection(collectionName: string): Promise<void> {
+    const vars = await this.getCollectionVariables(collectionName);
+    vars.forEach((v) => {
+      v.remove();
+      this.variables.delete(`${collectionName}/${v.name}`);
+    });
+  }
 }
 
 // Export singleton par défaut
-export const variableBuilder = new VariableBuilder();
+export const variableBuilder: IVariableBuilder = new VariableBuilder();

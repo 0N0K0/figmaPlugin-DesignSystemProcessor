@@ -1,0 +1,54 @@
+.custom-shade {
+  &-select {
+    position: relative;
+    width: 100%;
+    font-size: 11px;
+    line-height: 16px;
+    font-weight: 450;
+
+    &-btn {
+      width: 100%;
+      display: flex;
+      gap: 4px;
+      align-items: center;
+
+      .shade-label {
+        width: 100%;
+        flex-shrink: 1;
+      }
+    }
+  }
+
+  &-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: 304px;
+    overflow-y: auto;
+    background: #1e1e1e;
+    border: 1px solid var(--figma-color-border, #444444);
+    border-radius: 5px;
+    z-index: 10;
+    flex-direction: column;
+    box-shadow: var(--fpl-dialog-elevation, var(--elevation-500));
+  }
+
+  &-option {
+    display: flex;
+    // font-size: 11px;
+    // line-height: 16px;
+    // font-weight: 450;
+    background-color: transparent;
+    border-radius: 0;
+    gap: 4px;
+  }
+}
+
+.shade-color-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}

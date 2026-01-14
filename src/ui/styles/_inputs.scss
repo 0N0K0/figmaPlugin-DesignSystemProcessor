@@ -42,6 +42,7 @@ label {
 
 input:not([type="file"]),
 select,
+.custom-shade-select-btn,
 .color-selector-btn {
   background-color: var(--figma-color-bg-secondary, #383838);
   border: 1px solid var(--figma-color-bg-secondary, #383838);
@@ -59,7 +60,8 @@ select,
 }
 
 input,
-select {
+select,
+.custom-shade-select-btn {
   padding: 4px 7px;
   &.active {
     border-color: var(----figma-color-border-selected, #0c8ce9);
@@ -81,7 +83,8 @@ select {
   }
 }
 
-select {
+select,
+.custom-shade-select-btn {
   cursor: pointer;
   padding: 4px 4px 4px 7px;
   min-width: 72px;

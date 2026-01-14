@@ -136,6 +136,53 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Gestion du bouton Generate Palettes
+  const generatePalettesBtn = document.getElementById("generate-palettes-btn");
+  if (generatePalettesBtn) {
+    generatePalettesBtn.addEventListener("click", () => {
+      const formData = getFormData();
+      
+      // Récupère toutes les couleurs de Brand avec leurs labels personnalisés
+      const brandColors: Record<string, string> = {};
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key.startsWith("brand") && !key.endsWith("-label") && typeof value === "string" && value.startsWith("#")) {
+          // Récupère le label personnalisé depuis l'input
+          const labelKey = `${key}-label`;
+          const colorName = formData[labelKey] || key; // Utilise le label personnalisé ou le key par défaut
+          if (colorName && typeof colorName === "string" && colorName.trim() !== "") {
+            brandColors[colorName.trim()] = value;
+          }
+        }
+      });
+
+      // Récupère toutes les couleurs de Feedback avec leurs labels personnalisés
+      const feedbackColors: Record<string, string> = {};
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key.startsWith("feedback") && !key.endsWith("-label") && typeof value === "string" && value.startsWith("#")) {
+          // Récupère le label personnalisé depuis l'input
+          const labelKey = `${key}-label`;
+          const colorName = formData[labelKey] || key; // Utilise le label personnalisé ou le key par défaut
+          if (colorName && typeof colorName === "string" && colorName.trim() !== "") {
+            feedbackColors[colorName.trim()] = value;
+          }
+        }
+      });
+
+      parent.postMessage(
+        {
+          pluginMessage: {
+            type: "generatePalettes",
+            data: {
+              brandColors,
+              feedbackColors,
+            },
+          },
+        },
+        "*"
+      );
+    });
+  }
+
   // Gestion du bouton Create Elevations
   const createElevationsBtn = document.getElementById("create-elevations-btn");
   if (createElevationsBtn) {

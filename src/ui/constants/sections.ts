@@ -1,9 +1,26 @@
+import {
+  SHADE_STEPS,
+  OPACITIES_STEPS,
+} from "../../common/constants/colorConstants";
 import type { SectionConfig, TabConfig } from "../types";
 
 // Génération des options d'opacité
 const opacityOptions = [];
-for (let i = 50; i <= 950; i += 50) {
-  opacityOptions.push({ value: i, label: `${i}` });
+// for (let i = 50; i <= 950; i += 50) {
+//   opacityOptions.push({ value: i, label: `${i}` });
+// }
+for (const opacity of OPACITIES_STEPS) {
+  opacityOptions.push({ value: opacity, label: String(opacity) });
+}
+
+const shadeOptions = [];
+// for (let i = 100; i <= 900; i += 100) {
+//   shadeOptions.push({ value: i, label: `${i}` });
+// }
+// Ajout de 950 séparément
+// shadeOptions.push({ value: 950, label: "950" });
+for (const shade of SHADE_STEPS) {
+  shadeOptions.push({ value: shade, label: String(shade) });
 }
 
 export const TABS: TabConfig[] = [
@@ -138,6 +155,17 @@ export const TABS: TabConfig[] = [
           },
         ],
       },
+
+      {
+        inputs: [
+          {
+            id: "generate-palettes-btn",
+            type: "button",
+            label: "Generate Palettes",
+            action: "generatePalettes",
+          },
+        ],
+      },
     ],
   },
   {
@@ -146,81 +174,143 @@ export const TABS: TabConfig[] = [
     sections: [
       {
         title: "Light",
-        inputs: [
+        subsections: [
           {
-            id: "lightEnabledOp",
-            label: "Enabled",
-            type: "select",
-            defaultValue: 100,
-            options: opacityOptions,
+            title: "Core shades",
+            inputs: [
+              {
+                id: "lightCorelightShade",
+                label: "light",
+                type: "select",
+                defaultValue: 400,
+                options: shadeOptions,
+              },
+              {
+                id: "lightCoreMainShade",
+                label: "main",
+                type: "select",
+                defaultValue: 500,
+                options: shadeOptions,
+              },
+              {
+                id: "lightCoreDarkShade",
+                label: "dark",
+                type: "select",
+                defaultValue: 600,
+                options: shadeOptions,
+              },
+            ],
           },
           {
-            id: "lightDisabledOp",
-            label: "Disabled",
-            type: "select",
-            defaultValue: 100,
-            options: opacityOptions,
-          },
-          {
-            id: "lightHoveredOp",
-            label: "Hovered",
-            type: "select",
-            defaultValue: 50,
-            options: opacityOptions,
-          },
-          {
-            id: "lightSelectedOp",
-            label: "Selected",
-            type: "select",
-            defaultValue: 150,
-            options: opacityOptions,
-          },
-          {
-            id: "lightFocusedOp",
-            label: "Focused",
-            type: "select",
-            defaultValue: 300,
-            options: opacityOptions,
+            title: "State opacities",
+            inputs: [
+              {
+                id: "lightEnabledOp",
+                label: "Enabled",
+                type: "select",
+                defaultValue: 100,
+                options: opacityOptions,
+              },
+              {
+                id: "lightDisabledOp",
+                label: "Disabled",
+                type: "select",
+                defaultValue: 100,
+                options: opacityOptions,
+              },
+              {
+                id: "lightHoveredOp",
+                label: "Hovered",
+                type: "select",
+                defaultValue: 50,
+                options: opacityOptions,
+              },
+              {
+                id: "lightSelectedOp",
+                label: "Selected",
+                type: "select",
+                defaultValue: 150,
+                options: opacityOptions,
+              },
+              {
+                id: "lightFocusedOp",
+                label: "Focused",
+                type: "select",
+                defaultValue: 300,
+                options: opacityOptions,
+              },
+            ],
           },
         ],
       },
       {
         title: "Dark",
-        inputs: [
+        subsections: [
           {
-            id: "darkEnabledOp",
-            label: "Enabled",
-            type: "select",
-            defaultValue: 100,
-            options: opacityOptions,
+            title: "Core shades",
+            inputs: [
+              {
+                id: "darkCoreLightShade",
+                label: "light",
+                type: "select",
+                defaultValue: 300,
+                options: shadeOptions,
+              },
+              {
+                id: "darkCoreMainShade",
+                label: "main",
+                type: "select",
+                defaultValue: 400,
+                options: shadeOptions,
+              },
+              {
+                id: "darkCoreDarkShade",
+                label: "dark",
+                type: "select",
+                defaultValue: 500,
+                options: shadeOptions,
+              },
+            ],
           },
           {
-            id: "darkDisabledOp",
-            label: "Disabled",
-            type: "select",
-            defaultValue: 100,
-            options: opacityOptions,
-          },
-          {
-            id: "darkHoveredOp",
-            label: "Hovered",
-            type: "select",
-            defaultValue: 100,
-            options: opacityOptions,
-          },
-          {
-            id: "darkSelectedOp",
-            label: "Selected",
-            type: "select",
-            defaultValue: 150,
-            options: opacityOptions,
-          },
-          {
-            id: "darkFocusedOp",
-            label: "Focused",
-            type: "select",
-            defaultValue: 300,
-            options: opacityOptions,
+            title: "State opacities",
+            inputs: [
+              {
+                id: "darkEnabledOp",
+                label: "Enabled",
+                type: "select",
+                defaultValue: 100,
+                options: opacityOptions,
+              },
+              {
+                id: "darkDisabledOp",
+                label: "Disabled",
+                type: "select",
+                defaultValue: 100,
+                options: opacityOptions,
+              },
+              {
+                id: "darkHoveredOp",
+                label: "Hovered",
+                type: "select",
+                defaultValue: 100,
+                options: opacityOptions,
+              },
+              {
+                id: "darkSelectedOp",
+                label: "Selected",
+                type: "select",
+                defaultValue: 150,
+                options: opacityOptions,
+              },
+              {
+                id: "darkFocusedOp",
+                label: "Focused",
+                type: "select",
+                defaultValue: 300,
+                options: opacityOptions,
+              },
+            ],
           },
         ],
       },
@@ -444,7 +534,7 @@ export const TABS: TabConfig[] = [
           {
             id: "create-elevations-btn",
             type: "button",
-            label: "Elevations",
+            label: "Generate Elevations Effects",
             action: "createElevations",
           },
         ],
