@@ -249,7 +249,9 @@ export class HtmlBuilder {
     ${tabsHtml}
 
     <section class="actions">
-      <button id="process-btn" class="btn">Process</button>
+      <button id="process-btn" class="btn">Process All</button>
+      <button id="process-btn" class="btn">Process Design System</button>
+      <button id="process-btn" class="btn">Process Datas & Components</button>
     </section>
 
     <script>${js}</script>

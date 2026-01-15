@@ -43,7 +43,7 @@ const generateHtmlPlugin = {
           : "";
 
         // Charger le module de génération HTML compilé
-        const { HtmlBuilder } = require("./.tmp/ui/builders/index.js");
+        const { HtmlBuilder } = require("./.tmp/ui/builders/HtmlBuilder.js");
         const { TABS } = require("./.tmp/ui/constants/index.js");
 
         // Générer le HTML
@@ -95,7 +95,7 @@ const uiModulesBuildOptions = {
   entryPoints: [
     "src/ui/types/index.ts",
     "src/ui/constants/index.ts",
-    "src/ui/builders/index.ts",
+    "src/ui/builders/HtmlBuilder.ts",
   ],
   bundle: true,
   outdir: ".tmp/ui",

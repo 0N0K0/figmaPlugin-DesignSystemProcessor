@@ -5,7 +5,6 @@ import { CustomSelector } from "./customSelector";
 import type { SelectOption } from "../types/ui";
 
 export class ColorCollection {
-  private container: HTMLElement;
   private itemsContainer!: HTMLElement;
   private addBtn!: HTMLElement;
   private collectionId: string;
@@ -18,7 +17,6 @@ export class ColorCollection {
     container: HTMLElement,
     initialColors: ColorSelectorConfig[] = []
   ) {
-    this.container = container;
     this.collectionId = container.dataset.collectionId || "colors";
     this.maxColors = parseInt(container.dataset.maxColors || "10");
 

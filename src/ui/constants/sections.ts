@@ -51,6 +51,10 @@ for (const shade of SHADE_STEPS) {
   shadeOptions.push({ value: shade, label: String(shade) });
 }
 
+/**
+ * @TODO Optimiser la structure des sections et tabs
+ */
+
 export const TABS: TabConfig[] = [
   {
     id: "palette",
@@ -232,35 +236,35 @@ export const TABS: TabConfig[] = [
         title: "Themes Background Opacities",
         inputs: [
           {
-            id: "lightEnabledOp",
+            id: "themeEnabledOp",
             label: "Enabled",
             type: "customSelector",
             defaultValue: 200,
             options: colorOpacityOptions,
           },
           {
-            id: "lightDisabledOp",
+            id: "themeDisabledOp",
             label: "Disabled",
             type: "customSelector",
             defaultValue: 100,
             options: colorOpacityOptions,
           },
           {
-            id: "lightHoveredOp",
+            id: "themeHoveredOp",
             label: "Hovered",
             type: "customSelector",
             defaultValue: 50,
             options: colorOpacityOptions,
           },
           {
-            id: "lightSelectedOp",
+            id: "themeSelectedOp",
             label: "Selected",
             type: "customSelector",
             defaultValue: 150,
             options: colorOpacityOptions,
           },
           {
-            id: "lightFocusedOp",
+            id: "themeFocusedOp",
             label: "Focused",
             type: "customSelector",
             defaultValue: 300,
@@ -561,10 +565,10 @@ export const TABS: TabConfig[] = [
       {
         inputs: [
           {
-            id: "create-elevations-btn",
+            id: "generate-elevations-btn",
             type: "button",
             label: "Generate Elevations Effects",
-            action: "createElevations",
+            action: "generateElevations",
             class: "generate-btn",
           },
         ],

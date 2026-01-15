@@ -1,4 +1,4 @@
-import { HtmlBuilder } from "./builders";
+import { HtmlBuilder } from "./builders/HtmlBuilder";
 import { TABS } from "./constants";
 import * as fs from "fs";
 import * as path from "path";
