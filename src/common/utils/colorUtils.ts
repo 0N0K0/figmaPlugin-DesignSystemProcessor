@@ -27,6 +27,11 @@ export function generateShades(
     }
   });
 
+  // Calculer la position de la couleur de base dans l'échelle
+  const closestT = (closestStep - minStep) / (maxStep - minStep);
+  const baseLFromFormula = lMax - Math.pow(closestT, 1.15) * (lMax - lMin);
+  const luminosityOffset = baseL - baseLFromFormula;
+
   return SHADE_STEPS.map((step) => {
     // Si c'est la shade la plus proche, on utilise la couleur de départ
     if (step === closestStep) {
@@ -35,7 +40,8 @@ export function generateShades(
 
     const stepValue = step;
     const t = (stepValue - minStep) / (maxStep - minStep);
-    const l = lMax - Math.pow(t, 1.15) * (lMax - lMin);
+    // Appliquer le décalage de luminosité pour adapter le dégradé autour de la couleur de base
+    const l = lMax - Math.pow(t, 1.15) * (lMax - lMin) + luminosityOffset;
     const c = CO * Math.pow(Math.sin(Math.PI * t), 0.9);
     const color = clampChroma({ mode: "oklch", l, c, h: H0 });
     return { step, color: formatHex(color) };
@@ -45,15 +51,15 @@ export function generateShades(
 export function generateGreyShades(
   steps: number[],
   hue: number = 0
-): Record<string, string> {
-  const greyShades: Record<string, string> = {};
+): Record<number, string> {
+  const greyShades: Record<number, string> = {};
   for (const step of steps) {
     const t = step / 1000;
     const lightness = 1 - t * 1;
     greyShades[step] = formatHex({
       mode: "hsl",
       h: hue,
-      s: hue ? 0.05 : 0,
+      s: hue ? 0.1 : 0,
       l: lightness,
       alpha: 1,
     });

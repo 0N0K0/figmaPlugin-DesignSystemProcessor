@@ -12,7 +12,8 @@ function formatColorName(name: string): string {
 function createColorGrid(
   popup: HTMLElement,
   onSelectColor: (color: string, source?: HTMLElement) => void,
-  onClear: () => void
+  onClear: () => void,
+  inputId?: string
 ): void {
   const gridContainer = popup.querySelector(".color-selector-grid");
   if (!gridContainer) return;
@@ -53,8 +54,44 @@ function createColorGrid(
   customRow.appendChild(clearBtn);
   gridContainer.appendChild(customRow);
 
+  // Wrapper pour les swatches (indépendant de la ligne custom)
+  const swatchContainer = document.createElement("div");
+  swatchContainer.className = "color-swatch-wrapper";
+  gridContainer.appendChild(swatchContainer);
+
   // Créer une colonne par famille de couleur
+  const isGreyHue = inputId === "greyHue";
+
+  if (isGreyHue) {
+    gridContainer.classList.add("grey-hue-grid");
+
+    Object.entries(COLOR_DATA).forEach(([colorName, shades]) => {
+      const shadeEntry = Object.entries(shades).find(([key]) => key === "c20");
+      if (!shadeEntry) return;
+      const [, hex] = shadeEntry;
+
+      const swatch = document.createElement("div");
+      swatch.className = "color-swatch";
+      swatch.style.backgroundColor = String(hex);
+      swatch.dataset.color = String(hex);
+      swatch.title = `${formatColorName(colorName)} c20: ${hex}`;
+
+      swatch.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onSelectColor(String(hex), swatch);
+      });
+
+      swatchContainer.appendChild(swatch);
+    });
+
+    return;
+  }
+
   Object.entries(COLOR_DATA).forEach(([colorName, shades]) => {
+    const shadeEntries = Object.entries(shades);
+
+    if (shadeEntries.length === 0) return;
+
     const familyDiv = document.createElement("div");
     familyDiv.className = "color-family";
 
@@ -69,7 +106,7 @@ function createColorGrid(
     swatchWrapper.className = "color-swatch-wrapper";
 
     // Swatches de la famille (du plus saturé au moins saturé)
-    Object.entries(shades).forEach(([shade, hex]) => {
+    shadeEntries.forEach(([shade, hex]) => {
       const swatch = document.createElement("div");
       swatch.className = "color-swatch";
       swatch.style.backgroundColor = String(hex);
@@ -86,7 +123,7 @@ function createColorGrid(
 
     familyDiv.appendChild(swatchWrapper);
 
-    gridContainer.appendChild(familyDiv);
+    swatchContainer.appendChild(familyDiv);
   });
 }
 
@@ -185,7 +222,8 @@ export function initColorSelector(wrapper: HTMLElement): void {
       if (customInput) {
         customInput.value = "";
       }
-    }
+    },
+    button.dataset.inputId
   );
 
   // Mettre à jour le champ custom color avec la valeur par défaut après création

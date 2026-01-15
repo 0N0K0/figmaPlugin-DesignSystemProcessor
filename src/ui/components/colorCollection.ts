@@ -1,8 +1,8 @@
 import type { ColorSelectorConfig } from "../types/colors";
 import { initColorSelector } from "./colorSelector";
-import { SHADE_STEPS } from "../../common/constants/colorConstants";
 import { generateShades } from "../../common/utils/colorUtils";
-import { ShadeSelector, type ShadeOption } from "./shadeSelector";
+import { CustomSelector } from "./customSelector";
+import type { SelectOption } from "../types/ui";
 
 export class ColorCollection {
   private container: HTMLElement;
@@ -12,7 +12,7 @@ export class ColorCollection {
   private maxColors: number;
   private colors: ColorSelectorConfig[] = [];
   private counter: number = 0;
-  private shadeSelectors: Map<string, ShadeSelector[]> = new Map();
+  private shadeSelectors: Map<string, CustomSelector<number>[]> = new Map();
 
   constructor(
     container: HTMLElement,
@@ -121,25 +121,51 @@ export class ColorCollection {
     const shadesRow = document.createElement("div");
     shadesRow.className = "shades-selector-row";
 
+    // Masquer la ligne des shades si pas de couleur choisie au départ
+    if (!colorConfig.defaultColor) {
+      shadesRow.style.display = "none";
+    }
+
     // Générer les shades initialement avec une couleur par défaut ou celle fournie
     const baseColor = colorConfig.defaultColor || "#808080";
     const shades = generateShades(baseColor);
-    const shadeOptions: ShadeOption[] = [];
+    const shadeOptions: SelectOption<number>[] = [];
     for (const shade of shades) {
       shadeOptions.push({
         value: shade.step,
         label: String(shade.step),
         color: shade.color,
+        isBase: shade.color.toLowerCase() === baseColor.toLowerCase(),
       });
     }
 
+    const baseColorOption = shadeOptions.find(({ isBase }) => isBase);
+    let lightDefaultValue = 400;
+    let mainDefaultValue = 500;
+    let darkDefaultValue = 600;
+    if (baseColorOption) {
+      if (baseColorOption.value <= 200) {
+        lightDefaultValue = baseColorOption.value;
+        mainDefaultValue = baseColorOption.value + 100;
+        darkDefaultValue = baseColorOption.value + 200;
+      } else if (baseColorOption.value >= 800) {
+        darkDefaultValue = baseColorOption.value;
+        mainDefaultValue = baseColorOption.value - 100;
+        lightDefaultValue = baseColorOption.value - 200;
+      } else {
+        lightDefaultValue = baseColorOption.value - 100;
+        mainDefaultValue = baseColorOption.value;
+        darkDefaultValue = baseColorOption.value + 100;
+      }
+    }
+
     const shadeTypes = [
-      { type: "light", label: "Light", defaultValue: 400 },
-      { type: "main", label: "Main", defaultValue: 500 },
-      { type: "dark", label: "Dark", defaultValue: 600 },
+      { type: "light", label: "Light", defaultValue: lightDefaultValue },
+      { type: "main", label: "Main", defaultValue: mainDefaultValue },
+      { type: "dark", label: "Dark", defaultValue: darkDefaultValue },
     ];
 
-    const selectors: ShadeSelector[] = [];
+    const selectors: CustomSelector<number>[] = [];
 
     shadeTypes.forEach(({ type, label, defaultValue }) => {
       const column = document.createElement("div");
@@ -151,11 +177,11 @@ export class ColorCollection {
       column.appendChild(labelEl);
 
       // Créer le shade selector
-      const shadeSelector = new ShadeSelector(
-        shadeOptions,
-        defaultValue,
-        `${colorConfig.inputId}-${type}`
-      );
+      const shadeSelector = new CustomSelector({
+        options: shadeOptions,
+        defaultValue: defaultValue,
+        inputId: `${colorConfig.inputId}-${type}`,
+      });
 
       selectors.push(shadeSelector);
       column.appendChild(shadeSelector.getElement());
@@ -183,7 +209,7 @@ export class ColorCollection {
 
     // Fermer les selects personnalisés quand on clique ailleurs
     document.addEventListener("click", () => {
-      wrapper.querySelectorAll(".custom-shade-select.open").forEach((sel) => {
+      wrapper.querySelectorAll(".custom-selector.open").forEach((sel) => {
         sel.classList.remove("open");
       });
     });
@@ -194,7 +220,10 @@ export class ColorCollection {
       const observer = new MutationObserver(() => {
         const newColor = colorText.textContent;
         if (newColor && newColor !== "transparent") {
+          shadesRow.style.display = "flex";
           this.updateShadesForColor(colorConfig.inputId, newColor);
+        } else {
+          shadesRow.style.display = "none";
         }
       });
       observer.observe(colorText, {
@@ -215,16 +244,43 @@ export class ColorCollection {
 
   private updateShadesForColor(inputId: string, colorHex: string): void {
     const shades = generateShades(colorHex);
-    const shadeOptions: ShadeOption[] = shades.map((shade) => ({
+    const shadeOptions: SelectOption<number>[] = shades.map((shade) => ({
       value: shade.step,
       label: String(shade.step),
       color: shade.color,
+      isBase: shade.color.toLowerCase() === colorHex.toLowerCase(),
     }));
+
+    const baseColorOption = shadeOptions.find(({ isBase }) => isBase);
+    let lightDefaultValue = 400;
+    let mainDefaultValue = 500;
+    let darkDefaultValue = 600;
+    if (baseColorOption) {
+      if (baseColorOption.value <= 200) {
+        lightDefaultValue = baseColorOption.value;
+        mainDefaultValue = baseColorOption.value + 100;
+        darkDefaultValue = baseColorOption.value + 200;
+      } else if (baseColorOption.value >= 800) {
+        darkDefaultValue = baseColorOption.value;
+        mainDefaultValue = baseColorOption.value - 100;
+        lightDefaultValue = baseColorOption.value - 200;
+      } else {
+        lightDefaultValue = baseColorOption.value - 100;
+        mainDefaultValue = baseColorOption.value;
+        darkDefaultValue = baseColorOption.value + 100;
+      }
+    }
 
     const selectors = this.shadeSelectors.get(inputId);
     if (selectors) {
-      selectors.forEach((selector) => {
+      const defaultValues = [
+        lightDefaultValue,
+        mainDefaultValue,
+        darkDefaultValue,
+      ];
+      selectors.forEach((selector, index) => {
         selector.updateOptions(shadeOptions);
+        selector.setValue(defaultValues[index]);
       });
     }
   }

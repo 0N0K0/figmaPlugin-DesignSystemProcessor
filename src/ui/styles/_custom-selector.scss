@@ -1,22 +1,15 @@
-.custom-shade {
-  &-select {
-    position: relative;
+.custom-selector {
+  position: relative;
+  width: 100%;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 450;
+
+  &-btn {
     width: 100%;
-    font-size: 11px;
-    line-height: 16px;
-    font-weight: 450;
-
-    &-btn {
-      width: 100%;
-      display: flex;
-      gap: 4px;
-      align-items: center;
-
-      .shade-label {
-        width: 100%;
-        flex-shrink: 1;
-      }
-    }
+    display: flex;
+    gap: 4px;
+    align-items: center;
   }
 
   &-options {
@@ -43,12 +36,18 @@
     border-radius: 0;
     gap: 4px;
   }
-}
 
-.shade-color-indicator {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  display: inline-block;
-  flex-shrink: 0;
+  &-color-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  &-label {
+    width: 100%;
+    flex-shrink: 1;
+    text-align: left;
+  }
 }

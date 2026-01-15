@@ -7,9 +7,11 @@ export function getFormData(): FormData {
 
   // Récupérer tous les inputs classiques
   document.querySelectorAll<HTMLInputElement>("input[id]").forEach((input) => {
-    const value =
-      input.type === "number" ? parseFloat(input.value) : input.value;
-    data[input.id] = value;
+    if (input.type === "number") {
+      data[input.id] = input.value === "" ? "" : parseFloat(input.value);
+    } else {
+      data[input.id] = input.value;
+    }
   });
 
   // Récupérer tous les selects

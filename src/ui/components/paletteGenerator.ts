@@ -1,11 +1,19 @@
+import { generateShades } from "../../common/utils/colorUtils";
+import { COLOR_DATA } from "../constants";
+
 function randomHex(): string {
-  return (
-    "#" +
-    Math.floor(Math.random() * 16777215)
-      .toString(16)
-      .padStart(6, "0")
-      .toUpperCase()
-  );
+  const colorFamilies = Object.values(COLOR_DATA);
+  const randomFamily =
+    colorFamilies[Math.floor(Math.random() * colorFamilies.length)];
+  const colors = Object.values(randomFamily);
+  const randomColor = colors[Math.floor(Math.random() * colors.length)];
+  const shades = generateShades(randomColor);
+  const constrainedShades = shades.filter((shade) => {
+    const step = shade.step;
+    return step >= 300 && step <= 700;
+  });
+  const finalShades = constrainedShades.length > 0 ? constrainedShades : shades;
+  return finalShades[Math.floor(Math.random() * finalShades.length)].color;
 }
 
 function getColorName(hex: string): string {
@@ -59,6 +67,22 @@ export class PaletteGenerator {
     this.addBtn?.addEventListener("click", () => this.addColor());
 
     this.renderColors();
+  }
+
+  private getUniqueRandomHex(): string {
+    const maxAttempts = 50;
+    let attempts = 0;
+    let hex: string;
+    
+    do {
+      hex = randomHex();
+      attempts++;
+    } while (
+      this.colors.some((c) => c.hex === hex) &&
+      attempts < maxAttempts
+    );
+    
+    return hex;
   }
 
   private renderColors(): void {
@@ -146,7 +170,7 @@ export class PaletteGenerator {
 
   private regenerateUnlocked(): void {
     this.colors = this.colors.map((color) =>
-      color.locked ? color : { ...color, hex: randomHex() }
+      color.locked ? color : { ...color, hex: this.getUniqueRandomHex() }
     );
     this.renderColors();
   }
@@ -156,7 +180,7 @@ export class PaletteGenerator {
 
     this.colors.push({
       id: `color-${Date.now()}`,
-      hex: randomHex(),
+      hex: this.getUniqueRandomHex(),
       locked: false,
     });
 

@@ -1,9 +1,18 @@
 import { initAllColorSelectors } from "./components/colorSelector";
 import { initPaletteGenerator } from "./components/paletteGenerator";
 import { ColorCollection } from "./components/colorCollection";
+import { CustomSelector } from "./components/customSelector";
 import { FileList } from "./components/fileList";
 import { getFormData } from "./utils/formData";
-import type { TabConfig } from "./types";
+import { generateGreyShades } from "../common/utils/colorUtils";
+import {
+  OPACITIES_STEPS,
+  SHADE_STEPS,
+} from "../common/constants/colorConstants";
+import { converter, formatHex8 } from "culori";
+import type { SelectOption, TabConfig } from "./types";
+
+const customSelectors = new Map<string, CustomSelector<any>>();
 
 // Récupérer la config des tabs depuis le HTML
 declare global {
@@ -46,6 +55,139 @@ function initFileLists() {
 
     if (input && input.type === "file") {
       new FileList(container, input);
+    }
+  });
+}
+
+function buildOpacityOptionsWithHue(baseHex?: string): SelectOption<number>[] {
+  const oklch = baseHex ? converter("oklch")(baseHex) : null;
+  const hue = oklch?.h ?? 0;
+  const greyShade = generateGreyShades(SHADE_STEPS, hue)[50];
+  const greyRGB = converter("rgb")(greyShade);
+
+  if (!greyRGB) {
+    return OPACITIES_STEPS.map((opacity) => ({
+      value: opacity,
+      label: String(opacity),
+    }));
+  }
+
+  return OPACITIES_STEPS.map((opacity) => {
+    const colorWithAlpha = { ...greyRGB, alpha: opacity / 1000 };
+    return {
+      value: opacity,
+      label: String(opacity),
+      color: formatHex8(colorWithAlpha),
+    };
+  });
+}
+
+function updateOpacitySelectors(baseHex?: string): void {
+  const options = buildOpacityOptionsWithHue(baseHex);
+  const targetIds = [
+    "neutralTextSecondaryOp",
+    "neutralTextHoveredOp",
+    "neutralTextSelectedOp",
+    "neutralTextFocusedOp",
+    "neutralTextDisabledOp",
+    "neutralBgActiveOp",
+    "neutralBgHoveredOp",
+    "neutralBgSelectedOp",
+    "neutralBgFocusedOp",
+    "neutralBgDisabledOp",
+  ];
+
+  targetIds.forEach((id) => {
+    const selector = customSelectors.get(id);
+    if (!selector) return;
+    const currentValue = selector.getValue();
+    selector.updateOptions(options);
+    selector.setValue(currentValue);
+  });
+}
+
+function watchGreyHueChanges(): void {
+  const btn = document.querySelector<HTMLElement>(
+    '.color-selector-btn[data-input-id="greyHue"]'
+  );
+  const text = btn?.querySelector<HTMLElement>(".color-text");
+  if (!text) return;
+
+  const applyUpdate = () => {
+    const value = text.textContent || "";
+    const baseHex = value.startsWith("#") ? value : undefined;
+    updateOpacitySelectors(baseHex);
+  };
+
+  // Initial sync
+  applyUpdate();
+
+  const observer = new MutationObserver(() => applyUpdate());
+  observer.observe(text, {
+    childList: true,
+    characterData: true,
+    subtree: true,
+  });
+}
+
+function initCustomSelectors() {
+  const placeholders = document.querySelectorAll<HTMLElement>(
+    ".custom-selector-placeholder"
+  );
+
+  customSelectors.clear();
+
+  placeholders.forEach((placeholder) => {
+    const inputId = placeholder.dataset.inputId || "";
+    const optionsRaw = placeholder.dataset.options || "[]";
+    const placeholderText = placeholder.dataset.placeholder;
+    const allowEmpty = placeholder.dataset.allowEmpty === "true";
+    const defaultRaw = placeholder.dataset.default;
+
+    let options: SelectOption[] = [];
+    try {
+      options = JSON.parse(optionsRaw);
+    } catch (error) {
+      console.error("Invalid options for custom selector", inputId, error);
+      return;
+    }
+
+    let defaultValue: string | number | undefined;
+    if (defaultRaw !== undefined) {
+      const parsed = Number(defaultRaw);
+      defaultValue = Number.isNaN(parsed) ? defaultRaw : parsed;
+    }
+
+    const selector = new CustomSelector({
+      options,
+      defaultValue,
+      inputId,
+      placeholder: placeholderText,
+      allowEmpty,
+    });
+
+    if (inputId) {
+      customSelectors.set(inputId, selector);
+    }
+
+    const selectorElement = selector.getElement();
+    placeholder.replaceWith(selectorElement);
+
+    const hiddenInput = inputId
+      ? (document.getElementById(inputId) as HTMLInputElement | null)
+      : null;
+
+    if (hiddenInput) {
+      const syncValue = (value: string | number | null | undefined) => {
+        if (value === null || value === undefined) {
+          hiddenInput.value = "";
+          return;
+        }
+        hiddenInput.value = String(value);
+      };
+
+      syncValue(selector.getValue());
+      selector.onChange((val) => syncValue(val));
     }
   });
 }
@@ -94,6 +236,10 @@ document.addEventListener("DOMContentLoaded", () => {
   initTabs();
   console.log("✅ Tabs initialized");
 
+  // Initialiser les custom selectors
+  initCustomSelectors();
+  console.log("✅ Custom selectors initialized");
+
   // Initialiser le générateur de palette
   initPaletteGenerator();
   console.log("✅ Palette generator initialized");
@@ -119,6 +265,9 @@ document.addEventListener("DOMContentLoaded", () => {
   initAllColorSelectors();
   console.log("✅ Color selectors initialized");
 
+  // Rebuild opacity options when Grey Hue changes
+  watchGreyHueChanges();
+
   // Gestion du bouton Process
   const processBtn = document.getElementById("process-btn");
   if (processBtn) {
@@ -141,15 +290,24 @@ document.addEventListener("DOMContentLoaded", () => {
   if (generatePalettesBtn) {
     generatePalettesBtn.addEventListener("click", () => {
       const formData = getFormData();
-      
+
       // Récupère toutes les couleurs de Brand avec leurs labels personnalisés
       const brandColors: Record<string, string> = {};
       Object.entries(formData).forEach(([key, value]) => {
-        if (key.startsWith("brand") && !key.endsWith("-label") && typeof value === "string" && value.startsWith("#")) {
+        if (
+          key.startsWith("brand") &&
+          !key.endsWith("-label") &&
+          typeof value === "string" &&
+          value.startsWith("#")
+        ) {
           // Récupère le label personnalisé depuis l'input
           const labelKey = `${key}-label`;
           const colorName = formData[labelKey] || key; // Utilise le label personnalisé ou le key par défaut
-          if (colorName && typeof colorName === "string" && colorName.trim() !== "") {
+          if (
+            colorName &&
+            typeof colorName === "string" &&
+            colorName.trim() !== ""
+          ) {
             brandColors[colorName.trim()] = value;
           }
         }
@@ -158,11 +316,20 @@ document.addEventListener("DOMContentLoaded", () => {
       // Récupère toutes les couleurs de Feedback avec leurs labels personnalisés
       const feedbackColors: Record<string, string> = {};
       Object.entries(formData).forEach(([key, value]) => {
-        if (key.startsWith("feedback") && !key.endsWith("-label") && typeof value === "string" && value.startsWith("#")) {
+        if (
+          key.startsWith("feedback") &&
+          !key.endsWith("-label") &&
+          typeof value === "string" &&
+          value.startsWith("#")
+        ) {
           // Récupère le label personnalisé depuis l'input
           const labelKey = `${key}-label`;
           const colorName = formData[labelKey] || key; // Utilise le label personnalisé ou le key par défaut
-          if (colorName && typeof colorName === "string" && colorName.trim() !== "") {
+          if (
+            colorName &&
+            typeof colorName === "string" &&
+            colorName.trim() !== ""
+          ) {
             feedbackColors[colorName.trim()] = value;
           }
         }

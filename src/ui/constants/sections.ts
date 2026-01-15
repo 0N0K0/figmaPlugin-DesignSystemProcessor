@@ -1,24 +1,52 @@
+import { converter, formatHex8 } from "culori";
 import {
   SHADE_STEPS,
   OPACITIES_STEPS,
 } from "../../common/constants/colorConstants";
+import {
+  generateGreyShades,
+  generateShades,
+} from "../../common/utils/colorUtils";
 import type { SectionConfig, TabConfig } from "../types";
 
 // Génération des options d'opacité
 const opacityOptions = [];
-// for (let i = 50; i <= 950; i += 50) {
-//   opacityOptions.push({ value: i, label: `${i}` });
-// }
 for (const opacity of OPACITIES_STEPS) {
   opacityOptions.push({ value: opacity, label: String(opacity) });
 }
 
+// Générer les options d'opacité avec color indicators
+const neutralOpacityOptions = OPACITIES_STEPS.map((opacity) => {
+  // Gris avec luminosité 50
+  const greyShade = generateGreyShades(SHADE_STEPS)[50];
+  const greyShadeRGB = converter("rgb")(greyShade);
+  if (!greyShadeRGB) {
+    return { value: opacity, label: String(opacity) };
+  } else {
+    greyShadeRGB.alpha = opacity / 1000;
+    return {
+      value: opacity,
+      label: String(opacity),
+      color: formatHex8(greyShadeRGB),
+    };
+  }
+});
+const colorOpacityOptions = OPACITIES_STEPS.map((opacity) => {
+  const shade =
+    generateShades("#0DB9F2").find((s) => s.step === 300)?.color || "#0DB9F2";
+  const shadeRGB = converter("rgb")(shade);
+  if (!shadeRGB) {
+    return { value: opacity, label: String(opacity) };
+  }
+  shadeRGB.alpha = opacity / 1000;
+  return {
+    value: opacity,
+    label: String(opacity),
+    color: formatHex8(shadeRGB),
+  };
+});
+
 const shadeOptions = [];
-// for (let i = 100; i <= 900; i += 100) {
-//   shadeOptions.push({ value: i, label: `${i}` });
-// }
-// Ajout de 950 séparément
-// shadeOptions.push({ value: 950, label: "950" });
 for (const shade of SHADE_STEPS) {
   shadeOptions.push({ value: shade, label: String(shade) });
 }
@@ -43,6 +71,15 @@ export const TABS: TabConfig[] = [
             { inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
           ],
         },
+        inputs: [
+          {
+            id: "generate-brand-colors-btn",
+            type: "button",
+            label: "Generate Brand Colors",
+            action: "generateBrandColors",
+            class: "generate-btn",
+          },
+        ],
       },
       {
         title: "Feedback",
@@ -50,27 +87,36 @@ export const TABS: TabConfig[] = [
           id: "feedback",
           maxColors: 10,
           initialColors: [
-            { inputId: "feedback01", label: "Info", defaultColor: "#1AE5C3" },
+            { inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
             {
               inputId: "feedback02",
               label: "Success",
-              defaultColor: "#C3E51A",
+              defaultColor: "#a9c800",
             },
             {
               inputId: "feedback03",
               label: "Warning",
-              defaultColor: "#E5801A",
+              defaultColor: "#e87d00",
             },
-            { inputId: "feedback04", label: "Error", defaultColor: "#E53C1A" },
+            { inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
           ],
         },
+        inputs: [
+          {
+            id: "generate-feedback-colors-btn",
+            type: "button",
+            label: "Generate Feedback Colors",
+            action: "generateFeedbackColors",
+            class: "generate-btn",
+          },
+        ],
       },
       {
         title: "Neutral",
         subsections: [
           {
             colorSelectors: [
-              { inputId: "greyTone", label: "Grey Tone", editableLabel: false },
+              { inputId: "greyHue", label: "Grey Hue", editableLabel: false },
             ],
           },
           {
@@ -79,37 +125,37 @@ export const TABS: TabConfig[] = [
               {
                 id: "neutralTextSecondaryOp",
                 label: "Secondary",
-                type: "select",
-                defaultValue: 600,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralTextHoveredOp",
-                label: "Hovered",
-                type: "select",
-                defaultValue: 50,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralTextSelectedOp",
-                label: "Selected",
-                type: "select",
-                defaultValue: 400,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralTextFocusedOp",
-                label: "Focused",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
+                type: "customSelector",
+                defaultValue: 700,
+                options: neutralOpacityOptions,
               },
               {
                 id: "neutralTextDisabledOp",
                 label: "Disabled",
-                type: "select",
+                type: "customSelector",
                 defaultValue: 300,
-                options: opacityOptions,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralTextHoveredOp",
+                label: "Hovered",
+                type: "customSelector",
+                defaultValue: 400,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralTextSelectedOp",
+                label: "Selected",
+                type: "customSelector",
+                defaultValue: 500,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralTextFocusedOp",
+                label: "Focused",
+                type: "customSelector",
+                defaultValue: 500,
+                options: neutralOpacityOptions,
               },
             ],
           },
@@ -119,39 +165,48 @@ export const TABS: TabConfig[] = [
               {
                 id: "neutralBgActiveOp",
                 label: "Active",
-                type: "select",
+                type: "customSelector",
                 defaultValue: 600,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralBgHoveredOp",
-                label: "Hovered",
-                type: "select",
-                defaultValue: 50,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralBgSelectedOp",
-                label: "Selected",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "neutralBgFocusedOp",
-                label: "Focused",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
+                options: neutralOpacityOptions,
               },
               {
                 id: "neutralBgDisabledOp",
                 label: "Disabled",
-                type: "select",
+                type: "customSelector",
                 defaultValue: 100,
-                options: opacityOptions,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralBgHoveredOp",
+                label: "Hovered",
+                type: "customSelector",
+                defaultValue: 200,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralBgSelectedOp",
+                label: "Selected",
+                type: "customSelector",
+                defaultValue: 300,
+                options: neutralOpacityOptions,
+              },
+              {
+                id: "neutralBgFocusedOp",
+                label: "Focused",
+                type: "customSelector",
+                defaultValue: 300,
+                options: neutralOpacityOptions,
               },
             ],
+          },
+        ],
+        inputs: [
+          {
+            id: "generate-neutral-colors-btn",
+            type: "button",
+            label: "Generate Neutral Colors",
+            action: "generateNeutralColors",
+            class: "generate-btn",
           },
         ],
       },
@@ -163,6 +218,7 @@ export const TABS: TabConfig[] = [
             type: "button",
             label: "Generate Palettes",
             action: "generatePalettes",
+            class: "generate-btn",
           },
         ],
       },
@@ -173,144 +229,49 @@ export const TABS: TabConfig[] = [
     title: "Themes",
     sections: [
       {
-        title: "Light",
-        subsections: [
+        title: "Themes Background Opacities",
+        inputs: [
           {
-            title: "Core shades",
-            inputs: [
-              {
-                id: "lightCorelightShade",
-                label: "light",
-                type: "select",
-                defaultValue: 400,
-                options: shadeOptions,
-              },
-              {
-                id: "lightCoreMainShade",
-                label: "main",
-                type: "select",
-                defaultValue: 500,
-                options: shadeOptions,
-              },
-              {
-                id: "lightCoreDarkShade",
-                label: "dark",
-                type: "select",
-                defaultValue: 600,
-                options: shadeOptions,
-              },
-            ],
+            id: "lightEnabledOp",
+            label: "Enabled",
+            type: "customSelector",
+            defaultValue: 200,
+            options: colorOpacityOptions,
           },
           {
-            title: "State opacities",
-            inputs: [
-              {
-                id: "lightEnabledOp",
-                label: "Enabled",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "lightDisabledOp",
-                label: "Disabled",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "lightHoveredOp",
-                label: "Hovered",
-                type: "select",
-                defaultValue: 50,
-                options: opacityOptions,
-              },
-              {
-                id: "lightSelectedOp",
-                label: "Selected",
-                type: "select",
-                defaultValue: 150,
-                options: opacityOptions,
-              },
-              {
-                id: "lightFocusedOp",
-                label: "Focused",
-                type: "select",
-                defaultValue: 300,
-                options: opacityOptions,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        title: "Dark",
-        subsections: [
-          {
-            title: "Core shades",
-            inputs: [
-              {
-                id: "darkCoreLightShade",
-                label: "light",
-                type: "select",
-                defaultValue: 300,
-                options: shadeOptions,
-              },
-              {
-                id: "darkCoreMainShade",
-                label: "main",
-                type: "select",
-                defaultValue: 400,
-                options: shadeOptions,
-              },
-              {
-                id: "darkCoreDarkShade",
-                label: "dark",
-                type: "select",
-                defaultValue: 500,
-                options: shadeOptions,
-              },
-            ],
+            id: "lightDisabledOp",
+            label: "Disabled",
+            type: "customSelector",
+            defaultValue: 100,
+            options: colorOpacityOptions,
           },
           {
-            title: "State opacities",
-            inputs: [
-              {
-                id: "darkEnabledOp",
-                label: "Enabled",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "darkDisabledOp",
-                label: "Disabled",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "darkHoveredOp",
-                label: "Hovered",
-                type: "select",
-                defaultValue: 100,
-                options: opacityOptions,
-              },
-              {
-                id: "darkSelectedOp",
-                label: "Selected",
-                type: "select",
-                defaultValue: 150,
-                options: opacityOptions,
-              },
-              {
-                id: "darkFocusedOp",
-                label: "Focused",
-                type: "select",
-                defaultValue: 300,
-                options: opacityOptions,
-              },
-            ],
+            id: "lightHoveredOp",
+            label: "Hovered",
+            type: "customSelector",
+            defaultValue: 50,
+            options: colorOpacityOptions,
+          },
+          {
+            id: "lightSelectedOp",
+            label: "Selected",
+            type: "customSelector",
+            defaultValue: 150,
+            options: colorOpacityOptions,
+          },
+          {
+            id: "lightFocusedOp",
+            label: "Focused",
+            type: "customSelector",
+            defaultValue: 300,
+            options: colorOpacityOptions,
+          },
+          {
+            id: "generate-themes-btn",
+            type: "button",
+            label: "Generate Themes",
+            action: "generateThemes",
+            class: "generate-btn",
           },
         ],
       },
@@ -386,6 +347,17 @@ export const TABS: TabConfig[] = [
           },
         ],
       },
+      {
+        inputs: [
+          {
+            id: "generate-layout-guide-btn",
+            type: "button",
+            label: "Generate Layout Guide",
+            action: "generateLayoutGuide",
+            class: "generate-btn",
+          },
+        ],
+      },
     ],
   },
   {
@@ -437,6 +409,13 @@ export const TABS: TabConfig[] = [
             defaultValue: 32,
             min: 0,
           },
+          {
+            id: "generate-radius-btn",
+            type: "button",
+            label: "Generate Radius",
+            action: "generateRadius",
+            class: "generate-btn",
+          },
         ],
       },
     ],
@@ -454,6 +433,13 @@ export const TABS: TabConfig[] = [
             defaultValue: 16,
             min: 8,
             max: 32,
+          },
+          {
+            id: "generate-font-sizes-btn",
+            type: "button",
+            label: "Generate Font Sizes",
+            action: "generateFontSizes",
+            class: "generate-btn",
           },
         ],
       },
@@ -490,12 +476,30 @@ export const TABS: TabConfig[] = [
             type: "text",
             defaultValue: "Roboto Mono",
           },
+          {
+            id: "generate-font-families-btn",
+            type: "button",
+            label: "Generate Font Families",
+            action: "generateFontFamilies",
+            class: "generate-btn",
+          },
+        ],
+      },
+      {
+        inputs: [
+          {
+            id: "generate-typography-btn",
+            type: "button",
+            label: "Generate Typography",
+            action: "generateTypography",
+            class: "generate-btn",
+          },
         ],
       },
     ],
   },
   {
-    id: "contents",
+    id: "datas",
     title: "Datas",
     sections: [
       {
@@ -507,6 +511,13 @@ export const TABS: TabConfig[] = [
             accept: "application/json",
             multiple: true,
             fileList: true,
+          },
+          {
+            id: "generate-text-datas-btn",
+            type: "button",
+            label: "Generate Text Datas",
+            action: "generateTextDatas",
+            class: "generate-btn",
           },
         ],
       },
@@ -520,6 +531,24 @@ export const TABS: TabConfig[] = [
             multiple: true,
             fileList: true,
             imagePreview: true,
+          },
+          {
+            id: "generate-images-datas-btn",
+            type: "button",
+            label: "Generate Images Datas",
+            action: "generateImagesDatas",
+            class: "generate-btn",
+          },
+        ],
+      },
+      {
+        inputs: [
+          {
+            id: "generate-datas-btn",
+            type: "button",
+            label: "Generate Datas",
+            action: "generateDatas",
+            class: "generate-btn",
           },
         ],
       },
@@ -536,6 +565,7 @@ export const TABS: TabConfig[] = [
             type: "button",
             label: "Generate Elevations Effects",
             action: "createElevations",
+            class: "generate-btn",
           },
         ],
       },

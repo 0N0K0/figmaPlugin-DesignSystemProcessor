@@ -1,14 +1,10 @@
 import type { ColorSelectorConfig } from "./colors";
 
-export interface SelectOption {
-  value: string | number;
-  label: string;
-}
-
 export interface InputConfig {
   id: string;
-  type: "text" | "number" | "select" | "file" | "button";
+  type: "text" | "number" | "select" | "file" | "button" | "customSelector";
   label?: string;
+  placeholder?: string;
   defaultValue?: string | number;
   min?: number;
   max?: number;
@@ -18,6 +14,8 @@ export interface InputConfig {
   fileList?: boolean;
   imagePreview?: boolean;
   action?: string;
+  allowEmpty?: boolean;
+  class?: string;
 }
 
 export interface SectionConfig {
@@ -37,4 +35,19 @@ export interface TabConfig {
   id: string;
   title: string;
   sections: SectionConfig[];
+}
+
+export interface SelectOption<T = any> {
+  value: T;
+  label: string;
+  color?: string;
+  isBase?: boolean;
+}
+
+export interface CustomSelectorConfig<T = any> {
+  options: SelectOption<T>[];
+  defaultValue?: T;
+  inputId: string;
+  placeholder?: string;
+  allowEmpty?: boolean;
 }

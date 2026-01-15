@@ -35,9 +35,9 @@ export class HtmlBuilder {
     if (config.type === "button") {
       return `
       <div class="input-row">
-        <button type="button" id="${config.id}" class="btn" data-action="${
-        config.action || config.id
-      }">
+        <button type="button" id="${config.id}" class="btn ${
+        config.class || ""
+      }" data-action="${config.action || config.id}">
           ${config.label}
         </button>
       </div>`;
@@ -58,6 +58,47 @@ export class HtmlBuilder {
         <select id="${config.id}">
           ${options}
         </select>
+      </div>`;
+    }
+
+    if (config.type === "customSelector") {
+      const optionsJson = JSON.stringify(config.options || []).replace(
+        /'/g,
+        "&apos;"
+      );
+      const placeholderAttr = config.placeholder
+        ? ` data-placeholder="${config.placeholder}"`
+        : "";
+      const defaultValue =
+        config.defaultValue !== undefined && config.defaultValue !== null
+          ? config.defaultValue
+          : "";
+      const defaultDataAttr =
+        defaultValue !== "" ? ` data-default="${defaultValue}"` : "";
+      const defaultValueAttr =
+        defaultValue !== "" ? ` value="${defaultValue}"` : "";
+      const allowEmptyAttr = config.allowEmpty ? "true" : "false";
+      const hiddenType =
+        typeof config.defaultValue === "number" ? "number" : "text";
+
+      return `
+      <div class="input-row">
+        ${
+          config.label
+            ? `<label for="${config.id}">${config.label}</label>`
+            : ""
+        }
+        <div
+          class="custom-selector-placeholder"
+          data-input-id="${config.id}"
+          data-options='${optionsJson}'
+          data-allow-empty="${allowEmptyAttr}"${placeholderAttr}${defaultDataAttr}>
+        </div>
+        <input
+          type="${hiddenType}"
+          id="${config.id}"
+          style="display: none;"${defaultValueAttr}
+        />
       </div>`;
     }
 
@@ -154,8 +195,8 @@ export class HtmlBuilder {
       ${titleHtml}
       ${paletteGen}
       ${colorCollectionHtml}
-      ${items ? `<fieldset>${items}</fieldset>` : ""}
       ${subsections || ""}
+      ${items ? `<fieldset>${items}</fieldset>` : ""}
     </section>`;
   }
 
