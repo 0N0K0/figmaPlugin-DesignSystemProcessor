@@ -270,7 +270,13 @@ export function initAllColorSelectors(): void {
   const wrappers = document.querySelectorAll<HTMLElement>(
     ".color-selector-wrapper"
   );
-  console.log(`Found ${wrappers.length} color selector wrappers`);
+  console.log(`Found ${wrappers.length} color selector wrappers in DOM`);
+
+  if (wrappers.length === 0) {
+    console.error("❌ CRITICAL: No color selector wrappers found!");
+    console.log("Available divs:", document.querySelectorAll("div").length);
+    return;
+  }
 
   wrappers.forEach((wrapper, index) => {
     console.log(`Initializing color selector ${index + 1}`);
