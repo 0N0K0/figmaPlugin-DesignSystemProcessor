@@ -13,8 +13,7 @@ const generateHtmlPlugin = {
     build.onEnd(async () => {
       try {
         const outputPath = path.join(__dirname, "dist/ui.html");
-        const scssPath = path.join(__dirname, "src/ui.scss");
-        const cssPath = path.join(__dirname, "src/ui.css");
+        const scssPath = path.join(__dirname, "src/ui/ui.scss");
 
         // Lire/Compiler le CSS (SCSS si présent)
         let css = "";
@@ -25,15 +24,10 @@ const generateHtmlPlugin = {
             css = result.css.toString ? result.css.toString() : result.css;
           } catch (err) {
             console.warn(
-              "⚠️ SCSS compilation failed, falling back to ui.css:",
+              "⚠️ SCSS compilation failed : ",
               err?.message || err
             );
-            if (fs.existsSync(cssPath)) {
-              css = fs.readFileSync(cssPath, "utf8");
-            }
           }
-        } else if (fs.existsSync(cssPath)) {
-          css = fs.readFileSync(cssPath, "utf8");
         }
 
         // Lire le JS compilé de l'UI
