@@ -224,22 +224,29 @@ export class VariableBuilder {
 	 * Crée des variables organisées hiérarchiquement
 	 *
 	 * @example
-	 * { colors: { brand: { primary: { 500: "#0DB9F2" } } } }
-	 * Résultat: colors/brand/primary/500
+	 * { colors: { brand: { 500: { type: "COLOR", value: "#0DB9F2", scopes: [...] } } } }
+	 * Résultat: colors/brand/500 comme nom de variable
 	 */
 	async createHierarchicalVariables(
 		collectionName: string,
 		hierarchy: Record<string, any>,
-		type: "COLOR" | "FLOAT" | "STRING" | "BOOLEAN" = "COLOR",
-		options?: {
-			hidden?: boolean;
-			scopes?: VariableScope[];
-		},
 	): Promise<Variable[]> {
-		const scopes =
-			options?.scopes ||
-			(type === "COLOR" ? SCOPES.COLOR.ALL : SCOPES.FLOAT.ALL);
 		const configs: VariableConfig[] = [];
+
+		/**
+		 * Vérifie si un objet est un VariableConfig
+		 */
+		const isVariableConfig = (obj: any): obj is VariableConfig => {
+			return (
+				typeof obj === "object" &&
+				obj !== null &&
+				"type" in obj &&
+				(obj.type === "COLOR" ||
+					obj.type === "FLOAT" ||
+					obj.type === "STRING" ||
+					obj.type === "BOOLEAN")
+			);
+		};
 
 		/**
 		 * Parcourt récursivement la hiérarchie pour extraire les variables
@@ -251,19 +258,12 @@ export class VariableBuilder {
 			for (const [key, value] of Object.entries(obj)) {
 				const currentPath = [...path, key];
 
-				// Si la valeur est primitive (string, number, boolean), c'est une variable
-				if (
-					typeof value === "string" ||
-					typeof value === "number" ||
-					typeof value === "boolean"
-				) {
+				// Si c'est un VariableConfig, l'ajouter avec le chemin complet
+				if (isVariableConfig(value)) {
 					configs.push({
+						...value,
 						name: currentPath.join("/"),
-						collection: collectionName,
-						type,
-						scopes: scopes as VariableScope[],
-						value: value,
-						hidden: options?.hidden ?? false,
+						collection: value.collection || collectionName,
 					});
 				}
 				// Sinon, continuer à descendre dans la hiérarchie
