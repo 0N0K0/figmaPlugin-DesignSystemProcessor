@@ -4,7 +4,10 @@
 
 import { toPascalCase } from "../common/utils/textUtils";
 import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
-import { generateColorPalette } from "./builders/variables/colorPalettesBuilder";
+import {
+	generateColorPalette,
+	genrateNeutralPalette,
+} from "./builders/variables/styles/colors/PalettesBuilder";
 
 figma.showUI(__html__, {
 	width: 304,
@@ -50,11 +53,15 @@ figma.ui.onmessage = async (msg) => {
 		msg.type === "generatePalettes" ||
 		msg.type === "generateAll"
 	) {
-		const { neutralColors } = msg.datas || {};
-		/**
-		 * @TODO await generateNeutralColorPalette(neutralColors);
-		 */
-		// figma.notify("✅ Palette de couleurs Neutral générée avec succès");
+		const greyHue = msg.datas?.neutralColors?.greyHue;
+		try {
+			await genrateNeutralPalette(greyHue ?? "");
+			figma.notify("✅ Palette de couleurs Neutral générée avec succès");
+		} catch (error) {
+			console.error("Erreur génération Neutral:", error);
+			figma.notify("❌ Erreur lors de la génération des couleurs Neutral");
+			return;
+		}
 	}
 
 	if (

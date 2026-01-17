@@ -209,75 +209,6 @@ export class VariableBuilder {
 	}
 
 	/**
-	 * Crée plusieurs variables
-	 */
-	async createVariables(configs: VariableConfig[]): Promise<Variable[]> {
-		const variables: Variable[] = [];
-		for (const config of configs) {
-			const variable = await this.createVariable(config);
-			variables.push(variable);
-		}
-		return variables;
-	}
-
-	/**
-	 * Crée des variables organisées hiérarchiquement
-	 *
-	 * @example
-	 * { colors: { brand: { 500: { type: "COLOR", value: "#0DB9F2", scopes: [...] } } } }
-	 * Résultat: colors/brand/500 comme nom de variable
-	 */
-	async createHierarchicalVariables(
-		collectionName: string,
-		hierarchy: Record<string, any>,
-	): Promise<Variable[]> {
-		const configs: VariableConfig[] = [];
-
-		/**
-		 * Vérifie si un objet est un VariableConfig
-		 */
-		const isVariableConfig = (obj: any): obj is VariableConfig => {
-			return (
-				typeof obj === "object" &&
-				obj !== null &&
-				"type" in obj &&
-				(obj.type === "COLOR" ||
-					obj.type === "FLOAT" ||
-					obj.type === "STRING" ||
-					obj.type === "BOOLEAN")
-			);
-		};
-
-		/**
-		 * Parcourt récursivement la hiérarchie pour extraire les variables
-		 */
-		const extractVariables = (
-			obj: Record<string, any>,
-			path: string[] = [],
-		): void => {
-			for (const [key, value] of Object.entries(obj)) {
-				const currentPath = [...path, key];
-
-				// Si c'est un VariableConfig, l'ajouter avec le chemin complet
-				if (isVariableConfig(value)) {
-					configs.push({
-						...value,
-						name: currentPath.join("/"),
-						collection: value.collection || collectionName,
-					});
-				}
-				// Sinon, continuer à descendre dans la hiérarchie
-				else if (typeof value === "object" && value !== null) {
-					extractVariables(value, currentPath);
-				}
-			}
-		};
-
-		extractVariables(hierarchy);
-		return this.createVariables(configs);
-	}
-
-	/**
 	 * Met à jour une variable existante
 	 */
 	async updateVariable(config: VariableConfig): Promise<Variable | null> {
@@ -354,6 +285,91 @@ export class VariableBuilder {
 		}
 
 		return variable;
+	}
+
+	async createOrUpdateVariable(config: VariableConfig): Promise<Variable> {
+		const existingVariable = await this.findVariable(
+			config.collection,
+			config.name,
+		);
+		if (existingVariable) {
+			const updatedVariable = await this.updateVariable(config);
+			return updatedVariable as Variable;
+		} else {
+			const newVariable = await this.createVariable(config);
+			return newVariable;
+		}
+	}
+
+	/**
+	 * Crée ou met à jour plusieurs variables
+	 */
+	async createOrUpdateVariables(
+		configs: VariableConfig[],
+	): Promise<Variable[]> {
+		const variables: Variable[] = [];
+		for (const config of configs) {
+			const variable = await this.createOrUpdateVariable(config);
+			variables.push(variable);
+		}
+		return variables;
+	}
+
+	/**
+	 * Crée ou met à jour des variables organisées hiérarchiquement
+	 *
+	 * @example
+	 * { colors: { brand: { 500: { type: "COLOR", value: "#0DB9F2", scopes: [...] } } } }
+	 * Résultat: colors/brand/500 comme nom de variable
+	 */
+	async createorUpdateHierarchicalVariables(
+		collectionName: string,
+		hierarchy: Record<string, any>,
+	): Promise<Variable[]> {
+		const configs: VariableConfig[] = [];
+
+		/**
+		 * Vérifie si un objet est un VariableConfig
+		 */
+		const isVariableConfig = (obj: any): obj is VariableConfig => {
+			return (
+				typeof obj === "object" &&
+				obj !== null &&
+				"type" in obj &&
+				(obj.type === "COLOR" ||
+					obj.type === "FLOAT" ||
+					obj.type === "STRING" ||
+					obj.type === "BOOLEAN")
+			);
+		};
+
+		/**
+		 * Parcourt récursivement la hiérarchie pour extraire les variables
+		 */
+		const extractVariables = (
+			obj: Record<string, any>,
+			path: string[] = [],
+		): void => {
+			for (const [key, value] of Object.entries(obj)) {
+				const currentPath = [...path, key];
+
+				// Si c'est un VariableConfig, l'ajouter avec le chemin complet
+				if (isVariableConfig(value)) {
+					configs.push({
+						...value,
+						name: currentPath.join("/"),
+						collection: value.collection || collectionName,
+					});
+				}
+				// Sinon, continuer à descendre dans la hiérarchie
+				else if (typeof value === "object" && value !== null) {
+					extractVariables(value, currentPath);
+				}
+			}
+		};
+
+		extractVariables(hierarchy);
+		return this.createOrUpdateVariables(configs);
 	}
 
 	/**
