@@ -5,81 +5,76 @@
 import { generateShades } from "../../../common/utils/colorUtils";
 import { variableBuilder } from "./variableBuilder";
 import { SCOPES } from "../../constants/variablesConstants";
-import { ColorsCollection } from "../../types/variablesTypes";
+import { ColorsCollection, VariableConfig } from "../../types/variablesTypes";
+import { OPACITIES_STEPS } from "../../../common/constants/colorConstants";
+import { converter } from "culori";
+import { hexToFigmaRgba } from "../../utils/colorUtils";
 
-
+const COLLECTION_NAME = "Style\\Colors\\Palette";
 /**
  * Génère les shades pour un groupe de couleurs
  */
 function generateColorGroup(
-  colors: ColorsCollection,
-  groupName: string
-): Record<string, string> {
-  const variables: Record<string, string> = {};
+	colors: ColorsCollection,
+	groupName: string,
+): VariableConfig[] {
+	const variables: VariableConfig[] = [];
 
-  for (const [name, baseColor] of Object.entries(colors)) {
-    const shades = generateShades(baseColor);
-    shades.forEach(({ step, color }) => {
-      variables[`${groupName}/${name}/${step}`] = color;
-    });
-  }
+	for (const [name, baseColor] of Object.entries(colors)) {
+		const shades = generateShades(baseColor);
+		shades.forEach(({ step, color }) => {
+			variables.push({
+				name: `${groupName}/${name}/${step}`,
+				collection: COLLECTION_NAME,
+				type: "COLOR",
+				value: color,
+				scopes: [SCOPES.COLOR.ALL],
+			});
+		});
 
-  return variables;
+		const opacities = OPACITIES_STEPS.map((opacity) => {
+			return {
+				step: opacity,
+				color: hexToFigmaRgba(baseColor, opacity / 1000),
+			};
+		});
+
+		opacities.forEach(({ step, color }) => {
+			variables.push({
+				name: `${groupName}/${name}/opacity/${step}`,
+				collection: COLLECTION_NAME,
+				type: "COLOR",
+				value: color,
+				scopes: [SCOPES.COLOR.ALL],
+			});
+		});
+	}
+
+	return variables;
 }
 
 /**
  * Génère les palettes de couleurs pour Brand et Feedback dans une seule collection
  */
-export async function generateColorPalettes(
-  brandColors: ColorsCollection,
-  feedbackColors: ColorsCollection
+export async function generateColorPalette(
+	colors: ColorsCollection,
+	colorFamily: string,
 ): Promise<void> {
-  const collectionName = "Palette";
+	const collection =
+		await variableBuilder.getOrCreateCollection(COLLECTION_NAME);
 
-  // Supprime les anciennes collections "Palette" pour éviter les doublons
-  const collections = await figma.variables.getLocalVariableCollectionsAsync();
-  const existingPalettes = collections.filter((c) => c.name === collectionName);
-  for (const collection of existingPalettes) {
-    // Supprime toutes les variables de la collection
-    const variablePromises = collection.variableIds.map((id) =>
-      figma.variables.getVariableByIdAsync(id)
-    );
-    const variables = await Promise.all(variablePromises);
-    for (const variable of variables) {
-      if (variable) {
-        variable.remove();
-      }
-    }
-    // Supprime la collection
-    collection.remove();
-  }
+	const colorVariables = generateColorGroup(colors, colorFamily);
 
-  console.log(
-    `🗑️ ${existingPalettes.length} collection(s) Palette supprimée(s)`
-  );
+	console.log(
+		`🎨 Génération de ${
+			Object.keys(colorVariables).length
+		} variables de couleur...`,
+	);
 
-  const allColorVariables = {
-    ...generateColorGroup(brandColors, "brand"),
-    ...generateColorGroup(feedbackColors, "feedback"),
-  };
+	// Crée toutes les variables dans une seule collection
+	await variableBuilder.createVariables(colorVariables);
 
-  console.log(
-    `🎨 Génération de ${
-      Object.keys(allColorVariables).length
-    } variables de couleur...`
-  );
-
-  // Crée toutes les variables dans une seule collection
-  await variableBuilder.createColorVariables(
-    collectionName,
-    allColorVariables,
-    {
-      scopes: [SCOPES.COLOR.ALL_FILLS],
-      hidden: false,
-    }
-  );
-
-  console.log(
-    "✅ Toutes les palettes de couleurs créées dans la collection Palette"
-  );
+	console.log(
+		"✅ Toutes les palettes de couleurs créées dans la collection Palette",
+	);
 }

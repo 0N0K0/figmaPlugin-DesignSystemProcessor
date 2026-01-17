@@ -2,7 +2,9 @@
  * Point d'entrée principal du plugin Figma
  */
 
+import { toPascalCase } from "../common/utils/textUtils";
 import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
+import { generateColorPalette } from "./builders/variables/colorPalettesBuilder";
 
 figma.showUI(__html__, {
 	width: 304,
@@ -15,28 +17,35 @@ figma.showUI(__html__, {
  * Gère les messages provenant de l'UI
  */
 figma.ui.onmessage = async (msg) => {
-	if (msg.type === "generateBrandColors" || msg.type === "generatePalettes") {
-		const { brandColors } = msg.data;
-		/**
-		 * @TODO await generateBrandColorPalette(brandColors);
-		 * await generateBrandThemes(...);
-		 */
-		figma.notify("✅ Palette de couleurs Brand générée avec succès");
+	for (const key of ["brand", "feedback"] as const) {
+		if (
+			msg.type === `generate${toPascalCase(key)}Colors` ||
+			msg.type === "generatePalettes" ||
+			msg.type === "generateAll"
+		) {
+			const colors = msg.data[`${key}Colors`];
+			if (!colors) {
+				figma.notify(`❌ Aucune couleur de ${toPascalCase(key)} fournie`);
+				return;
+			}
+			try {
+				await generateColorPalette(colors, toPascalCase(key));
+				figma.notify(
+					`✅ Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
+				);
+			} catch (error) {
+				figma.notify(
+					`❌ Erreur lors de la génération des couleurs de ${toPascalCase(key)}`,
+				);
+				return;
+			}
+		}
 	}
-
 	if (
-		msg.type === "generateFeedbackColors" ||
-		msg.type === "generatePalettes"
+		msg.type === "generateNeutralColors" ||
+		msg.type === "generatePalettes" ||
+		msg.type === "generateAll"
 	) {
-		const { feedbackColors } = msg.data;
-		/**
-		 * @TODO await generateFeedbackColorPalette(feedbackColors);
-		 * await generateFeedbackThemes(...);
-		 */
-		figma.notify("✅ Palette de couleurs Feedback générée avec succès");
-	}
-
-	if (msg.type === "generateNeutralColors" || msg.type === "generatePalettes") {
 		const { neutralColors } = msg.data;
 		/**
 		 * @TODO await generateNeutralColorPalette(neutralColors);
@@ -44,7 +53,11 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Palette de couleurs Neutral générée avec succès");
 	}
 
-	if (msg.type === "generateThemes" || msg.type === "generatePalettes") {
+	if (
+		msg.type === "generateThemes" ||
+		msg.type === "generatePalettes" ||
+		msg.type === "generateAll"
+	) {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -53,7 +66,7 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Thèmes générés avec succès");
 	}
 
-	if (msg.type === "generateLayoutGuide") {
+	if (msg.type === "generateLayoutGuide" || msg.type === "generateAll") {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -62,7 +75,7 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Guide de mise en page généré avec succès");
 	}
 
-	if (msg.type === "generateRadius") {
+	if (msg.type === "generateRadius" || msg.type === "generateAll") {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -71,7 +84,11 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Radius générés avec succès");
 	}
 
-	if (msg.type === "generateFontSizes" || msg.type === "generateTypography") {
+	if (
+		msg.type === "generateFontSizes" ||
+		msg.type === "generateTypography" ||
+		msg.type === "generateAll"
+	) {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -82,7 +99,8 @@ figma.ui.onmessage = async (msg) => {
 
 	if (
 		msg.type === "generateFontFamilies" ||
-		msg.type === "generateTypography"
+		msg.type === "generateTypography" ||
+		msg.type === "generateAll"
 	) {
 		/**
 		 * @TODO
@@ -92,7 +110,11 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Familles de police générées avec succès");
 	}
 
-	if (msg.type === "generateTextDatas" || msg.type === "generateDatas") {
+	if (
+		msg.type === "generateTextDatas" ||
+		msg.type === "generateDatas" ||
+		msg.type === "generateAll"
+	) {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -101,7 +123,11 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Textes générés avec succès");
 	}
 
-	if (msg.type === "generateImagesDatas" || msg.type === "generateDatas") {
+	if (
+		msg.type === "generateImagesDatas" ||
+		msg.type === "generateDatas" ||
+		msg.type === "generateAll"
+	) {
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;
@@ -110,7 +136,7 @@ figma.ui.onmessage = async (msg) => {
 		figma.notify("✅ Images générées avec succès");
 	}
 
-	if (msg.type === "generateElevationsEffects") {
+	if (msg.type === "generateElevationsEffects" || msg.type === "generateAll") {
 		generateElevationEffects();
 	}
 };
