@@ -1,5 +1,0 @@
-export const UI_CONSTANTS = {
-  TOOLBAR_HEIGHT: 48,
-  BOTTOM_MARGIN: 12,
-  RESIZE_DELAY: 300,
-};

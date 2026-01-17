@@ -7,7 +7,6 @@ import { variableBuilder } from "./variableBuilder";
 import { SCOPES } from "../../constants/variablesConstants";
 import { ColorsCollection, VariableConfig } from "../../types/variablesTypes";
 import { OPACITIES_STEPS } from "../../../common/constants/colorConstants";
-import { converter } from "culori";
 import { hexToFigmaRgba } from "../../utils/colorUtils";
 
 const COLLECTION_NAME = "Style\\Colors\\Palette";
@@ -24,7 +23,7 @@ function generateColorGroup(
 		const shades = generateShades(baseColor);
 		shades.forEach(({ step, color }) => {
 			variables.push({
-				name: `${groupName}/${name}/${step}`,
+				name: `${groupName}/${name}/shade/${step}`.toLowerCase(),
 				collection: COLLECTION_NAME,
 				type: "COLOR",
 				value: color,
@@ -41,7 +40,7 @@ function generateColorGroup(
 
 		opacities.forEach(({ step, color }) => {
 			variables.push({
-				name: `${groupName}/${name}/opacity/${step}`,
+				name: `${groupName}/${name}/opacity/${step}`.toLowerCase(),
 				collection: COLLECTION_NAME,
 				type: "COLOR",
 				value: color,

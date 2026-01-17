@@ -17,13 +17,16 @@ figma.showUI(__html__, {
  * Gère les messages provenant de l'UI
  */
 figma.ui.onmessage = async (msg) => {
+	// Debug: afficher le type de message reçu
+	figma.notify(`🔍 Message reçu: ${msg.type}`);
+
 	for (const key of ["brand", "feedback"] as const) {
 		if (
 			msg.type === `generate${toPascalCase(key)}Colors` ||
 			msg.type === "generatePalettes" ||
 			msg.type === "generateAll"
 		) {
-			const colors = msg.data[`${key}Colors`];
+			const colors = msg.datas?.colorsData?.[key];
 			if (!colors) {
 				figma.notify(`❌ Aucune couleur de ${toPascalCase(key)} fournie`);
 				return;
@@ -34,6 +37,7 @@ figma.ui.onmessage = async (msg) => {
 					`✅ Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
 				);
 			} catch (error) {
+				console.error(`Erreur génération ${key}:`, error);
 				figma.notify(
 					`❌ Erreur lors de la génération des couleurs de ${toPascalCase(key)}`,
 				);
@@ -46,11 +50,11 @@ figma.ui.onmessage = async (msg) => {
 		msg.type === "generatePalettes" ||
 		msg.type === "generateAll"
 	) {
-		const { neutralColors } = msg.data;
+		const { neutralColors } = msg.datas || {};
 		/**
 		 * @TODO await generateNeutralColorPalette(neutralColors);
 		 */
-		figma.notify("✅ Palette de couleurs Neutral générée avec succès");
+		// figma.notify("✅ Palette de couleurs Neutral générée avec succès");
 	}
 
 	if (
@@ -63,7 +67,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateFeedbackThemes(...);
 		 */
-		figma.notify("✅ Thèmes générés avec succès");
+		// figma.notify("✅ Thèmes générés avec succès");
 	}
 
 	if (msg.type === "generateLayoutGuide" || msg.type === "generateAll") {
@@ -72,7 +76,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateLayoutGuide(...);
 		 */
-		figma.notify("✅ Guide de mise en page généré avec succès");
+		// figma.notify("✅ Guide de mise en page généré avec succès");
 	}
 
 	if (msg.type === "generateRadius" || msg.type === "generateAll") {
@@ -81,7 +85,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateRadius(...);
 		 */
-		figma.notify("✅ Radius générés avec succès");
+		// figma.notify("✅ Radius générés avec succès");
 	}
 
 	if (
@@ -94,7 +98,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateRadius(...);
 		 */
-		figma.notify("✅ Tailles de police générées avec succès");
+		// figma.notify("✅ Tailles de police générées avec succès");
 	}
 
 	if (
@@ -107,7 +111,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateFontFamilies(...);
 		 */
-		figma.notify("✅ Familles de police générées avec succès");
+		// figma.notify("✅ Familles de police générées avec succès");
 	}
 
 	if (
@@ -120,7 +124,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateTextDatas(...);
 		 */
-		figma.notify("✅ Textes générés avec succès");
+		// figma.notify("✅ Textes générés avec succès");
 	}
 
 	if (
@@ -133,7 +137,7 @@ figma.ui.onmessage = async (msg) => {
 		 * const { ... } = msg.data;
 		 * await generateImagesDatas(...);
 		 */
-		figma.notify("✅ Images générées avec succès");
+		// figma.notify("✅ Images générées avec succès");
 	}
 
 	if (msg.type === "generateElevationsEffects" || msg.type === "generateAll") {
