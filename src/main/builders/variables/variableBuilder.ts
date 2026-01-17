@@ -4,7 +4,6 @@
  */
 
 import type { VariableConfig } from "../../types/variablesTypes";
-import { SCOPES } from "../../constants/variablesConstants";
 import { hexToFigmaRgba } from "../../utils/colorUtils";
 
 export class VariableBuilder {
@@ -154,6 +153,7 @@ export class VariableBuilder {
 			modeId = mode
 				? mode.modeId
 				: await this.addModeToCollection(config.collection, config.mode);
+			await this.removeModeFromCollection(config.collection, "Mode 1");
 		} else {
 			modeId = collection.modes[0]?.modeId;
 		}
