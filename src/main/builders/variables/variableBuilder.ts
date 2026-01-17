@@ -145,41 +145,53 @@ export class VariableBuilder {
 			config.type,
 		);
 
-		// Configure les scopes
-		if (config.scopes && config.type !== "BOOLEAN") {
-			variable.scopes = config.scopes;
+		let modeId: string;
+		if (config.mode) {
+			const mode = await this.getModeFromCollection(
+				config.collection,
+				config.mode,
+			);
+			modeId = mode
+				? mode.modeId
+				: await this.addModeToCollection(config.collection, config.mode);
+		} else {
+			modeId = collection.modes[0]?.modeId;
 		}
 
-		// Défini la valeur (si fournie)
+		// Défini la valeur
 		if (config.value !== undefined) {
 			try {
-				const modeId = collection.modes[0]?.modeId;
-				if (modeId) {
-					// Gère les références à d'autres variables
-					if (
-						typeof config.value === "object" &&
-						"type" in config.value &&
-						config.alias
-					) {
-						variable.setValueForMode(modeId, {
-							type: "VARIABLE_ALIAS",
-							id: config.alias,
-						});
-					} else {
-						// Convertit les valeurs hex en RGB pour les variables de couleur
-						let valueToSet = config.value;
-						if (config.type === "COLOR" && typeof config.value === "string") {
-							valueToSet = hexToFigmaRgba(config.value);
-						}
-						variable.setValueForMode(modeId, valueToSet);
-					}
+				// Convertit les valeurs hex en RGB pour les variables de couleur
+				let valueToSet = config.value;
+				if (config.type === "COLOR" && typeof config.value === "string") {
+					valueToSet = hexToFigmaRgba(config.value);
 				}
+				variable.setValueForMode(modeId, valueToSet);
 			} catch (error) {
 				console.warn(
 					`Erreur lors de la définition de la valeur pour ${varName}:`,
 					error,
 				);
 			}
+		}
+
+		if (config.alias !== undefined) {
+			try {
+				variable.setValueForMode(modeId, {
+					type: "VARIABLE_ALIAS",
+					id: config.alias,
+				});
+			} catch (error) {
+				console.warn(
+					`Erreur lors de la définition de l'alias pour ${varName}:`,
+					error,
+				);
+			}
+		}
+
+		// Configure les scopes
+		if (config.scopes && config.type !== "BOOLEAN") {
+			variable.scopes = config.scopes;
 		}
 
 		// Configure la visibilité
