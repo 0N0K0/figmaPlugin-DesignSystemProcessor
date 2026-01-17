@@ -5,8 +5,8 @@
 import { generateShades } from "../../../common/utils/colorUtils";
 import { variableBuilder } from "./variableBuilder";
 import { SCOPES } from "../../constants/variablesConstants";
+import { ColorsCollection } from "../../types/variablesTypes";
 
-export type ColorsCollection = Record<string, string>;
 
 /**
  * Génère les shades pour un groupe de couleurs
@@ -30,7 +30,7 @@ function generateColorGroup(
 /**
  * Génère les palettes de couleurs pour Brand et Feedback dans une seule collection
  */
-export async function generateAllColorPalettes(
+export async function generateColorPalettes(
   brandColors: ColorsCollection,
   feedbackColors: ColorsCollection
 ): Promise<void> {

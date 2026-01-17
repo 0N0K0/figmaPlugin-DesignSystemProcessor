@@ -24,3 +24,5 @@ export interface VariableAlias {
   type: "VARIABLE_ALIAS";
   id: string;
 }
+
+export type ColorsCollection = Record<string, string>;

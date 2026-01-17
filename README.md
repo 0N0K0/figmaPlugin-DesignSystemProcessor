@@ -1,4 +1,4 @@
-# Plugin Figma Complexe
+# Design System Processor
 
 Plugin Figma avec architecture TypeScript modulaire, compilation avec esbuild et support des librairies Node.js.
 

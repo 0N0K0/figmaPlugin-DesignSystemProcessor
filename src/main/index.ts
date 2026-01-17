@@ -2,7 +2,7 @@
  * Point d'entrée principal du plugin Figma
  */
 
-import { generateElevationEffects } from "./builders/styles/dropshadows";
+import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
 
 figma.showUI(__html__, {
   width: 304,

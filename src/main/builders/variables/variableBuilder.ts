@@ -7,13 +7,12 @@ import type {
   VariableConfig,
   //   VariableValue,
   //   VariableAlias,
-} from "../../types/variables";
-import type { IVariableBuilder } from "../../types/variableBuilder";
+} from "../../types/variablesTypes";
 import { SCOPES } from "../../constants/variablesConstants";
-import { hexToFigmaRgba } from "../../utils/colorConversion";
+import { hexToFigmaRgba } from "../../utils/colorUtils";
 // import { SCOPES } from "../../constants/variablesConstants";
 
-export class VariableBuilder implements IVariableBuilder {
+export class VariableBuilder {
   private variables: Map<string, Variable> = new Map();
 
   /**
@@ -325,4 +324,4 @@ export class VariableBuilder implements IVariableBuilder {
 }
 
 // Export singleton par défaut
-export const variableBuilder: IVariableBuilder = new VariableBuilder();
+export const variableBuilder = new VariableBuilder();
