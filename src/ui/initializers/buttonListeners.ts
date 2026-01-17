@@ -107,7 +107,7 @@ export function attachButtonListeners() {
 					for (const key of keys) {
 						if (!neutralColors[property]) neutralColors[property] = {};
 						(neutralColors[property] as Record<string, number>)[key] = formData[
-							`neutral${property}${key}Op`
+							`neutral${property}${key}`
 						] as number;
 					}
 				}
@@ -122,7 +122,7 @@ export function attachButtonListeners() {
 					"Focused",
 					"Border",
 				]) {
-					themes[key.toLowerCase()] = formData[`theme${key}Op`] as string;
+					themes[key.toLowerCase()] = formData[`themes${key}`] as string;
 				}
 				const brandCoreThemes = manageCoreThemes("brand", formData);
 				const feedbackCoreThemes = manageCoreThemes("feedback", formData);
@@ -157,7 +157,7 @@ export function attachButtonListeners() {
 
 				// Handle Text Datas
 				let textDatasList: Record<string, any>[] = [];
-				const textDatasFiles = formData["textDatasFile"] as unknown as
+				const textDatasFiles = formData["textDatasFiles"] as unknown as
 					| FileList
 					| File
 					| undefined;
@@ -180,7 +180,7 @@ export function attachButtonListeners() {
 
 				// Handle Images Datas
 				let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
-				const imagesDatasFiles = formData["imagesDatasFile"] as unknown as
+				const imagesDatasFiles = formData["imagesDatasFiles"] as unknown as
 					| FileList
 					| File
 					| undefined;

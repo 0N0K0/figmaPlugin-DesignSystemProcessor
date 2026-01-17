@@ -135,7 +135,6 @@ const colorCollection = (
 
 export const TABS: TabConfig[] = [
 	{
-		id: "palette",
 		title: "Palette",
 		sections: [
 			{
@@ -173,31 +172,31 @@ export const TABS: TabConfig[] = [
 						title: "Text opacities",
 						inputs: [
 							selector(
-								"neutralTextSecondaryOp",
+								"neutralTextSecondary",
 								"Secondary",
 								700,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralTextDisabledOp",
+								"neutralTextDisabled",
 								"Disabled",
 								300,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralTextHoveredOp",
+								"neutralTextHovered",
 								"Hovered",
 								400,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralTextSelectedOp",
+								"neutralTextSelected",
 								"Selected",
 								500,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralTextFocusedOp",
+								"neutralTextFocused",
 								"Focused",
 								500,
 								neutralOpacityOptions,
@@ -207,32 +206,27 @@ export const TABS: TabConfig[] = [
 					{
 						title: "Background opacities",
 						inputs: [
+							selector("neutralBgActive", "Active", 600, neutralOpacityOptions),
 							selector(
-								"neutralBgActiveOp",
-								"Active",
-								600,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralBgDisabledOp",
+								"neutralBgDisabled",
 								"Disabled",
 								100,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralBgHoveredOp",
+								"neutralBgHovered",
 								"Hovered",
 								200,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralBgSelectedOp",
+								"neutralBgSelected",
 								"Selected",
 								300,
 								neutralOpacityOptions,
 							),
 							selector(
-								"neutralBgFocusedOp",
+								"neutralBgFocused",
 								"Focused",
 								300,
 								neutralOpacityOptions,
@@ -249,21 +243,20 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "themes",
 		title: "Themes",
 		sections: [
 			{
 				title: "Themes Background Opacities",
 				inputs: [
-					selector("themeEnabledOp", "Enabled", 200, colorOpacityOptions),
-					selector("themeDisabledOp", "Disabled", 100, colorOpacityOptions),
-					selector("themeHoveredOp", "Hovered", 50, colorOpacityOptions),
-					selector("themeSelectedOp", "Selected", 150, colorOpacityOptions),
-					selector("themeFocusedOp", "Focused", 300, colorOpacityOptions),
+					selector("themesEnabled", "Enabled", 200, colorOpacityOptions),
+					selector("themesDisabled", "Disabled", 100, colorOpacityOptions),
+					selector("themesHovered", "Hovered", 50, colorOpacityOptions),
+					selector("themesSelected", "Selected", 150, colorOpacityOptions),
+					selector("themesFocused", "Focused", 300, colorOpacityOptions),
 				],
 			},
 			{
-				inputs: [selector("themeBorderOp", "Border", 500, colorOpacityOptions)],
+				inputs: [selector("themesBorder", "Border", 500, colorOpacityOptions)],
 			},
 			{
 				inputs: [btn("Generate Themes")],
@@ -271,7 +264,6 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "layout",
 		title: "Layout guide",
 		sections: [
 			{
@@ -298,7 +290,6 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "radius",
 		title: "Radius",
 		sections: [
 			{
@@ -315,7 +306,6 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "typography",
 		title: "Typography",
 		sections: [
 			{
@@ -341,18 +331,17 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "datas",
 		title: "Datas",
 		sections: [
 			{
 				inputs: [
-					fileInput("textDatasFile", "Text", "application/json"),
+					fileInput("textDatasFiles", "Text", "application/json"),
 					btn("Generate Text Datas"),
 				],
 			},
 			{
 				inputs: [
-					fileInput("imagesDatasFile", "Images", "image/*", true),
+					fileInput("imagesDatasFiles", "Images", "image/*", true),
 					btn("Generate Images Datas"),
 				],
 			},
@@ -362,7 +351,6 @@ export const TABS: TabConfig[] = [
 		],
 	},
 	{
-		id: "effects",
 		title: "Effects",
 		sections: [
 			{
