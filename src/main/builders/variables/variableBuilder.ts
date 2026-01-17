@@ -105,9 +105,9 @@ export class VariableBuilder {
 	}
 
 	/**
-	 * Trouve une variable par collection et nom
+	 * Trouve une variable par collection et nom (retourne une seule variable)
 	 */
-	private async findVariable(
+	async findVariable(
 		collectionName: string,
 		variableName: string,
 	): Promise<Variable | undefined> {
@@ -115,7 +115,7 @@ export class VariableBuilder {
 		if (cached) return cached;
 
 		const vars = await this.getCollectionVariables(collectionName);
-		return vars.find((v) => v.name === variableName);
+		return vars.filter((v) => v.name === variableName)[0];
 	}
 
 	/**

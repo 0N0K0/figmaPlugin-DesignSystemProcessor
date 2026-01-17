@@ -8,6 +8,8 @@ import {
 	generateColorPalette,
 	genrateNeutralPalette,
 } from "./builders/variables/styles/colors/PalettesBuilder";
+import { generateColorThemes } from "./builders/variables/styles/colors/ThemesBuilder";
+import { logger } from "./utils/logger";
 
 figma.showUI(__html__, {
 	width: 304,
@@ -21,9 +23,11 @@ figma.showUI(__html__, {
  */
 figma.ui.onmessage = async (msg) => {
 	// Debug: afficher le type de message reçu
-	figma.notify(`🔍 Message reçu: ${msg.type}`);
+	logger.debug(`Message reçu: ${msg.type}`);
 
-	for (const key of ["brand", "feedback"] as const) {
+	const colorFamilies = ["brand", "feedback"];
+
+	for (const key of colorFamilies) {
 		if (
 			msg.type === `generate${toPascalCase(key)}Colors` ||
 			msg.type === "generatePalettes" ||
@@ -31,19 +35,16 @@ figma.ui.onmessage = async (msg) => {
 		) {
 			const colors = msg.datas?.colorsData?.[key];
 			if (!colors) {
-				figma.notify(`❌ Aucune couleur de ${toPascalCase(key)} fournie`);
+				logger.warn(`Aucune couleur de ${toPascalCase(key)} fournie`);
 				return;
 			}
 			try {
 				await generateColorPalette(colors, toPascalCase(key));
-				figma.notify(
-					`✅ Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
+				logger.info(
+					`Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
 				);
 			} catch (error) {
-				console.error(`Erreur génération ${key}:`, error);
-				figma.notify(
-					`❌ Erreur lors de la génération des couleurs de ${toPascalCase(key)}`,
-				);
+				logger.error(`Erreur génération ${key}:`, error);
 				return;
 			}
 		}
@@ -56,10 +57,9 @@ figma.ui.onmessage = async (msg) => {
 		const greyHue = msg.datas?.neutralColors?.greyHue;
 		try {
 			await genrateNeutralPalette(greyHue ?? "");
-			figma.notify("✅ Palette de couleurs Neutral générée avec succès");
+			logger.info("Palette de couleurs Neutral générée avec succès");
 		} catch (error) {
-			console.error("Erreur génération Neutral:", error);
-			figma.notify("❌ Erreur lors de la génération des couleurs Neutral");
+			logger.error("Erreur génération Neutral:", error);
 			return;
 		}
 	}
@@ -69,6 +69,34 @@ figma.ui.onmessage = async (msg) => {
 		msg.type === "generatePalettes" ||
 		msg.type === "generateAll"
 	) {
+		logger.debug(
+			`Clés disponibles dans msg.datas:`,
+			Object.keys(msg.datas || {}),
+		);
+		for (const key of colorFamilies) {
+			const coreThemes = msg.datas?.[`${key}CoreThemes`];
+			const colors = msg.datas?.colorsData?.[key];
+			logger.debug(`${key}CoreThemes=${!!coreThemes}, colors=${!!colors}`);
+			if (coreThemes) {
+				logger.debug(`${key}CoreThemes contenu:`, coreThemes);
+			}
+			if (coreThemes && colors) {
+				try {
+					await generateColorThemes(coreThemes, toPascalCase(key), colors);
+					logger.info(
+						`Thèmes de couleurs de ${toPascalCase(key)} générée avec succès`,
+					);
+				} catch (error) {
+					logger.error(
+						`Erreur lors de la génération des thèmes de ${toPascalCase(key)}:`,
+						error,
+					);
+					return;
+				}
+			}
+		}
+		const themes = msg.datas?.themes;
+		const neutralColors = msg.datas?.neutralColors;
 		/**
 		 * @TODO
 		 * const { ... } = msg.data;

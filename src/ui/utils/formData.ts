@@ -54,5 +54,22 @@ export function getFormData(): FormData {
       }
     });
 
+  // Récupérer les valeurs des custom selectors
+  document
+    .querySelectorAll<HTMLElement>(".custom-selector")
+    .forEach((selector) => {
+      const inputId = selector.dataset.inputId;
+      if (!inputId) return;
+
+      const button = selector.querySelector<HTMLElement>(".custom-selector-btn");
+      if (!button) return;
+
+      const value = button.dataset.value;
+      if (value !== undefined) {
+        // Convertir en nombre si c'est un nombre
+        data[inputId] = isNaN(Number(value)) ? value : Number(value);
+      }
+    });
+
   return data;
 }

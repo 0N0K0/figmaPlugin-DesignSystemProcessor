@@ -1,10 +1,10 @@
 import {
-	capitalizeFirstLetter,
 	splitWords,
 	toCamelCase,
 	toPascalCase,
 } from "../../common/utils/textUtils";
 import { FormData, getFormData } from "../utils/formData";
+import { debugPanel } from "../components/debugPanel";
 
 // List of button IDs corresponding to different actions
 const btns = [
@@ -57,6 +57,13 @@ function manageCoreThemes(
 	formData: FormData,
 ): Record<string, Record<string, number>> {
 	const coreThemes: Record<string, Record<string, number>> = {};
+
+	// Debug: afficher toutes les clés qui commencent par le colorFamily
+	const relevantKeys = Object.keys(formData).filter((k) =>
+		k.startsWith(colorFamily),
+	);
+	console.log(`🔍 Clés commençant par "${colorFamily}":`, relevantKeys);
+
 	Object.entries(formData).forEach(([key, value]) => {
 		if (
 			key.startsWith(colorFamily) &&
@@ -65,20 +72,26 @@ function manageCoreThemes(
 				key.endsWith("-dark")) &&
 			typeof value === "number"
 		) {
-			const labelKey = `${key}-label`;
+			const [keyBase, shadeName] = splitWords(key);
+			const labelKey = `${keyBase}-label`;
 			const colorName = formData[labelKey] || key;
 			if (
 				colorName &&
 				typeof colorName === "string" &&
 				colorName.trim() !== ""
 			) {
-				const [_, shadeName] = splitWords(key);
 				const colorCCName = toCamelCase(colorName);
 				if (!coreThemes[colorCCName]) coreThemes[colorCCName] = {};
 				coreThemes[colorCCName][toCamelCase(shadeName)] = value;
+			} else {
+				console.log(
+					`    ✗ Clé ignorée (type !== number): ${key}, type: ${typeof value}`,
+				);
 			}
 		}
 	});
+
+	console.log(`✅ coreThemes pour ${colorFamily}:`, coreThemes);
 	return coreThemes;
 }
 
@@ -88,6 +101,9 @@ export function attachButtonListeners() {
 		const btn = document.getElementById(`generate-${key}-btn`);
 		if (btn) {
 			btn.addEventListener("click", async () => {
+				// Ouvrir le debug panel automatiquement
+				debugPanel.show();
+
 				const formData = getFormData();
 
 				// Handle Color Families
