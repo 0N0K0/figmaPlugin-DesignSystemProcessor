@@ -21,7 +21,7 @@ const btns = [
 	"text-datas",
 	"images-datas",
 	"datas",
-	"elevations",
+	"elevations-effects",
 	"all",
 ];
 

@@ -7,13 +7,8 @@ import {
 	generateGreyShades,
 	generateShades,
 } from "../../common/utils/colorUtils";
-import type { SectionConfig, TabConfig } from "../types";
-
-// Génération des options d'opacité
-const opacityOptions = [];
-for (const opacity of OPACITIES_STEPS) {
-	opacityOptions.push({ value: opacity, label: String(opacity) });
-}
+import type { SectionConfig, TabConfig, InputConfig } from "../types";
+import { toCamelCase, toKebabCase } from "../../common/utils/textUtils";
 
 // Générer les options d'opacité avec color indicators
 const neutralOpacityOptions = OPACITIES_STEPS.map((opacity) => {
@@ -46,13 +41,96 @@ const colorOpacityOptions = OPACITIES_STEPS.map((opacity) => {
 	};
 });
 
-const shadeOptions = [];
-for (const shade of SHADE_STEPS) {
-	shadeOptions.push({ value: shade, label: String(shade) });
-}
+/**
+ * Helper functions for creating common configuration objects
+ */
+
+// Generate button factory
+const btn = (label: string): InputConfig => {
+	return {
+		id: `${toKebabCase(label)}-btn`,
+		type: "button",
+		label,
+		action: toCamelCase(label),
+		class: "generate-btn",
+	};
+};
+
+// Number input factory
+const numInput = (
+	id: string,
+	label: string,
+	defaultValue: number,
+	min = 0,
+	max?: number,
+): InputConfig => ({
+	id,
+	label,
+	type: "number",
+	defaultValue,
+	min,
+	...(max !== undefined && { max }),
+});
+
+// Text input factory
+const textInput = (
+	id: string,
+	label: string,
+	defaultValue: string,
+): InputConfig => ({
+	id,
+	label,
+	type: "text",
+	defaultValue,
+});
+
+// Custom selector factory
+const selector = (
+	id: string,
+	label: string,
+	defaultValue: number,
+	options: typeof neutralOpacityOptions | typeof colorOpacityOptions,
+): InputConfig => ({
+	id,
+	label,
+	type: "customSelector",
+	defaultValue,
+	options,
+});
+
+// File input factory
+const fileInput = (
+	id: string,
+	label: string,
+	accept: string,
+	imagePreview = false,
+): InputConfig => ({
+	id,
+	label,
+	type: "file",
+	accept,
+	multiple: true,
+	fileList: true,
+	...(imagePreview && { imagePreview }),
+});
+
+// Color collection factory
+const colorCollection = (
+	id: string,
+	maxColors: number,
+	initialColors: Array<{
+		inputId: string;
+		label: string;
+		defaultColor: string;
+	}>,
+) => ({
+	id,
+	maxColors,
+	initialColors,
+});
 
 /**
- * @TODO Optimiser la structure des sections et tabs
+ * Tab configurations
  */
 
 export const TABS: TabConfig[] = [
@@ -66,54 +144,22 @@ export const TABS: TabConfig[] = [
 			},
 			{
 				title: "Brand",
-				colorCollection: {
-					id: "brand",
-					maxColors: 10,
-					initialColors: [
-						{ inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
-						{ inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
-						{ inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
-					],
-				},
-				inputs: [
-					{
-						id: "generate-brand-colors-btn",
-						type: "button",
-						label: "Generate Brand Colors",
-						action: "generateBrandColors",
-						class: "generate-btn",
-					},
-				],
+				colorCollection: colorCollection("brand", 10, [
+					{ inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
+					{ inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
+					{ inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
+				]),
+				inputs: [btn("Generate Brand Colors")],
 			},
 			{
 				title: "Feedback",
-				colorCollection: {
-					id: "feedback",
-					maxColors: 10,
-					initialColors: [
-						{ inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
-						{
-							inputId: "feedback02",
-							label: "Success",
-							defaultColor: "#a9c800",
-						},
-						{
-							inputId: "feedback03",
-							label: "Warning",
-							defaultColor: "#e87d00",
-						},
-						{ inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
-					],
-				},
-				inputs: [
-					{
-						id: "generate-feedback-colors-btn",
-						type: "button",
-						label: "Generate Feedback Colors",
-						action: "generateFeedbackColors",
-						class: "generate-btn",
-					},
-				],
+				colorCollection: colorCollection("feedback", 10, [
+					{ inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
+					{ inputId: "feedback02", label: "Success", defaultColor: "#a9c800" },
+					{ inputId: "feedback03", label: "Warning", defaultColor: "#e87d00" },
+					{ inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
+				]),
+				inputs: [btn("Generate Feedback Colors")],
 			},
 			{
 				title: "Neutral",
@@ -126,105 +172,79 @@ export const TABS: TabConfig[] = [
 					{
 						title: "Text opacities",
 						inputs: [
-							{
-								id: "neutralTextSecondaryOp",
-								label: "Secondary",
-								type: "customSelector",
-								defaultValue: 700,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralTextDisabledOp",
-								label: "Disabled",
-								type: "customSelector",
-								defaultValue: 300,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralTextHoveredOp",
-								label: "Hovered",
-								type: "customSelector",
-								defaultValue: 400,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralTextSelectedOp",
-								label: "Selected",
-								type: "customSelector",
-								defaultValue: 500,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralTextFocusedOp",
-								label: "Focused",
-								type: "customSelector",
-								defaultValue: 500,
-								options: neutralOpacityOptions,
-							},
+							selector(
+								"neutralTextSecondaryOp",
+								"Secondary",
+								700,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralTextDisabledOp",
+								"Disabled",
+								300,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralTextHoveredOp",
+								"Hovered",
+								400,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralTextSelectedOp",
+								"Selected",
+								500,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralTextFocusedOp",
+								"Focused",
+								500,
+								neutralOpacityOptions,
+							),
 						],
 					},
 					{
 						title: "Background opacities",
 						inputs: [
-							{
-								id: "neutralBgActiveOp",
-								label: "Active",
-								type: "customSelector",
-								defaultValue: 600,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralBgDisabledOp",
-								label: "Disabled",
-								type: "customSelector",
-								defaultValue: 100,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralBgHoveredOp",
-								label: "Hovered",
-								type: "customSelector",
-								defaultValue: 200,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralBgSelectedOp",
-								label: "Selected",
-								type: "customSelector",
-								defaultValue: 300,
-								options: neutralOpacityOptions,
-							},
-							{
-								id: "neutralBgFocusedOp",
-								label: "Focused",
-								type: "customSelector",
-								defaultValue: 300,
-								options: neutralOpacityOptions,
-							},
+							selector(
+								"neutralBgActiveOp",
+								"Active",
+								600,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralBgDisabledOp",
+								"Disabled",
+								100,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralBgHoveredOp",
+								"Hovered",
+								200,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralBgSelectedOp",
+								"Selected",
+								300,
+								neutralOpacityOptions,
+							),
+							selector(
+								"neutralBgFocusedOp",
+								"Focused",
+								300,
+								neutralOpacityOptions,
+							),
 						],
 					},
 				],
-				inputs: [
-					{
-						id: "generate-neutral-colors-btn",
-						type: "button",
-						label: "Generate Neutral Colors",
-						action: "generateNeutralColors",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Neutral Colors")],
 			},
 
 			{
-				inputs: [
-					{
-						id: "generate-palettes-btn",
-						type: "button",
-						label: "Generate Palettes",
-						action: "generatePalettes",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Palettes")],
 			},
 		],
 	},
@@ -235,64 +255,18 @@ export const TABS: TabConfig[] = [
 			{
 				title: "Themes Background Opacities",
 				inputs: [
-					{
-						id: "themeEnabledOp",
-						label: "Enabled",
-						type: "customSelector",
-						defaultValue: 200,
-						options: colorOpacityOptions,
-					},
-					{
-						id: "themeDisabledOp",
-						label: "Disabled",
-						type: "customSelector",
-						defaultValue: 100,
-						options: colorOpacityOptions,
-					},
-					{
-						id: "themeHoveredOp",
-						label: "Hovered",
-						type: "customSelector",
-						defaultValue: 50,
-						options: colorOpacityOptions,
-					},
-					{
-						id: "themeSelectedOp",
-						label: "Selected",
-						type: "customSelector",
-						defaultValue: 150,
-						options: colorOpacityOptions,
-					},
-					{
-						id: "themeFocusedOp",
-						label: "Focused",
-						type: "customSelector",
-						defaultValue: 300,
-						options: colorOpacityOptions,
-					},
+					selector("themeEnabledOp", "Enabled", 200, colorOpacityOptions),
+					selector("themeDisabledOp", "Disabled", 100, colorOpacityOptions),
+					selector("themeHoveredOp", "Hovered", 50, colorOpacityOptions),
+					selector("themeSelectedOp", "Selected", 150, colorOpacityOptions),
+					selector("themeFocusedOp", "Focused", 300, colorOpacityOptions),
 				],
 			},
 			{
-				inputs: [
-					{
-						id: "themeBorderOp",
-						label: "Border",
-						type: "customSelector",
-						defaultValue: 500,
-						options: colorOpacityOptions,
-					},
-				],
+				inputs: [selector("themeBorderOp", "Border", 500, colorOpacityOptions)],
 			},
 			{
-				inputs: [
-					{
-						id: "generate-themes-btn",
-						type: "button",
-						label: "Generate Themes",
-						action: "generateThemes",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Themes")],
 			},
 		],
 	},
@@ -303,79 +277,23 @@ export const TABS: TabConfig[] = [
 			{
 				title: "Grid Settings",
 				inputs: [
-					{
-						id: "minColumnWidth",
-						label: "Min Column Width",
-						type: "number",
-						defaultValue: 96,
-						min: 0,
-					},
-					{
-						id: "gutter",
-						label: "Gutter",
-						type: "number",
-						defaultValue: 16,
-						min: 0,
-					},
-					{
-						id: "horizontalBodyPadding",
-						label: "Horizontal Body Padding",
-						type: "number",
-						defaultValue: 32,
-						min: 0,
-					},
-					{
-						id: "baselineGrid",
-						label: "Baseline Grid",
-						type: "number",
-						defaultValue: 24,
-						min: 0,
-					},
-					{
-						id: "minViewportHeight",
-						label: "Min Viewport Height",
-						type: "number",
-						defaultValue: 312,
-						min: 0,
-					},
+					numInput("minColumnWidth", "Min Column Width", 96),
+					numInput("gutter", "Gutter", 16),
+					numInput("horizontalBodyPadding", "Horizontal Body Padding", 32),
+					numInput("baselineGrid", "Baseline Grid", 24),
+					numInput("minViewportHeight", "Min Viewport Height", 312),
 				],
 			},
 			{
 				title: "Content Settings",
 				inputs: [
-					{
-						id: "horizontalMainPadding",
-						label: "Horizontal Main Padding",
-						type: "number",
-						defaultValue: 0,
-						min: 0,
-					},
-					{
-						id: "maxContentHeight",
-						label: "Max Content Height",
-						type: "number",
-						defaultValue: 1080,
-						min: 0,
-					},
-					{
-						id: "offsetHeight",
-						label: "Offset Height",
-						type: "number",
-						defaultValue: 96,
-						min: 0,
-					},
+					numInput("horizontalMainPadding", "Horizontal Main Padding", 0),
+					numInput("maxContentHeight", "Max Content Height", 1080),
+					numInput("offsetHeight", "Offset Height", 96),
 				],
 			},
 			{
-				inputs: [
-					{
-						id: "generate-layout-guide-btn",
-						type: "button",
-						label: "Generate Layout Guide",
-						action: "generateLayoutGuide",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Layout Guide")],
 			},
 		],
 	},
@@ -385,56 +303,13 @@ export const TABS: TabConfig[] = [
 		sections: [
 			{
 				inputs: [
-					{
-						id: "radiusXS",
-						label: "xs",
-						type: "number",
-						defaultValue: 2,
-						min: 0,
-					},
-
-					{
-						id: "radiusSM",
-						label: "sm",
-						type: "number",
-						defaultValue: 4,
-						min: 0,
-					},
-					{
-						id: "radiusMD",
-						label: "md",
-						type: "number",
-						defaultValue: 8,
-						min: 0,
-					},
-					{
-						id: "radiusLG",
-						label: "lg",
-						type: "number",
-						defaultValue: 16,
-						min: 0,
-					},
-					{
-						id: "radiusXL",
-						label: "xl",
-						type: "number",
-						defaultValue: 24,
-						min: 0,
-					},
-					{
-						id: "radius2XL",
-						label: "2xl",
-						type: "number",
-						defaultValue: 32,
-						min: 0,
-					},
-					{
-						id: "generate-radius-btn",
-						type: "button",
-						label: "Generate Radius",
-						action: "generateRadius",
-						class: "generate-btn",
-					},
+					numInput("radiusXS", "xs", 2),
+					numInput("radiusSM", "sm", 4),
+					numInput("radiusMD", "md", 8),
+					numInput("radiusLG", "lg", 16),
+					numInput("radiusXL", "xl", 24),
+					numInput("radius2XL", "2xl", 32),
+					btn("Generate Radius"),
 				],
 			},
 		],
@@ -445,75 +320,23 @@ export const TABS: TabConfig[] = [
 		sections: [
 			{
 				inputs: [
-					{
-						id: "baseFontSize",
-						label: "Base Font Size",
-						type: "number",
-						defaultValue: 16,
-						min: 8,
-						max: 32,
-					},
-					{
-						id: "generate-font-sizes-btn",
-						type: "button",
-						label: "Generate Font Sizes",
-						action: "generateFontSizes",
-						class: "generate-btn",
-					},
+					numInput("baseFontSize", "Base Font Size", 16, 8, 32),
+					btn("Generate Font Sizes"),
 				],
 			},
 			{
 				title: "Font Families",
 				inputs: [
-					{
-						id: "bodyFontFamily",
-						label: "Body",
-						type: "text",
-						defaultValue: "Roboto",
-					},
-					{
-						id: "metaFontFamily",
-						label: "Meta",
-						type: "text",
-						defaultValue: "Roboto",
-					},
-					{
-						id: "interfaceFontFamily",
-						label: "Interface",
-						type: "text",
-						defaultValue: "Roboto Condensed",
-					},
-					{
-						id: "accentFontFamily",
-						label: "Accent",
-						type: "text",
-						defaultValue: "Parisienne",
-					},
-					{
-						id: "techFontFamily",
-						label: "Tech",
-						type: "text",
-						defaultValue: "Roboto Mono",
-					},
-					{
-						id: "generate-font-families-btn",
-						type: "button",
-						label: "Generate Font Families",
-						action: "generateFontFamilies",
-						class: "generate-btn",
-					},
+					textInput("bodyFontFamily", "Body", "Roboto"),
+					textInput("metaFontFamily", "Meta", "Roboto"),
+					textInput("interfaceFontFamily", "Interface", "Roboto Condensed"),
+					textInput("accentFontFamily", "Accent", "Parisienne"),
+					textInput("techFontFamily", "Tech", "Roboto Mono"),
+					btn("Generate Font Families"),
 				],
 			},
 			{
-				inputs: [
-					{
-						id: "generate-typography-btn",
-						type: "button",
-						label: "Generate Typography",
-						action: "generateTypography",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Typography")],
 			},
 		],
 	},
@@ -523,53 +346,18 @@ export const TABS: TabConfig[] = [
 		sections: [
 			{
 				inputs: [
-					{
-						id: "textDatasFile",
-						label: "Text",
-						type: "file",
-						accept: "application/json",
-						multiple: true,
-						fileList: true,
-					},
-					{
-						id: "generate-text-datas-btn",
-						type: "button",
-						label: "Generate Text Datas",
-						action: "generateTextDatas",
-						class: "generate-btn",
-					},
+					fileInput("textDatasFile", "Text", "application/json"),
+					btn("Generate Text Datas"),
 				],
 			},
 			{
 				inputs: [
-					{
-						id: "imagesDatasFile",
-						label: "Images",
-						type: "file",
-						accept: "image/*",
-						multiple: true,
-						fileList: true,
-						imagePreview: true,
-					},
-					{
-						id: "generate-images-datas-btn",
-						type: "button",
-						label: "Generate Images Datas",
-						action: "generateImagesDatas",
-						class: "generate-btn",
-					},
+					fileInput("imagesDatasFile", "Images", "image/*", true),
+					btn("Generate Images Datas"),
 				],
 			},
 			{
-				inputs: [
-					{
-						id: "generate-datas-btn",
-						type: "button",
-						label: "Generate Datas",
-						action: "generateDatas",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Datas")],
 			},
 		],
 	},
@@ -578,15 +366,7 @@ export const TABS: TabConfig[] = [
 		title: "Effects",
 		sections: [
 			{
-				inputs: [
-					{
-						id: "generate-elevations-btn",
-						type: "button",
-						label: "Generate Elevations Effects",
-						action: "generateElevations",
-						class: "generate-btn",
-					},
-				],
+				inputs: [btn("Generate Elevations Effects")],
 			},
 		],
 	},
