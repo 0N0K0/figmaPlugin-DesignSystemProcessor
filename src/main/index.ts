@@ -14,7 +14,10 @@ import {
   generateNeutralThemes,
 } from "./builders/variables/styles/colors/ThemesBuilder";
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
-import { generateFontSizes } from "./builders/variables/DisplayContextBuilder";
+import {
+  generateBreakpoints,
+  generateFontSizes,
+} from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 
@@ -137,12 +140,36 @@ figma.ui.onmessage = async (msg) => {
   }
 
   if (msg.type === "generateLayoutGuide" || msg.type === "generateAll") {
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateLayoutGuide(...);
-     */
-    // figma.notify("✅ Guide de mise en page généré avec succès");
+    const layoutGuide = msg.datas?.layoutGuide;
+    if (layoutGuide === undefined) {
+      figma.notify("⚠️ Aucune donnée de guide de mise en page fournie", {
+        error: true,
+      });
+      return;
+    } else {
+      try {
+        await generateBreakpoints(layoutGuide);
+        /**
+         * @TODO
+         * await generateBreakpoints(layoutGuide);
+         * await generateRatios(layoutGuide);
+         * await generateOrientations(layoutGuide);
+         * await generateDensities(layoutGuide);
+         * await generateContentHeight(layoutGuide);
+         * await generateDevices(layoutGuide);
+         */
+        figma.notify("✅ Guide de mise en page généré avec succès");
+      } catch (error) {
+        logger.error("Erreur génération du Guide de mise en page:", error);
+        figma.notify(
+          "❌ Erreur lors de la génération du Guide de mise en page",
+          {
+            error: true,
+          },
+        );
+        return;
+      }
+    }
   }
 
   if (msg.type === "generateRadius" || msg.type === "generateAll") {

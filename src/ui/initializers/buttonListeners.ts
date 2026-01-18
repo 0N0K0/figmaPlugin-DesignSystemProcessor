@@ -5,6 +5,7 @@ import {
 } from "../../common/utils/textUtils";
 import { FormData, getFormData } from "../utils/formData";
 import { debugPanel } from "../components/debugPanel";
+import { layoutGuideType } from "../../common/types";
 
 // List of button IDs corresponding to different actions
 const btns = [
@@ -144,19 +145,16 @@ export function attachButtonListeners() {
         const feedbackCoreThemes = manageCoreThemes("feedback", formData);
 
         // Handle Layout Guide
-        const layoutGuide: Record<string, string> = {};
-        for (const key of [
-          "minColumnWidth",
-          "gutter",
-          "horizontalBodyPadding",
-          "baselineGrid",
-          "minViewportHeight",
-          "horizontalMainPadding",
-          "maxContentHeight",
-          "offsetHeight",
-        ]) {
-          layoutGuide[key] = formData[key] as string;
-        }
+        const layoutGuide: layoutGuideType = {
+          minColumnWidth: formData["minColumnWidth"] as number,
+          gutter: formData["gutter"] as number,
+          horizontalBodyPadding: formData["horizontalBodyPadding"] as number,
+          baselineGrid: formData["baselineGrid"] as number,
+          minViewportHeight: formData["minViewportHeight"] as number,
+          horizontalMainPadding: formData["horizontalMainPadding"] as number,
+          maxContentHeight: formData["maxContentHeight"] as number,
+          offsetHeight: formData["offsetHeight"] as number,
+        };
 
         // Handle Radius
         const radius: Record<string, string> = {};
