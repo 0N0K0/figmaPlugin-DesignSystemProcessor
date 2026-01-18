@@ -16,7 +16,9 @@ import {
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
 import {
   generateBreakpoints,
+  generateContentHeights,
   generateDensities,
+  generateDevices,
   generateFontSizes,
 } from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
@@ -151,12 +153,8 @@ figma.ui.onmessage = async (msg) => {
       try {
         await generateBreakpoints(layoutGuide);
         await generateDensities(layoutGuide);
-        /**
-         * @TODO
-         * await generateDensities(layoutGuide);
-         * await generateContentHeight(layoutGuide);
-         * await generateDevices(layoutGuide);
-         */
+        await generateContentHeights(layoutGuide);
+        await generateDevices(layoutGuide);
         figma.notify("✅ Guide de mise en page généré avec succès");
       } catch (error) {
         logger.error("Erreur génération du Guide de mise en page:", error);

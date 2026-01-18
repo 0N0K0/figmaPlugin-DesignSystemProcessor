@@ -8,7 +8,6 @@ import {
 import { logger } from "../../utils/logger";
 import { variableBuilder } from "./variableBuilder";
 import { layoutGuideType } from "../../../common/types";
-import { toKebabCase } from "../../../common/utils/textUtils";
 
 export async function generateBreakpoints({
   minColumnWidth,
@@ -309,11 +308,6 @@ export async function generateBreakpoints({
 }
 
 export async function generateDensities({
-  minColumnWidth,
-  gutter,
-  horizontalBodyPadding,
-  minViewportHeight,
-  horizontalMainPadding,
   baselineGrid,
 }: layoutGuideType): Promise<Variable[]> {
   const modes: DensitiesMode[] = ["tight", "compact", "loose"];
@@ -523,4 +517,178 @@ export async function generateFontSizes(
   }
 
   return newVariables;
+}
+
+export async function generateContentHeights({
+  baselineGrid,
+  maxContentHeight,
+}: layoutGuideType): Promise<Variable[]> {
+  const variables: VariableConfig[] = [];
+
+  for (let i = baselineGrid; i <= maxContentHeight; i += baselineGrid) {
+    const index = i / baselineGrid;
+    variables.push({
+      name: String(index),
+      collection: "System\\ContentHeight",
+      type: "FLOAT",
+      value: i,
+      scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+    });
+  }
+
+  return await variableBuilder.createOrUpdateVariables(variables);
+}
+
+export async function generateDevices({
+  gutter,
+  horizontalBodyPadding,
+  horizontalMainPadding,
+  baselineGrid,
+  offsetHeight,
+}: layoutGuideType): Promise<Variable[]> {
+  const variables: VariableConfig[] = [];
+
+  const config: Record<
+    string,
+    Record<string, number | Record<string, number>>
+  > = {
+    desktop: {
+      landscape: {
+        xl: 1536,
+        lg: 1280,
+      },
+      ratio: 16 / 10,
+    },
+    tablet: {
+      portrait: {
+        md: 720,
+        sm: 640,
+      },
+      landscape: {
+        md: 1024,
+      },
+      ratio: 16 / 10,
+    },
+    mobile: {
+      portrait: {
+        xs: 432,
+      },
+      landscape: {
+        md: 960,
+      },
+      ratio: 20 / 9,
+    },
+  };
+
+  for (const [device, modes] of Object.entries(config)) {
+    for (const [mode, values] of Object.entries(modes)) {
+      if (mode === "ratio") continue;
+      const heights: Record<string, number> = {};
+      for (const [size, value] of Object.entries(
+        values as Record<string, number>,
+      )) {
+        heights[mode] =
+          mode === "landscape"
+            ? value / (modes["ratio"] as number)
+            : value * (modes["ratio"] as number);
+        variables.push({
+          name: `${device}/${mode}/${size}/width`,
+          collection: "System\\Devices",
+          type: "FLOAT",
+          value,
+          scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+        });
+        variables.push({
+          name: `${device}/${mode}/${size}/height`,
+          collection: "System\\Devices",
+          type: "FLOAT",
+          value: heights[mode],
+          scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+        });
+
+        const columns = COLUMNS[size as keyof typeof COLUMNS];
+        const columnWidth =
+          Math.floor(
+            value -
+              horizontalBodyPadding * 2 -
+              horizontalMainPadding * 2 -
+              gutter * (columns - 1),
+          ) / columns;
+
+        // Largeurs du contenu pour chaque nombre de colonnes
+        for (let i = 1; i <= 12; i++) {
+          let width: number;
+          if (i > columns) {
+            width =
+              value - horizontalBodyPadding * 2 - horizontalMainPadding * 2;
+          } else {
+            width = columnWidth * i + gutter * (i - 1);
+          }
+
+          variables.push({
+            name: `${device}/${mode}/${size}/content/widths/columns/${i}`,
+            collection: "System\\Devices",
+            type: "FLOAT",
+            value: Math.min(
+              width,
+              value - horizontalBodyPadding * 2 - horizontalMainPadding * 2,
+            ),
+          });
+        }
+
+        // Largeurs du contenu pour chaque division
+        const divisions = [4, 3, 2, 1];
+        divisions.forEach((division) => {
+          let width: number;
+          if (columns % division === 0) {
+            width =
+              (columnWidth * columns) / division +
+              gutter * (columns / division - 1);
+          } else {
+            const validDivision = divisions
+              .slice(divisions.indexOf(division) + 1)
+              .find((d) => columns % d === 0)!;
+            width =
+              (columnWidth * columns) / validDivision +
+              gutter * (columns / validDivision - 1);
+          }
+          variables.push({
+            name: `${device}/${mode}/${size}/content/widths/divisions/1:${division}`,
+            collection: "System\\Devices",
+            type: "FLOAT",
+            value: Math.min(
+              width,
+              value - horizontalBodyPadding * 2 - horizontalMainPadding * 2,
+            ),
+          });
+        });
+
+        // Hauteurs du contenu dynamiques
+        const pourcentages = [100, 75, 50];
+        pourcentages.forEach((pourcentage) => {
+          const fullHeight = Math.round((heights[mode] * pourcentage) / 100);
+          variables.push({
+            name: `${device}/${mode}/${size}/content/height/full/${pourcentage}%`,
+            collection: "System\\Devices",
+            type: "FLOAT",
+            value: fullHeight,
+          });
+
+          const minusOffsetHeight = Math.round(
+            ((heights[mode] - offsetHeight - baselineGrid * 2) * pourcentage) /
+              100,
+          );
+          variables.push({
+            name: `${device}/${mode}/${size}/content/height/minusOffset/${pourcentage}%`,
+            collection: "System\\Devices",
+            type: "FLOAT",
+            value: minusOffsetHeight,
+          });
+        });
+      }
+    }
+  }
+
+  // À implémenter
+  return await variableBuilder.createOrUpdateVariables(variables);
 }
