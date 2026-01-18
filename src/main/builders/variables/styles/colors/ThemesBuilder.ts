@@ -1,4 +1,8 @@
-import { getContrastColor } from "../../../../../common/utils/colorUtils";
+import { converter } from "culori";
+import {
+  generateGreyShades,
+  getContrastColor,
+} from "../../../../../common/utils/colorUtils";
 import {
   ColorsCollection,
   VariableConfig,
@@ -9,7 +13,22 @@ import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
 
-async function getTargetColor(targetVariableName: string): Promise<{
+function generateDarkElevationSteps(greyHue: string): string[] {
+  const darkGreySteps = [];
+  for (let i = 0; i < 12; i++) {
+    darkGreySteps.push(1000 - i * 25);
+  }
+  const hue = greyHue && greyHue !== "" ? converter("hsl")(greyHue)?.h || 0 : 0;
+  const darkGreyShades = generateGreyShades(darkGreySteps, hue);
+  const darkGreyShadesArray = Object.values(darkGreyShades).reverse();
+
+  return Array.from({ length: 12 }, (_, i) => {
+    const colorIndex = Math.floor((i / 11) * (darkGreyShadesArray.length - 1));
+    return darkGreyShadesArray[colorIndex];
+  });
+}
+
+async function getTargetValue(targetVariableName: string): Promise<{
   alias: string | undefined;
   targetValue: { r: number; g: number; b: number; a: number } | undefined;
   targetVariable: Variable | undefined;
@@ -41,7 +60,7 @@ async function getOrCreateTargetColor(
   targetValue: { r: number; g: number; b: number; a: number } | undefined;
 }> {
   let { alias, targetValue, targetVariable } =
-    await getTargetColor(targetVariableName);
+    await getTargetValue(targetVariableName);
 
   if (!targetVariable) {
     // Si la variable n'existe pas, générer la palette
@@ -56,6 +75,39 @@ async function getOrCreateTargetColor(
         })
       : undefined;
     alias = newVariable ? newVariable.id : undefined;
+  }
+
+  return {
+    alias,
+    targetValue,
+  };
+}
+
+async function getOrCreateTargetNeutralColor(
+  targetVariableName: string,
+  greyHue: string,
+): Promise<{
+  alias: string | undefined;
+  targetValue: { r: number; g: number; b: number; a: number } | undefined;
+}> {
+  let { alias, targetValue, targetVariable } =
+    await getTargetValue(targetVariableName);
+
+  if (!targetVariable) {
+    // Si la variable n'existe pas, générer la palette
+    const newVariables = await genrateNeutralPalette(greyHue);
+    const newVariable = newVariables.find((v) => v.name === targetVariableName);
+    if (newVariable) {
+      targetValue = newVariable.valuesByMode[
+        Object.keys(newVariable.valuesByMode)[0]
+      ] as {
+        r: number;
+        g: number;
+        b: number;
+        a: number;
+      };
+      alias = newVariable.id;
+    }
   }
 
   return {
@@ -126,32 +178,15 @@ export async function generateColorThemes(
             const greyVariableName =
               `${targetGroup}/${greyValue}`.toLowerCase();
 
-            const { alias, targetValue, targetVariable } =
-              await getTargetColor(greyVariableName);
+            const { alias, targetValue } = await getOrCreateTargetNeutralColor(
+              greyVariableName,
+              greyHue,
+            );
 
             if (targetValue) {
               targetGreyValues[greyShade] = targetValue;
             }
             greyAliases[greyShade] = alias;
-
-            if (!targetVariable) {
-              // Si la variable n'existe pas, générer la palette
-              const newVariables = await genrateNeutralPalette(greyHue);
-              const newVariable = newVariables.find(
-                (v) => v.name === greyVariableName,
-              );
-              if (newVariable) {
-                targetGreyValues[greyShade] = newVariable.valuesByMode[
-                  Object.keys(newVariable.valuesByMode)[0]
-                ] as {
-                  r: number;
-                  g: number;
-                  b: number;
-                  a: number;
-                };
-              }
-              greyAliases[greyShade] = newVariable ? newVariable.id : undefined;
-            }
           }
 
           const contrastColor = getContrastColor(
@@ -188,6 +223,89 @@ export async function generateColorThemes(
           mode,
           alias,
           value: alias ? undefined : "#fff",
+        });
+      }
+    }
+  }
+
+  const newVariables = await variableBuilder.createOrUpdateVariables(variables);
+
+  return newVariables;
+}
+
+export async function generateNeutralThemes(
+  colors: Record<string, string | Record<string, number>>,
+) {
+  const variables: VariableConfig[] = [];
+
+  for (const mode of MODES) {
+    const targetMode = mode === "Light" ? "dark" : "light";
+    const targetVariableGroup = "neutral/grey/shade/";
+    const targetVariableName =
+      targetVariableGroup + (mode === "Light" ? "950" : "50");
+
+    const { alias } = await getOrCreateTargetNeutralColor(
+      targetVariableName,
+      colors.greyHue as string,
+    );
+
+    variables.push({
+      name: `neutral/text/core/primary`,
+      collection: COLLECTION_NAME,
+      type: "COLOR",
+      mode,
+      alias,
+      value: alias ? undefined : "#fff",
+    });
+
+    const elevationConfig =
+      mode === "Dark"
+        ? {
+            baseShade: 950,
+            steps: generateDarkElevationSteps(colors.greyHue as string),
+          }
+        : { baseShade: 50, altShade: 0 };
+
+    for (let i = 0; i <= 12; i++) {
+      let alias: string | undefined;
+      let color: string | undefined;
+
+      if (mode === "Dark" && i > 0) {
+        color = elevationConfig.steps![i - 1];
+      } else {
+        const targetShade =
+          i === 0 ? elevationConfig.baseShade : elevationConfig.altShade;
+        ({ alias } = await getOrCreateTargetNeutralColor(
+          `neutral/grey/shade/${targetShade || elevationConfig.baseShade}`,
+          colors.greyHue as string,
+        ));
+      }
+
+      variables.push({
+        name: `neutral/background/elevations/${i}`,
+        collection: COLLECTION_NAME,
+        type: "COLOR",
+        mode,
+        value: alias ? undefined : color || (mode === "Dark" ? "#000" : "#fff"),
+        alias,
+      });
+    }
+
+    for (const [property, values] of Object.entries(colors)) {
+      if (typeof values === "string") continue;
+      for (const [state, stateValue] of Object.entries(values)) {
+        const targetVariableName = `neutral/${targetMode}Grey/opacity/${stateValue}`;
+        const { alias } = await getOrCreateTargetNeutralColor(
+          targetVariableName,
+          colors.greyHue as string,
+        );
+        variables.push({
+          name: `neutral/${property}/${state === "Secondary" ? "core" : "state"}/${state}`.toLowerCase(),
+          collection: COLLECTION_NAME,
+          type: "COLOR",
+          mode,
+          value: alias ? undefined : mode === "Dark" ? "#000" : "#fff",
+          alias,
         });
       }
     }

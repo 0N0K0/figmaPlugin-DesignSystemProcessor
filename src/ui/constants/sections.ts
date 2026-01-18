@@ -1,44 +1,44 @@
 import { converter, formatHex8 } from "culori";
 import {
-	SHADE_STEPS,
-	OPACITIES_STEPS,
+  SHADE_STEPS,
+  OPACITIES_STEPS,
 } from "../../common/constants/colorConstants";
 import {
-	generateGreyShades,
-	generateShades,
+  generateGreyShades,
+  generateShades,
 } from "../../common/utils/colorUtils";
 import type { SectionConfig, TabConfig, InputConfig } from "../types";
 import { toCamelCase, toKebabCase } from "../../common/utils/textUtils";
 
 // Générer les options d'opacité avec color indicators
 const neutralOpacityOptions = OPACITIES_STEPS.map((opacity) => {
-	// Gris avec luminosité 50
-	const greyShade = generateGreyShades(SHADE_STEPS)[50];
-	const greyShadeRGB = converter("rgb")(greyShade);
-	if (!greyShadeRGB) {
-		return { value: opacity, label: String(opacity) };
-	} else {
-		greyShadeRGB.alpha = opacity / 1000;
-		return {
-			value: opacity,
-			label: String(opacity),
-			color: formatHex8(greyShadeRGB),
-		};
-	}
+  // Gris avec luminosité 50
+  const greyShade = generateGreyShades(SHADE_STEPS)[50];
+  const greyShadeRGB = converter("rgb")(greyShade);
+  if (!greyShadeRGB) {
+    return { value: opacity, label: String(opacity) };
+  } else {
+    greyShadeRGB.alpha = opacity / 1000;
+    return {
+      value: opacity,
+      label: String(opacity),
+      color: formatHex8(greyShadeRGB),
+    };
+  }
 });
 const colorOpacityOptions = OPACITIES_STEPS.map((opacity) => {
-	const shade =
-		generateShades("#0DB9F2").find((s) => s.step === 300)?.color || "#0DB9F2";
-	const shadeRGB = converter("rgb")(shade);
-	if (!shadeRGB) {
-		return { value: opacity, label: String(opacity) };
-	}
-	shadeRGB.alpha = opacity / 1000;
-	return {
-		value: opacity,
-		label: String(opacity),
-		color: formatHex8(shadeRGB),
-	};
+  const shade =
+    generateShades("#0DB9F2").find((s) => s.step === 300)?.color || "#0DB9F2";
+  const shadeRGB = converter("rgb")(shade);
+  if (!shadeRGB) {
+    return { value: opacity, label: String(opacity) };
+  }
+  shadeRGB.alpha = opacity / 1000;
+  return {
+    value: opacity,
+    label: String(opacity),
+    color: formatHex8(shadeRGB),
+  };
 });
 
 /**
@@ -47,86 +47,86 @@ const colorOpacityOptions = OPACITIES_STEPS.map((opacity) => {
 
 // Generate button factory
 const btn = (label: string): InputConfig => {
-	return {
-		id: `${toKebabCase(label)}-btn`,
-		type: "button",
-		label,
-		action: toCamelCase(label),
-		class: "generate-btn",
-	};
+  return {
+    id: `${toKebabCase(label)}-btn`,
+    type: "button",
+    label,
+    action: toCamelCase(label),
+    class: "generate-btn",
+  };
 };
 
 // Number input factory
 const numInput = (
-	id: string,
-	label: string,
-	defaultValue: number,
-	min = 0,
-	max?: number,
+  id: string,
+  label: string,
+  defaultValue: number,
+  min = 0,
+  max?: number,
 ): InputConfig => ({
-	id,
-	label,
-	type: "number",
-	defaultValue,
-	min,
-	...(max !== undefined && { max }),
+  id,
+  label,
+  type: "number",
+  defaultValue,
+  min,
+  ...(max !== undefined && { max }),
 });
 
 // Text input factory
 const textInput = (
-	id: string,
-	label: string,
-	defaultValue: string,
+  id: string,
+  label: string,
+  defaultValue: string,
 ): InputConfig => ({
-	id,
-	label,
-	type: "text",
-	defaultValue,
+  id,
+  label,
+  type: "text",
+  defaultValue,
 });
 
 // Custom selector factory
 const selector = (
-	id: string,
-	label: string,
-	defaultValue: number,
-	options: typeof neutralOpacityOptions | typeof colorOpacityOptions,
+  id: string,
+  label: string,
+  defaultValue: number,
+  options: typeof neutralOpacityOptions | typeof colorOpacityOptions,
 ): InputConfig => ({
-	id,
-	label,
-	type: "customSelector",
-	defaultValue,
-	options,
+  id,
+  label,
+  type: "customSelector",
+  defaultValue,
+  options,
 });
 
 // File input factory
 const fileInput = (
-	id: string,
-	label: string,
-	accept: string,
-	imagePreview = false,
+  id: string,
+  label: string,
+  accept: string,
+  imagePreview = false,
 ): InputConfig => ({
-	id,
-	label,
-	type: "file",
-	accept,
-	multiple: true,
-	fileList: true,
-	...(imagePreview && { imagePreview }),
+  id,
+  label,
+  type: "file",
+  accept,
+  multiple: true,
+  fileList: true,
+  ...(imagePreview && { imagePreview }),
 });
 
 // Color collection factory
 const colorCollection = (
-	id: string,
-	maxColors: number,
-	initialColors: Array<{
-		inputId: string;
-		label: string;
-		defaultColor: string;
-	}>,
+  id: string,
+  maxColors: number,
+  initialColors: Array<{
+    inputId: string;
+    label: string;
+    defaultColor: string;
+  }>,
 ) => ({
-	id,
-	maxColors,
-	initialColors,
+  id,
+  maxColors,
+  initialColors,
 });
 
 /**
@@ -134,230 +134,230 @@ const colorCollection = (
  */
 
 export const TABS: TabConfig[] = [
-	{
-		title: "Palette",
-		sections: [
-			{
-				title: "Palette Generator",
-				paletteGenerator: true,
-			},
-			{
-				title: "Brand",
-				colorCollection: colorCollection("brand", 10, [
-					{ inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
-					{ inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
-					{ inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
-				]),
-				inputs: [btn("Generate Brand Colors")],
-			},
-			{
-				title: "Feedback",
-				colorCollection: colorCollection("feedback", 10, [
-					{ inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
-					{ inputId: "feedback02", label: "Success", defaultColor: "#a9c800" },
-					{ inputId: "feedback03", label: "Warning", defaultColor: "#e87d00" },
-					{ inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
-				]),
-				inputs: [btn("Generate Feedback Colors")],
-			},
-			{
-				title: "Neutral",
-				subsections: [
-					{
-						colorSelectors: [
-							{ inputId: "greyHue", label: "Grey Hue", editableLabel: false },
-						],
-					},
-					{
-						title: "Text opacities",
-						inputs: [
-							selector(
-								"neutralTextSecondary",
-								"Secondary",
-								700,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralTextDisabled",
-								"Disabled",
-								300,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralTextHovered",
-								"Hovered",
-								400,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralTextSelected",
-								"Selected",
-								500,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralTextFocused",
-								"Focused",
-								500,
-								neutralOpacityOptions,
-							),
-						],
-					},
-					{
-						title: "Background opacities",
-						inputs: [
-							selector("neutralBgActive", "Active", 600, neutralOpacityOptions),
-							selector(
-								"neutralBgDisabled",
-								"Disabled",
-								100,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralBgHovered",
-								"Hovered",
-								200,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralBgSelected",
-								"Selected",
-								300,
-								neutralOpacityOptions,
-							),
-							selector(
-								"neutralBgFocused",
-								"Focused",
-								300,
-								neutralOpacityOptions,
-							),
-						],
-					},
-				],
-				inputs: [btn("Generate Neutral Colors")],
-			},
+  {
+    title: "Palette",
+    sections: [
+      {
+        title: "Palette Generator",
+        paletteGenerator: true,
+      },
+      {
+        title: "Brand",
+        colorCollection: colorCollection("brand", 10, [
+          { inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
+          { inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
+          { inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
+        ]),
+        inputs: [btn("Generate Brand Colors")],
+      },
+      {
+        title: "Feedback",
+        colorCollection: colorCollection("feedback", 10, [
+          { inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
+          { inputId: "feedback02", label: "Success", defaultColor: "#a9c800" },
+          { inputId: "feedback03", label: "Warning", defaultColor: "#e87d00" },
+          { inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
+        ]),
+        inputs: [btn("Generate Feedback Colors")],
+      },
+      {
+        title: "Neutral",
+        subsections: [
+          {
+            colorSelectors: [
+              { inputId: "greyHue", label: "Grey Hue", editableLabel: false },
+            ],
+          },
+          {
+            title: "Text opacities",
+            inputs: [
+              selector(
+                "neutralTextSecondary",
+                "Secondary",
+                700,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralTextDisabled",
+                "Disabled",
+                300,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralTextHovered",
+                "Hovered",
+                400,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralTextSelected",
+                "Selected",
+                500,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralTextFocused",
+                "Focused",
+                500,
+                neutralOpacityOptions,
+              ),
+            ],
+          },
+          {
+            title: "Background opacities",
+            inputs: [
+              selector("neutralBgActive", "Active", 600, neutralOpacityOptions),
+              selector(
+                "neutralBackgroundDisabled",
+                "Disabled",
+                100,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralBackgroundHovered",
+                "Hovered",
+                200,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralBackgroundSelected",
+                "Selected",
+                300,
+                neutralOpacityOptions,
+              ),
+              selector(
+                "neutralBackgroundFocused",
+                "Focused",
+                300,
+                neutralOpacityOptions,
+              ),
+            ],
+          },
+        ],
+        inputs: [btn("Generate Neutral Colors")],
+      },
 
-			{
-				inputs: [btn("Generate Palettes")],
-			},
-		],
-	},
-	{
-		title: "Themes",
-		sections: [
-			{
-				title: "Themes Background Opacities",
-				inputs: [
-					selector("themesEnabled", "Enabled", 200, colorOpacityOptions),
-					selector("themesDisabled", "Disabled", 100, colorOpacityOptions),
-					selector("themesHovered", "Hovered", 50, colorOpacityOptions),
-					selector("themesSelected", "Selected", 150, colorOpacityOptions),
-					selector("themesFocused", "Focused", 300, colorOpacityOptions),
-				],
-			},
-			{
-				inputs: [selector("themesBorder", "Border", 500, colorOpacityOptions)],
-			},
-			{
-				inputs: [btn("Generate Themes")],
-			},
-		],
-	},
-	{
-		title: "Layout guide",
-		sections: [
-			{
-				title: "Grid Settings",
-				inputs: [
-					numInput("minColumnWidth", "Min Column Width", 96),
-					numInput("gutter", "Gutter", 16),
-					numInput("horizontalBodyPadding", "Horizontal Body Padding", 32),
-					numInput("baselineGrid", "Baseline Grid", 24),
-					numInput("minViewportHeight", "Min Viewport Height", 312),
-				],
-			},
-			{
-				title: "Content Settings",
-				inputs: [
-					numInput("horizontalMainPadding", "Horizontal Main Padding", 0),
-					numInput("maxContentHeight", "Max Content Height", 1080),
-					numInput("offsetHeight", "Offset Height", 96),
-				],
-			},
-			{
-				inputs: [btn("Generate Layout Guide")],
-			},
-		],
-	},
-	{
-		title: "Radius",
-		sections: [
-			{
-				inputs: [
-					numInput("radiusXS", "xs", 2),
-					numInput("radiusSM", "sm", 4),
-					numInput("radiusMD", "md", 8),
-					numInput("radiusLG", "lg", 16),
-					numInput("radiusXL", "xl", 24),
-					numInput("radius2XL", "2xl", 32),
-					btn("Generate Radius"),
-				],
-			},
-		],
-	},
-	{
-		title: "Typography",
-		sections: [
-			{
-				inputs: [
-					numInput("baseFontSize", "Base Font Size", 16, 8, 32),
-					btn("Generate Font Sizes"),
-				],
-			},
-			{
-				title: "Font Families",
-				inputs: [
-					textInput("bodyFontFamily", "Body", "Roboto"),
-					textInput("metaFontFamily", "Meta", "Roboto"),
-					textInput("interfaceFontFamily", "Interface", "Roboto Condensed"),
-					textInput("accentFontFamily", "Accent", "Parisienne"),
-					textInput("techFontFamily", "Tech", "Roboto Mono"),
-					btn("Generate Font Families"),
-				],
-			},
-			{
-				inputs: [btn("Generate Typography")],
-			},
-		],
-	},
-	{
-		title: "Datas",
-		sections: [
-			{
-				inputs: [
-					fileInput("textDatasFiles", "Text", "application/json"),
-					btn("Generate Text Datas"),
-				],
-			},
-			{
-				inputs: [
-					fileInput("imagesDatasFiles", "Images", "image/*", true),
-					btn("Generate Images Datas"),
-				],
-			},
-			{
-				inputs: [btn("Generate Datas")],
-			},
-		],
-	},
-	{
-		title: "Effects",
-		sections: [
-			{
-				inputs: [btn("Generate Elevations Effects")],
-			},
-		],
-	},
+      {
+        inputs: [btn("Generate Palettes")],
+      },
+    ],
+  },
+  {
+    title: "Themes",
+    sections: [
+      {
+        title: "Themes Background Opacities",
+        inputs: [
+          selector("themesEnabled", "Enabled", 200, colorOpacityOptions),
+          selector("themesDisabled", "Disabled", 100, colorOpacityOptions),
+          selector("themesHovered", "Hovered", 50, colorOpacityOptions),
+          selector("themesSelected", "Selected", 150, colorOpacityOptions),
+          selector("themesFocused", "Focused", 300, colorOpacityOptions),
+        ],
+      },
+      {
+        inputs: [selector("themesBorder", "Border", 500, colorOpacityOptions)],
+      },
+      {
+        inputs: [btn("Generate Themes")],
+      },
+    ],
+  },
+  {
+    title: "Layout guide",
+    sections: [
+      {
+        title: "Grid Settings",
+        inputs: [
+          numInput("minColumnWidth", "Min Column Width", 96),
+          numInput("gutter", "Gutter", 16),
+          numInput("horizontalBodyPadding", "Horizontal Body Padding", 32),
+          numInput("baselineGrid", "Baseline Grid", 24),
+          numInput("minViewportHeight", "Min Viewport Height", 312),
+        ],
+      },
+      {
+        title: "Content Settings",
+        inputs: [
+          numInput("horizontalMainPadding", "Horizontal Main Padding", 0),
+          numInput("maxContentHeight", "Max Content Height", 1080),
+          numInput("offsetHeight", "Offset Height", 96),
+        ],
+      },
+      {
+        inputs: [btn("Generate Layout Guide")],
+      },
+    ],
+  },
+  {
+    title: "Radius",
+    sections: [
+      {
+        inputs: [
+          numInput("radiusXS", "xs", 2),
+          numInput("radiusSM", "sm", 4),
+          numInput("radiusMD", "md", 8),
+          numInput("radiusLG", "lg", 16),
+          numInput("radiusXL", "xl", 24),
+          numInput("radius2XL", "2xl", 32),
+          btn("Generate Radius"),
+        ],
+      },
+    ],
+  },
+  {
+    title: "Typography",
+    sections: [
+      {
+        inputs: [
+          numInput("baseFontSize", "Base Font Size", 16, 8, 32),
+          btn("Generate Font Sizes"),
+        ],
+      },
+      {
+        title: "Font Families",
+        inputs: [
+          textInput("bodyFontFamily", "Body", "Roboto"),
+          textInput("metaFontFamily", "Meta", "Roboto"),
+          textInput("interfaceFontFamily", "Interface", "Roboto Condensed"),
+          textInput("accentFontFamily", "Accent", "Parisienne"),
+          textInput("techFontFamily", "Tech", "Roboto Mono"),
+          btn("Generate Font Families"),
+        ],
+      },
+      {
+        inputs: [btn("Generate Typography")],
+      },
+    ],
+  },
+  {
+    title: "Datas",
+    sections: [
+      {
+        inputs: [
+          fileInput("textDatasFiles", "Text", "application/json"),
+          btn("Generate Text Datas"),
+        ],
+      },
+      {
+        inputs: [
+          fileInput("imagesDatasFiles", "Images", "image/*", true),
+          btn("Generate Images Datas"),
+        ],
+      },
+      {
+        inputs: [btn("Generate Datas")],
+      },
+    ],
+  },
+  {
+    title: "Effects",
+    sections: [
+      {
+        inputs: [btn("Generate Elevations Effects")],
+      },
+    ],
+  },
 ];
 
 // Rétro-compatibilité: exporter les sections à plat

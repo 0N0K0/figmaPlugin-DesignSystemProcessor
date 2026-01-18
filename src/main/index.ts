@@ -8,7 +8,10 @@ import {
   generateColorPalette,
   genrateNeutralPalette,
 } from "./builders/variables/styles/colors/PalettesBuilder";
-import { generateColorThemes } from "./builders/variables/styles/colors/ThemesBuilder";
+import {
+  generateColorThemes,
+  generateNeutralThemes,
+} from "./builders/variables/styles/colors/ThemesBuilder";
 import { logger } from "./utils/logger";
 
 figma.showUI(__html__, {
@@ -101,10 +104,29 @@ figma.ui.onmessage = async (msg) => {
             `Erreur lors de la génération des thèmes de ${toPascalCase(key)}:`,
             error,
           );
+          figma.notify(
+            `❌ Erreur lors de la génération des thèmes de ${toPascalCase(key)}`,
+            {
+              error: true,
+            },
+          );
           return;
         }
       }
     }
+    if (neutralColors) {
+      try {
+        await generateNeutralThemes(neutralColors);
+        figma.notify(`✅ Thèmes de couleurs Neutral générés avec succès`);
+      } catch (error) {
+        logger.error(`Erreur lors de la génération des thèmes Neutral:`, error);
+        figma.notify(`❌ Erreur lors de la génération des thèmes Neutral`, {
+          error: true,
+        });
+        return;
+      }
+    }
+
     /**
      * @TODO
      * const { ... } = msg.data;

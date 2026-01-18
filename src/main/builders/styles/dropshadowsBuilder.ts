@@ -58,7 +58,7 @@ export function generateElevationShadows(level: number): Shadow[] {
 
 export function generateElevationEffects(): void {
   // Créer les 24 effect styles
-  for (let level = 1; level <= 24; level++) {
+  for (let level = 1; level <= 12; level++) {
     const shadows = generateElevationShadows(level);
 
     // Créer le style d'effet
