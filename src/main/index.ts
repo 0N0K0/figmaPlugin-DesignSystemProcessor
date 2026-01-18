@@ -16,6 +16,7 @@ import {
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
 import { generateFontSizes } from "./builders/variables/display/TypographyBuilder";
 import { logger } from "./utils/logger";
+import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -206,12 +207,24 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateTypography" ||
     msg.type === "generateAll"
   ) {
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateFontFamilies(...);
-     */
-    // figma.notify("✅ Familles de police générées avec succès");
+    const fontFamilies = msg.datas?.fontFamilies;
+    if (fontFamilies === undefined) {
+      figma.notify("⚠️ Aucune donnée de familles de police fournie", {
+        error: true,
+      });
+      return;
+    } else {
+      try {
+        await generateFontFamilies(fontFamilies);
+        figma.notify("✅ Familles de police générées avec succès");
+      } catch (error) {
+        logger.error("Erreur génération des familles de police:", error);
+        figma.notify("❌ Erreur lors de la génération des familles de police", {
+          error: true,
+        });
+        return;
+      }
+    }
   }
 
   if (
