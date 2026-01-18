@@ -9,7 +9,6 @@ import {
 } from "../../../../types/variablesTypes";
 import { variableBuilder } from "../../variableBuilder";
 import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
-import { logger } from "../../../../utils/logger";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -217,7 +216,6 @@ export async function generateColorThemes(
         );
 
         // Créer la variable de thème avec alias vers la palette
-        logger.info("State:", state);
         variables.push({
           name: `${colorFamily}/${category}/${state === "border" ? state : `state/${state}`}`.toLowerCase(),
           collection: COLLECTION_NAME,
