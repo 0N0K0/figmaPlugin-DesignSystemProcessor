@@ -9,6 +9,61 @@ import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
 
+async function getTargetColor(targetVariableName: string): Promise<{
+  alias: string | undefined;
+  targetValue: { r: number; g: number; b: number; a: number } | undefined;
+  targetVariable: Variable | undefined;
+}> {
+  let targetVariable = await variableBuilder.findVariable(
+    "Style\\Colors\\Palette",
+    targetVariableName,
+  );
+
+  let targetValue = targetVariable
+    ? targetVariable.valuesByMode[Object.keys(targetVariable.valuesByMode)[0]]
+    : undefined;
+  let alias = targetVariable ? targetVariable.id : undefined;
+  return {
+    alias,
+    targetValue: targetValue as
+      | { r: number; g: number; b: number; a: number }
+      | undefined,
+    targetVariable,
+  };
+}
+
+async function getOrCreateTargetColor(
+  targetVariableName: string,
+  colorFamily: string,
+  colors: ColorsCollection,
+): Promise<{
+  alias: string | undefined;
+  targetValue: { r: number; g: number; b: number; a: number } | undefined;
+}> {
+  let { alias, targetValue, targetVariable } =
+    await getTargetColor(targetVariableName);
+
+  if (!targetVariable) {
+    // Si la variable n'existe pas, générer la palette
+    const newVariables = await generateColorPalette(colors, colorFamily);
+    const newVariable = newVariables.find((v) => v.name === targetVariableName);
+    targetValue = newVariable
+      ? (newVariable.valuesByMode[Object.keys(newVariable.valuesByMode)[0]] as {
+          r: number;
+          g: number;
+          b: number;
+          a: number;
+        })
+      : undefined;
+    alias = newVariable ? newVariable.id : undefined;
+  }
+
+  return {
+    alias,
+    targetValue,
+  };
+}
+
 export async function generateColorThemes(
   coreShades: Record<string, Record<string, number>>,
   themes: Record<string, string>,
@@ -26,29 +81,11 @@ export async function generateColorThemes(
         const targetVariableName =
           `${colorFamily}/${category}/shade/${shadeValue}`.toLowerCase();
 
-        // Chercher ou créer la variable palette correspondante
-        let targetVariable = await variableBuilder.findVariable(
-          "Style\\Colors\\Palette",
+        const { alias, targetValue } = await getOrCreateTargetColor(
           targetVariableName,
+          colorFamily,
+          colors,
         );
-
-        let targetValue = targetVariable
-          ? targetVariable.valuesByMode[
-              Object.keys(targetVariable.valuesByMode)[0]
-            ]
-          : undefined;
-        let alias = targetVariable ? targetVariable.id : undefined;
-        if (!targetVariable) {
-          // Si la variable n'existe pas, générer la palette
-          const newVariables = await generateColorPalette(colors, colorFamily);
-          const newVariable = newVariables.find(
-            (v) => v.name === targetVariableName,
-          );
-          targetValue = newVariable
-            ? newVariable.valuesByMode[Object.keys(newVariable.valuesByMode)[0]]
-            : undefined;
-          alias = newVariable ? newVariable.id : undefined;
-        }
 
         // Créer la variable de thème avec alias vers la palette
         variables.push({
@@ -89,25 +126,15 @@ export async function generateColorThemes(
             const greyVariableName =
               `${targetGroup}/${greyValue}`.toLowerCase();
 
-            let targetGreyVariable = await variableBuilder.findVariable(
-              "Style\\Colors\\Palette",
-              greyVariableName,
-            );
+            const { alias, targetValue, targetVariable } =
+              await getTargetColor(greyVariableName);
 
-            if (targetGreyVariable) {
-              targetGreyValues[greyShade] = targetGreyVariable.valuesByMode[
-                Object.keys(targetGreyVariable.valuesByMode)[0]
-              ] as {
-                r: number;
-                g: number;
-                b: number;
-                a: number;
-              };
+            if (targetValue) {
+              targetGreyValues[greyShade] = targetValue;
             }
-            greyAliases[greyShade] = targetGreyVariable
-              ? targetGreyVariable.id
-              : undefined;
-            if (!targetGreyVariable) {
+            greyAliases[greyShade] = alias;
+
+            if (!targetVariable) {
               // Si la variable n'existe pas, générer la palette
               const newVariables = await genrateNeutralPalette(greyHue);
               const newVariable = newVariables.find(
@@ -147,21 +174,11 @@ export async function generateColorThemes(
         const targetVariableName =
           `${colorFamily}/${category}/opacity/${stateValue}`.toLowerCase();
 
-        // Chercher ou créer la variable palette correspondante
-        let targetVariable = await variableBuilder.findVariable(
-          "Style\\Colors\\Palette",
+        const { alias } = await getOrCreateTargetColor(
           targetVariableName,
+          colorFamily,
+          colors,
         );
-
-        let alias = targetVariable ? targetVariable.id : undefined;
-        if (!targetVariable) {
-          // Si la variable n'existe pas, générer la palette
-          const newVariables = await generateColorPalette(colors, colorFamily);
-          const newVariable = newVariables.find(
-            (v) => v.name === targetVariableName,
-          );
-          alias = newVariable ? newVariable.id : undefined;
-        }
 
         // Créer la variable de thème avec alias vers la palette
         variables.push({
