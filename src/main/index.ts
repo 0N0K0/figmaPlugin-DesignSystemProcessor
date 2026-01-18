@@ -14,6 +14,7 @@ import {
   generateNeutralThemes,
 } from "./builders/variables/styles/colors/ThemesBuilder";
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
+import { generateFontSizes } from "./builders/variables/display/TypographyBuilder";
 import { logger } from "./utils/logger";
 
 figma.showUI(__html__, {
@@ -174,6 +175,24 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateTypography" ||
     msg.type === "generateAll"
   ) {
+    const baseFontSize = msg.datas?.baseFontSize;
+    if (baseFontSize === undefined) {
+      figma.notify("⚠️ Aucune donnée de tailles de police fournie", {
+        error: true,
+      });
+      return;
+    } else {
+      try {
+        await generateFontSizes(baseFontSize);
+        figma.notify("✅ Tailles de police générées avec succès");
+      } catch (error) {
+        logger.error("Erreur génération des tailles de police:", error);
+        figma.notify("❌ Erreur lors de la génération des tailles de police", {
+          error: true,
+        });
+        return;
+      }
+    }
     /**
      * @TODO
      * const { ... } = msg.data;
