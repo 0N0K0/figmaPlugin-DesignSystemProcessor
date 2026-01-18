@@ -1,114 +1,14 @@
 import { SCOPES } from "../../constants/variablesConstants";
 import { COLUMNS, ORIENTATIONS, RATIOS } from "../../constants/systemConstants";
-import { VariableConfig } from "../../types/variablesTypes";
+import {
+  DensitiesConfigType,
+  DensitiesMode,
+  VariableConfig,
+} from "../../types/variablesTypes";
 import { logger } from "../../utils/logger";
 import { variableBuilder } from "./variableBuilder";
 import { layoutGuideType } from "../../../common/types";
 import { toKebabCase } from "../../../common/utils/textUtils";
-
-export async function generateFontSizes(
-  baseFontSize: number = 16,
-  baselineGrid: number = 24,
-): Promise<Variable[]> {
-  const variables: VariableConfig[] = [];
-
-  const newVariables: Variable[] = [];
-
-  const typographyScales = {
-    body: { lg: 2, md: 1.25, sm: 1, xs: 0.75 },
-    heading: { xl: 5, lg: 4, md: 3, sm: 2, xs: 1.25 },
-  };
-
-  // Génération des valeurs de typographie avec lineHeight calculée (arrondie au multiple de BASELINE_GRID supérieur)
-  const baseTypography: Record<string, Record<string, [number, number]>> = {};
-  for (const [category, sizes] of Object.entries(typographyScales)) {
-    baseTypography[category] = {};
-    for (const [size, fontScale] of Object.entries(sizes)) {
-      const fontSize = baseFontSize * fontScale;
-      const lineHeight = Math.ceil(fontSize / baselineGrid) * baselineGrid;
-      baseTypography[category][size] = [fontSize, lineHeight];
-    }
-  }
-
-  const config = {
-    loose: "",
-    compact: "md",
-    tight: "sm",
-  };
-
-  for (const [mode, maxTypography] of Object.entries(config)) {
-    const sizeOrder = ["xl", "lg", "md", "sm", "xs"];
-
-    const maxTypoIndex = maxTypography ? sizeOrder.indexOf(maxTypography) : -1;
-
-    for (const [category, sizes] of Object.entries(baseTypography)) {
-      for (const [size, [fontSize, lineHeight]] of Object.entries(sizes)) {
-        const currentIndex = sizeOrder.indexOf(size);
-        const shouldAlias = maxTypoIndex >= 0 && currentIndex < maxTypoIndex;
-        logger.info("Should alias?", {
-          currentIndex,
-          maxTypoIndex,
-          shouldAlias,
-        });
-
-        if (shouldAlias && maxTypography) {
-          const targetVariablesGroup = `typography/${category}/${maxTypography}/`;
-          const targetVariablesTypes = [`font-size`, `line-height`];
-          const aliases: Record<string, Variable | undefined> = {};
-          for (const targetVariableType of targetVariablesTypes) {
-            const alias = await variableBuilder.findVariable(
-              "System\\VerticalDensity",
-              `${targetVariablesGroup}${targetVariableType}`,
-            );
-            aliases[targetVariableType] = alias;
-          }
-          for (const [type, alias] of Object.entries(aliases)) {
-            const newVariable: VariableConfig = {
-              name: `typography/${category}/${size}/${type}`,
-              collection: "System\\VerticalDensity",
-              mode,
-              type: "FLOAT",
-              value: alias ? undefined : 0,
-              alias: alias?.id,
-              scopes:
-                type === "font-size"
-                  ? [SCOPES.FLOAT.FONT_SIZE]
-                  : [SCOPES.FLOAT.LINE_HEIGHT],
-            };
-            newVariables.push(
-              await variableBuilder.createOrUpdateVariable(newVariable),
-            );
-          }
-        } else {
-          const fontSizeVariable: VariableConfig = {
-            name: `typography/${category}/${size}/font-size`,
-            collection: "System\\VerticalDensity",
-            mode,
-            type: "FLOAT",
-            value: fontSize,
-            scopes: [SCOPES.FLOAT.FONT_SIZE],
-          };
-          const lineHeightVariable: VariableConfig = {
-            name: `typography/${category}/${size}/line-height`,
-            collection: "System\\VerticalDensity",
-            mode,
-            type: "FLOAT",
-            value: lineHeight,
-            scopes: [SCOPES.FLOAT.LINE_HEIGHT],
-          };
-          newVariables.push(
-            ...(await variableBuilder.createOrUpdateVariables([
-              fontSizeVariable,
-              lineHeightVariable,
-            ])),
-          );
-        }
-      }
-    }
-  }
-
-  return newVariables;
-}
 
 export async function generateBreakpoints({
   minColumnWidth,
@@ -404,6 +304,223 @@ export async function generateBreakpoints({
   newVariables.push(
     ...(await variableBuilder.createOrUpdateVariables(ratiosVariables)),
   );
+
+  return newVariables;
+}
+
+export async function generateDensities({
+  minColumnWidth,
+  gutter,
+  horizontalBodyPadding,
+  minViewportHeight,
+  horizontalMainPadding,
+  baselineGrid,
+}: layoutGuideType): Promise<Variable[]> {
+  const modes: DensitiesMode[] = ["tight", "compact", "loose"];
+
+  // Échelle d'espacement (multiplicateurs de BASELINE_GRID)
+  const baseSpacing: Record<string, number> = {
+    "1:4": 1 / 4,
+    "1:3": 1 / 3,
+    "1:2": 1 / 2,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4,
+    "5": 5,
+    "6": 6,
+    "7": 7,
+    "8": 8,
+  };
+
+  const config: DensitiesConfigType = {
+    tight: {
+      minHeight: baselineGrid * 13,
+      maxSpacing: 4,
+      positionSticky: false,
+    },
+    compact: {
+      minHeight: baselineGrid * 23,
+      maxSpacing: 6,
+      positionSticky: true,
+    },
+    loose: {
+      minHeight: baselineGrid * 33,
+      spacing: baseSpacing,
+      positionSticky: true,
+    },
+  };
+
+  const variables: VariableConfig[] = [];
+  const newVariables: Variable[] = [];
+
+  for (const [index, [mode, values]] of Object.entries(config).entries()) {
+    // Min Height
+    variables.push({
+      name: `viewport-height/min`,
+      type: "FLOAT",
+      collection: "System\\VerticalDensity",
+      mode,
+      value: values.minHeight,
+      scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+    });
+
+    // Max Height
+    const nextMode = modes[index + 1] as DensitiesMode | undefined;
+    let maxHeight: number = 9999;
+    if (nextMode) {
+      maxHeight = config[nextMode].minHeight - 1;
+    }
+    variables.push({
+      name: `viewport-height/max`,
+      type: "FLOAT",
+      collection: "System\\VerticalDensity",
+      mode,
+      value: maxHeight,
+      scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+    });
+
+    // Spacing
+    for (const [key, multiplier] of Object.entries(baseSpacing)) {
+      const shouldAlias =
+        "maxSpacing" in values && multiplier > values.maxSpacing;
+
+      let alias: string | undefined = undefined;
+      if (shouldAlias) {
+        const targetVariable = await variableBuilder.findVariable(
+          "System\\VerticalDensity",
+          `spacing/${values.maxSpacing}`,
+        );
+        alias = targetVariable ? targetVariable.id : undefined;
+      }
+      newVariables.push(
+        await variableBuilder.createOrUpdateVariable({
+          name: `spacing/${key}`,
+          type: "FLOAT",
+          collection: "System\\VerticalDensity",
+          mode,
+          alias,
+          value: alias ? undefined : baselineGrid * multiplier,
+          scopes: [SCOPES.FLOAT.GAP, SCOPES.FLOAT.PARAGRAPH_SPACING],
+        }),
+      );
+    }
+
+    // Position Sticky
+    variables.push({
+      name: `position-sticky`,
+      type: "BOOLEAN",
+      collection: "System\\VerticalDensity",
+      mode,
+      value: values.positionSticky,
+    });
+  }
+
+  newVariables.push(
+    ...(await variableBuilder.createOrUpdateVariables(variables)),
+  );
+
+  return newVariables;
+}
+
+export async function generateFontSizes(
+  baseFontSize: number = 16,
+  baselineGrid: number = 24,
+): Promise<Variable[]> {
+  const newVariables: Variable[] = [];
+
+  const typographyScales = {
+    body: { lg: 2, md: 1.25, sm: 1, xs: 0.75 },
+    heading: { xl: 5, lg: 4, md: 3, sm: 2, xs: 1.25 },
+  };
+
+  // Génération des valeurs de typographie avec lineHeight calculée (arrondie au multiple de BASELINE_GRID supérieur)
+  const baseTypography: Record<string, Record<string, [number, number]>> = {};
+  for (const [category, sizes] of Object.entries(typographyScales)) {
+    baseTypography[category] = {};
+    for (const [size, fontScale] of Object.entries(sizes)) {
+      const fontSize = baseFontSize * fontScale;
+      const lineHeight = Math.ceil(fontSize / baselineGrid) * baselineGrid;
+      baseTypography[category][size] = [fontSize, lineHeight];
+    }
+  }
+
+  const config = {
+    loose: "",
+    compact: "md",
+    tight: "sm",
+  };
+
+  for (const [mode, maxTypography] of Object.entries(config)) {
+    const sizeOrder = ["xl", "lg", "md", "sm", "xs"];
+
+    const maxTypoIndex = maxTypography ? sizeOrder.indexOf(maxTypography) : -1;
+
+    for (const [category, sizes] of Object.entries(baseTypography)) {
+      for (const [size, [fontSize, lineHeight]] of Object.entries(sizes)) {
+        const currentIndex = sizeOrder.indexOf(size);
+        const shouldAlias = maxTypoIndex >= 0 && currentIndex < maxTypoIndex;
+        logger.info("Should alias?", {
+          currentIndex,
+          maxTypoIndex,
+          shouldAlias,
+        });
+
+        if (shouldAlias && maxTypography) {
+          const targetVariablesGroup = `typography/${category}/${maxTypography}/`;
+          const targetVariablesTypes = [`font-size`, `line-height`];
+          const aliases: Record<string, Variable | undefined> = {};
+          for (const targetVariableType of targetVariablesTypes) {
+            const alias = await variableBuilder.findVariable(
+              "System\\VerticalDensity",
+              `${targetVariablesGroup}${targetVariableType}`,
+            );
+            aliases[targetVariableType] = alias;
+          }
+          for (const [type, alias] of Object.entries(aliases)) {
+            const newVariable: VariableConfig = {
+              name: `typography/${category}/${size}/${type}`,
+              collection: "System\\VerticalDensity",
+              mode,
+              type: "FLOAT",
+              value: alias ? undefined : 0,
+              alias: alias?.id,
+              scopes:
+                type === "font-size"
+                  ? [SCOPES.FLOAT.FONT_SIZE]
+                  : [SCOPES.FLOAT.LINE_HEIGHT],
+            };
+            newVariables.push(
+              await variableBuilder.createOrUpdateVariable(newVariable),
+            );
+          }
+        } else {
+          const fontSizeVariable: VariableConfig = {
+            name: `typography/${category}/${size}/font-size`,
+            collection: "System\\VerticalDensity",
+            mode,
+            type: "FLOAT",
+            value: fontSize,
+            scopes: [SCOPES.FLOAT.FONT_SIZE],
+          };
+          const lineHeightVariable: VariableConfig = {
+            name: `typography/${category}/${size}/line-height`,
+            collection: "System\\VerticalDensity",
+            mode,
+            type: "FLOAT",
+            value: lineHeight,
+            scopes: [SCOPES.FLOAT.LINE_HEIGHT],
+          };
+          newVariables.push(
+            ...(await variableBuilder.createOrUpdateVariables([
+              fontSizeVariable,
+              lineHeightVariable,
+            ])),
+          );
+        }
+      }
+    }
+  }
 
   return newVariables;
 }

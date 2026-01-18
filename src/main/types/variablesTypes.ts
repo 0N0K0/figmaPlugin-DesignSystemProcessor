@@ -2,15 +2,15 @@
  * Configuration pour créer une variable Figma
  */
 export interface VariableConfig {
-	name: string;
-	collection: string;
-	type: "COLOR" | "FLOAT" | "STRING" | "BOOLEAN";
-	value?: VariableValue;
-	alias?: string;
-	mode?: string;
-	scopes?: VariableScope[];
-	hidden?: boolean;
-	description?: string;
+  name: string;
+  collection: string;
+  type: "COLOR" | "FLOAT" | "STRING" | "BOOLEAN";
+  value?: VariableValue;
+  alias?: string;
+  mode?: string;
+  scopes?: VariableScope[];
+  hidden?: boolean;
+  description?: string;
 }
 
 /**
@@ -23,3 +23,25 @@ export type VariableValue = string | number | boolean | RGB | RGBA;
  * Référence à une autre variable
  */
 export type ColorsCollection = Record<string, string>;
+
+// Types des modes de densité
+export type DensitiesMode = "tight" | "compact" | "loose";
+
+// Configuration des densités
+export type DensitiesConfigType = {
+  tight: {
+    minHeight: number;
+    maxSpacing: number;
+    positionSticky: boolean;
+  };
+  compact: {
+    minHeight: number;
+    maxSpacing: number;
+    positionSticky: boolean;
+  };
+  loose: {
+    minHeight: number;
+    spacing: Record<string, number>;
+    positionSticky: boolean;
+  };
+};

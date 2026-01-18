@@ -16,6 +16,7 @@ import {
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
 import {
   generateBreakpoints,
+  generateDensities,
   generateFontSizes,
 } from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
@@ -149,10 +150,9 @@ figma.ui.onmessage = async (msg) => {
     } else {
       try {
         await generateBreakpoints(layoutGuide);
+        await generateDensities(layoutGuide);
         /**
          * @TODO
-         * await generateRatios(layoutGuide);
-         * await generateOrientations(layoutGuide);
          * await generateDensities(layoutGuide);
          * await generateContentHeight(layoutGuide);
          * await generateDevices(layoutGuide);
