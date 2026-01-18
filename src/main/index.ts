@@ -14,7 +14,7 @@ import {
   generateNeutralThemes,
 } from "./builders/variables/styles/colors/ThemesBuilder";
 import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
-import { generateFontSizes } from "./builders/variables/display/TypographyBuilder";
+import { generateFontSizes } from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 
@@ -29,7 +29,6 @@ figma.showUI(__html__, {
  * Gère les messages provenant de l'UI
  */
 figma.ui.onmessage = async (msg) => {
-  // Debug: afficher le type de message reçu
   const colorFamilies = ["brand", "feedback"];
 
   for (const key of colorFamilies) {

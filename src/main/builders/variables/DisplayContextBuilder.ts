@@ -1,7 +1,7 @@
-import { SCOPES } from "../../../constants/variablesConstants";
-import { VariableConfig } from "../../../types/variablesTypes";
-import { logger } from "../../../utils/logger";
-import { variableBuilder } from "../variableBuilder";
+import { SCOPES } from "../../constants/variablesConstants";
+import { VariableConfig } from "../../types/variablesTypes";
+import { logger } from "../../utils/logger";
+import { variableBuilder } from "./variableBuilder";
 
 export async function generateFontSizes(
   baseFontSize: number = 16,
