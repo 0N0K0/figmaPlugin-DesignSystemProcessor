@@ -151,7 +151,6 @@ figma.ui.onmessage = async (msg) => {
         await generateBreakpoints(layoutGuide);
         /**
          * @TODO
-         * await generateBreakpoints(layoutGuide);
          * await generateRatios(layoutGuide);
          * await generateOrientations(layoutGuide);
          * await generateDensities(layoutGuide);

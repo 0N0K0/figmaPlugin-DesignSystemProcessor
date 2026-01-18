@@ -117,8 +117,11 @@ export async function generateBreakpoints({
   minViewportHeight,
   horizontalMainPadding,
 }: layoutGuideType): Promise<Variable[]> {
-  const variables: VariableConfig[] = [];
+  const newVariables: Variable[] = [];
 
+  const breackpointsVariables: VariableConfig[] = [];
+
+  // Configuration des modes
   const modesConfig: Record<
     string,
     {
@@ -289,10 +292,10 @@ export async function generateBreakpoints({
   }
 
   for (const [modeName, mode] of Object.entries(modesConfig)) {
-    for (const [key, value] of Object.entries(mode.viewportWidth)) {
+    for (const [sizeType, value] of Object.entries(mode.viewportWidth)) {
       // Viewport Width
-      variables.push({
-        name: `viewport/width/${toKebabCase(key)}`,
+      breackpointsVariables.push({
+        name: `viewport/width/${sizeType}`,
         collection: "System\\Breakpoints",
         type: "FLOAT",
         mode: modeName,
@@ -304,9 +307,9 @@ export async function generateBreakpoints({
     // Viewport Height
     for (const [orientation, ratios] of Object.entries(mode.viewportHeight)) {
       for (const [ratio, dimensions] of Object.entries(ratios)) {
-        for (const [type, value] of Object.entries(dimensions)) {
-          variables.push({
-            name: `viewport/height/${orientation}/${ratio}/${toKebabCase(type)}`,
+        for (const [sizeType, value] of Object.entries(dimensions)) {
+          breackpointsVariables.push({
+            name: `viewport/height/${orientation}/${ratio}/${sizeType}`,
             collection: "System\\Breakpoints",
             type: "FLOAT",
             mode: modeName,
@@ -321,8 +324,8 @@ export async function generateBreakpoints({
     for (const [type, dimensions] of Object.entries(mode.contentWidth)) {
       for (const [dimension, values] of Object.entries(dimensions)) {
         for (const [sizeType, value] of Object.entries(values)) {
-          variables.push({
-            name: `content-width/${type}/${dimension}/${toKebabCase(sizeType)}`,
+          breackpointsVariables.push({
+            name: `content-width/${type}/${dimension}/${sizeType}`,
             collection: "System\\Breakpoints",
             type: "FLOAT",
             mode: modeName,
@@ -334,5 +337,73 @@ export async function generateBreakpoints({
     }
   }
 
-  return await variableBuilder.createOrUpdateVariables(variables);
+  newVariables.push(
+    ...(await variableBuilder.createOrUpdateVariables(breackpointsVariables)),
+  );
+
+  /**
+   * Génération des Ratios
+   */
+
+  const ratiosVariables: VariableConfig[] = [];
+
+  for (const ratio of RATIOS) {
+    for (const orientation of ORIENTATIONS) {
+      for (const type of ["min", "max"]) {
+        const targetVariable = await variableBuilder.findVariable(
+          "System\\Breakpoints",
+          `viewport/height/${orientation}/${ratio}/${type}`,
+        );
+        let alias: string | undefined = undefined;
+        if (targetVariable) {
+          alias = targetVariable.id;
+        }
+        ratiosVariables.push({
+          name: `${orientation}/viewport-height/${type}`,
+          collection: "System\\Ratios",
+          type: "FLOAT",
+          mode: ratio,
+          alias,
+          value: alias ? undefined : 0,
+          hidden: true,
+        });
+      }
+    }
+  }
+
+  newVariables.push(
+    ...(await variableBuilder.createOrUpdateVariables(ratiosVariables)),
+  );
+
+  /**
+   * Génération des Orientations
+   */
+
+  for (const orientation of ORIENTATIONS) {
+    for (const type of ["min", "max"]) {
+      const targetVariable = await variableBuilder.findVariable(
+        "System\\Ratios",
+        `${orientation}/viewport-height/${type}`,
+      );
+      let alias: string | undefined = undefined;
+      if (targetVariable) {
+        alias = targetVariable.id;
+      }
+      ratiosVariables.push({
+        name: `viewport-height/${type}`,
+        type: "FLOAT",
+        collection: "System\\Orientations",
+        mode: orientation,
+        scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
+        alias,
+        value: alias ? undefined : 0,
+      });
+    }
+  }
+
+  newVariables.push(
+    ...(await variableBuilder.createOrUpdateVariables(ratiosVariables)),
+  );
+
+  return newVariables;
 }

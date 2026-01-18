@@ -10,6 +10,7 @@ import {
 import { variableBuilder } from "../../variableBuilder";
 import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
 import { toPascalCase } from "../../../../../common/utils/textUtils";
+import { SCOPES } from "../../../../constants/variablesConstants";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -268,6 +269,7 @@ export async function generateColorsThemesCollections(
         mode: toPascalCase(category),
         alias,
         value: alias ? undefined : "#fff",
+        scopes: [SCOPES.COLOR.ALL_FILLS],
       });
 
       // Gérer les couleurs de contraste
@@ -291,6 +293,7 @@ export async function generateColorsThemesCollections(
         mode: toPascalCase(category),
         alias: contrastAlias,
         value: contrastAlias ? undefined : "#fff",
+        scopes: [SCOPES.COLOR.ALL_FILLS],
       });
     }
 
@@ -311,6 +314,10 @@ export async function generateColorsThemesCollections(
         mode: toPascalCase(category),
         alias,
         value: alias ? undefined : "#fff",
+        scopes:
+          state === "border"
+            ? [SCOPES.COLOR.STROKE_COLOR]
+            : [SCOPES.COLOR.FRAME_FILL, SCOPES.COLOR.SHAPE_FILL],
       });
     }
   }
@@ -341,6 +348,7 @@ export async function generateNeutralThemes(
       mode,
       alias: borderAlias,
       value: borderAlias ? undefined : mode === "Dark" ? "#000" : "#fff",
+      scopes: [SCOPES.COLOR.STROKE_COLOR],
     });
 
     const targetVariableGroup = "neutral/grey/shade/";
@@ -359,6 +367,7 @@ export async function generateNeutralThemes(
       mode,
       alias,
       value: alias ? undefined : "#fff",
+      scopes: [SCOPES.COLOR.TEXT_FILL],
     });
 
     const elevationConfig =
@@ -391,6 +400,7 @@ export async function generateNeutralThemes(
         mode,
         value: alias ? undefined : color || (mode === "Dark" ? "#000" : "#fff"),
         alias,
+        scopes: [SCOPES.COLOR.FRAME_FILL, SCOPES.COLOR.SHAPE_FILL],
       });
     }
 
@@ -409,6 +419,10 @@ export async function generateNeutralThemes(
           mode,
           value: alias ? undefined : mode === "Dark" ? "#000" : "#fff",
           alias,
+          scopes:
+            state === "Secondary"
+              ? [SCOPES.COLOR.TEXT_FILL]
+              : [SCOPES.COLOR.FRAME_FILL, SCOPES.COLOR.SHAPE_FILL],
         });
       }
     }
