@@ -2,7 +2,7 @@ import { clampChroma, converter, formatHex, wcagContrast } from "culori";
 import { SHADE_STEPS } from "../constants/colorConstants";
 
 export function generateShades(
-  colorHex: string
+  colorHex: string,
 ): { step: number; color: string }[] {
   const base = converter("oklch")(colorHex);
   if (!base) return [];
@@ -50,7 +50,7 @@ export function generateShades(
 
 export function generateGreyShades(
   steps: number[],
-  hue: number = 0
+  hue: number = 0,
 ): Record<number, string> {
   const greyShades: Record<number, string> = {};
   for (const step of steps) {
@@ -68,11 +68,29 @@ export function generateGreyShades(
 }
 
 export function getContrastColor(
-  bgHex: string,
-  lightHex: string,
-  darkHex: string
+  background: { r: number; g: number; b: number; a: number },
+  light: { r: number; g: number; b: number; a: number },
+  dark: { r: number; g: number; b: number; a: number },
 ): string {
-  const contrastWithLight = wcagContrast(bgHex, lightHex);
-  const contrastWithDark = wcagContrast(bgHex, darkHex);
-  return contrastWithLight >= contrastWithDark ? lightHex : darkHex;
+  const backgroundHex = formatHex({
+    mode: "rgb",
+    r: background.r,
+    g: background.g,
+    b: background.b,
+  });
+  const lightHex = formatHex({
+    mode: "rgb",
+    r: light.r,
+    g: light.g,
+    b: light.b,
+  });
+  const darkHex = formatHex({
+    mode: "rgb",
+    r: dark.r,
+    g: dark.g,
+    b: dark.b,
+  });
+  const contrastWithLight = wcagContrast(backgroundHex, lightHex);
+  const contrastWithDark = wcagContrast(backgroundHex, darkHex);
+  return contrastWithLight >= contrastWithDark ? "Light" : "Dark";
 }
