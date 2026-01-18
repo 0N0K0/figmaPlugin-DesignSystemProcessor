@@ -1,0 +1,11 @@
+{
+  "name": "Design System Processor",
+  "id": "design-system-processor",
+  "api": "1.0.0",
+  "main": "code.js",
+  "capabilities": [],
+  "enableProposedApi": false,
+  "editorType": ["figma"],
+  "ui": "ui.html",
+  "menu": []
+}

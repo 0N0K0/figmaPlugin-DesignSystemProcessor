@@ -1,0 +1,245 @@
+import {
+  splitWords,
+  toCamelCase,
+  toPascalCase,
+} from "../../common/utils/textUtils";
+import { FormData, getFormData } from "../utils/formData";
+import { debugPanel } from "../components/debugPanel";
+import { layoutGuideType } from "../../common/types";
+
+// List of button IDs corresponding to different actions
+const btns = [
+  "brand-colors",
+  "feedback-colors",
+  "neutral-colors",
+  "palettes",
+  "themes",
+  "layout-guide",
+  "radius",
+  "font-sizes",
+  "font-families",
+  "typography",
+  "text-datas",
+  "images-datas",
+  "datas",
+  "elevations-effects",
+  "all",
+];
+
+// Helper function to manage colors for a specific color family
+function manageColors(
+  colorFamily: string,
+  formData: FormData,
+): Record<string, string> {
+  const colors: Record<string, string> = {};
+  Object.entries(formData).forEach(([key, value]) => {
+    if (
+      key.startsWith(colorFamily) &&
+      !key.endsWith("-label") &&
+      typeof value === "string" &&
+      value.startsWith("#")
+    ) {
+      const labelKey = `${key}-label`;
+      const colorName = formData[labelKey] || key;
+      if (
+        colorName &&
+        typeof colorName === "string" &&
+        colorName.trim() !== ""
+      ) {
+        colors[colorName.trim()] = value;
+      }
+    }
+  });
+  return colors;
+}
+
+function manageCoreThemes(
+  colorFamily: string,
+  formData: FormData,
+): Record<string, Record<string, number>> {
+  const coreThemes: Record<string, Record<string, number>> = {};
+
+  // Debug: afficher toutes les clés qui commencent par le colorFamily
+  const relevantKeys = Object.keys(formData).filter((k) =>
+    k.startsWith(colorFamily),
+  );
+  console.log(`🔍 Clés commençant par "${colorFamily}":`, relevantKeys);
+
+  Object.entries(formData).forEach(([key, value]) => {
+    if (
+      key.startsWith(colorFamily) &&
+      (key.endsWith("-light") ||
+        key.endsWith("-main") ||
+        key.endsWith("-dark")) &&
+      typeof value === "number"
+    ) {
+      const [keyBase, shadeName] = splitWords(key);
+      const labelKey = `${keyBase}-label`;
+      const colorName = formData[labelKey] || key;
+      if (
+        colorName &&
+        typeof colorName === "string" &&
+        colorName.trim() !== ""
+      ) {
+        const colorCCName = toCamelCase(colorName);
+        if (!coreThemes[colorCCName]) coreThemes[colorCCName] = {};
+        coreThemes[colorCCName][toCamelCase(shadeName)] = value;
+      } else {
+        console.log(
+          `    ✗ Clé ignorée (type !== number): ${key}, type: ${typeof value}`,
+        );
+      }
+    }
+  });
+
+  console.log(`✅ coreThemes pour ${colorFamily}:`, coreThemes);
+  return coreThemes;
+}
+
+export function attachButtonListeners() {
+  // Attach handlers for all buttons using the map
+  btns.forEach((key) => {
+    const btn = document.getElementById(`generate-${key}-btn`);
+    if (btn) {
+      btn.addEventListener("click", async () => {
+        // Ouvrir le debug panel automatiquement
+        debugPanel.show();
+
+        const formData = getFormData();
+
+        // Handle Color Families
+        const colorsData: Record<string, Record<string, string>> = {};
+        for (const colorFamily of ["brand", "feedback"]) {
+          colorsData[colorFamily] = manageColors(colorFamily, formData);
+        }
+
+        // Handle Neutral Colors
+        const neutralColors: Record<string, string | Record<string, number>> = {
+          greyHue: formData["greyHue"] as string,
+        };
+        for (const [property, keys] of Object.entries({
+          Text: ["Secondary", "Disabled", "Hovered", "Selected", "Focused"],
+          Background: ["Disabled", "Hovered", "Selected", "Focused"],
+        })) {
+          for (const key of keys) {
+            if (!neutralColors[property]) neutralColors[property] = {};
+            (neutralColors[property] as Record<string, number>)[key] = formData[
+              `neutral${property}${key}`
+            ] as number;
+          }
+        }
+
+        // Handle Themes
+        const themes: Record<string, string> = {};
+        for (const key of [
+          "Enabled",
+          "Disabled",
+          "Hovered",
+          "Selected",
+          "Focused",
+          "Border",
+        ]) {
+          themes[key.toLowerCase()] = formData[`themes${key}`] as string;
+        }
+        const brandCoreThemes = manageCoreThemes("brand", formData);
+        const feedbackCoreThemes = manageCoreThemes("feedback", formData);
+
+        // Handle Layout Guide
+        const layoutGuide: layoutGuideType = {
+          minColumnWidth: formData["minColumnWidth"] as number,
+          gutter: formData["gutter"] as number,
+          horizontalBodyPadding: formData["horizontalBodyPadding"] as number,
+          baselineGrid: formData["baselineGrid"] as number,
+          minViewportHeight: formData["minViewportHeight"] as number,
+          horizontalMainPadding: formData["horizontalMainPadding"] as number,
+          maxContentHeight: formData["maxContentHeight"] as number,
+          offsetHeight: formData["offsetHeight"] as number,
+        };
+
+        // Handle Radius
+        const radius: Record<string, string> = {};
+        for (const key of ["XS", "SM", "MD", "LG", "XL", "2XL"]) {
+          radius[key] = formData[`radius${key}`] as string;
+        }
+
+        // Handle Typography
+        const baseFontSize = formData["baseFontSize"] as number;
+        const fontFamilies: Record<string, string> = {};
+        for (const key of ["body", "meta", "interface", "accent", "tech"]) {
+          fontFamilies[key] = formData[`${key}FontFamily`] as string;
+        }
+
+        // Handle Text Datas
+        let textDatasList: Record<string, any>[] = [];
+        const textDatasFiles = formData["textDatasFiles"] as unknown as
+          | FileList
+          | File
+          | undefined;
+        if (textDatasFiles) {
+          try {
+            const filesToProcess =
+              textDatasFiles instanceof FileList
+                ? Array.prototype.slice.call(textDatasFiles)
+                : [textDatasFiles];
+
+            for (const file of filesToProcess) {
+              const jsonText = await file.text();
+              const textData = JSON.parse(jsonText);
+              textDatasList.push(textData);
+            }
+          } catch (error) {
+            console.error("Failed to parse JSON file:", error);
+          }
+        }
+
+        // Handle Images Datas
+        let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
+        const imagesDatasFiles = formData["imagesDatasFiles"] as unknown as
+          | FileList
+          | File
+          | undefined;
+        if (imagesDatasFiles) {
+          try {
+            const filesToProcess =
+              imagesDatasFiles instanceof FileList
+                ? Array.prototype.slice.call(imagesDatasFiles)
+                : [imagesDatasFiles];
+
+            for (const file of filesToProcess) {
+              const arrayBuffer = await file.arrayBuffer();
+              imagesDatasList.push({
+                name: file.name,
+                data: arrayBuffer,
+              });
+            }
+          } catch (error) {
+            console.error("Failed to process image files:", error);
+          }
+        }
+
+        // Send message to plugin
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: `generate${toPascalCase(key)}`,
+              datas: {
+                colorsData,
+                neutralColors,
+                themes,
+                brandCoreThemes,
+                feedbackCoreThemes,
+                layoutGuide,
+                radius,
+                baseFontSize,
+                fontFamilies,
+                textDatasList,
+                imagesDatasList,
+              },
+            },
+          },
+          "*",
+        );
+      });
+    }
+  });
+}

@@ -1,0 +1,22 @@
+{
+  "name": "figma-plugin-complex",
+  "version": "1.0.0",
+  "description": "Plugin Figma complexe avec architecture TypeScript modulaire",
+  "main": "dist/code.js",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch",
+    "dev": "npm run watch"
+  },
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.98.0",
+    "@types/culori": "^4.0.1",
+    "@types/node": "^20.11.5",
+    "esbuild": "^0.20.0",
+    "sass": "^1.97.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "culori": "^4.0.2"
+  }
+}

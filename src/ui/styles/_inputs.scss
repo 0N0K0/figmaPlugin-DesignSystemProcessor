@@ -1,0 +1,96 @@
+/* Inputs Styles */
+.input {
+  &-row,
+  &-column {
+    display: flex;
+
+    &:hover {
+      label {
+        color: var(--figma-color-text-hover, #ffffff);
+      }
+    }
+
+    &:has(input:focus),
+    &:has(select:focus),
+    &:has(.color-selector-btn.active) {
+      label {
+        color: var(--figma-color-text, #ffffff);
+      }
+    }
+  }
+
+  &-row {
+    gap: 4px;
+    align-items: center;
+
+    &:not(:has(> .icon-btn)) {
+      padding-right: 28px;
+    }
+  }
+
+  &-column {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+label {
+  color: var(--figma-color-text-secondary, #ffffffb3);
+  letter-spacing: 0.05504px;
+  width: 100%;
+}
+
+input:not([type="file"]),
+select,
+.custom-shade-select-btn,
+.color-selector-btn {
+  background-color: var(--figma-color-bg-secondary, #383838);
+  border: 1px solid var(--figma-color-bg-secondary, #383838);
+  border-radius: 5px;
+  margin: 1px 0;
+  color: var(--figma-color-text, #ffffff);
+  flex-shrink: 0;
+
+  &.active,
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(----figma-color-border-selected, #0c8ce9);
+  }
+}
+
+input,
+select,
+.custom-shade-select-btn {
+  padding: 4px 7px;
+  &.active {
+    border-color: var(----figma-color-border-selected, #0c8ce9);
+  }
+
+  &[type="number"] {
+    width: 72px;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  }
+  &[type="file"] {
+    color: var(--figma-color-text-secondary, #ffffffb3);
+    width: 200px;
+  }
+}
+
+select,
+.custom-shade-select-btn {
+  cursor: pointer;
+  padding: 4px 4px 4px 7px;
+  min-width: 72px;
+  width: fit-content;
+
+  &:hover {
+    border-color: var(--figma-color-border-secondary, #4444);
+  }
+}

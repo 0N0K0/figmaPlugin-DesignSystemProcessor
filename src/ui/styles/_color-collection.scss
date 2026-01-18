@@ -1,0 +1,10 @@
+/* Color Collection Styles */
+.color-collection {
+  display: flex;
+  flex-direction: column;
+
+  &-remove-btn,
+  &-add-btn {
+    flex-shrink: 0;
+  }
+}

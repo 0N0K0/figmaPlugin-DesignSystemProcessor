@@ -1,0 +1,54 @@
+/* Tabs Styles */
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.tab {
+  &-btn-wrapper {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    overflow: auto;
+    background-color: var(--figma-color-bg, #2c2c2c);
+
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &-btn {
+    font-size: 11px;
+    line-height: 16px;
+    background-color: transparent;
+    color: var(--figma-color-text-secondary, #ffffffb3);
+    position: relative;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: var(--figma-color-bg-hover, #383838);
+    }
+
+    &.active {
+      background-color: var(--figma-color-bg-secondary, #383838);
+      color: var(--figma-color-text, #ffffff);
+    }
+  }
+
+  &-contents {
+    position: relative;
+  }
+
+  &-content {
+    display: none;
+
+    &.active {
+      display: block;
+    }
+  }
+}
