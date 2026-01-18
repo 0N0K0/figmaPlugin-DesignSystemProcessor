@@ -9,7 +9,6 @@ import {
 } from "../../../../types/variablesTypes";
 import { variableBuilder } from "../../variableBuilder";
 import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
-import { logger } from "../../../../utils/logger";
 import { toPascalCase } from "../../../../../common/utils/textUtils";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
@@ -47,17 +46,7 @@ async function getTargetValue(
     ? targetVariable.valuesByMode[Object.keys(targetVariable.valuesByMode)[0]]
     : undefined;
   let alias = targetVariable ? targetVariable.id : undefined;
-  if (collection === "Style\\Colors\\Themes") {
-    if (!targetVariable) {
-      logger.debug(
-        `Variable not found: ${targetVariableName} in collection: ${collection}`,
-      );
-    } else {
-      logger.debug(
-        `Variable found: ${targetVariableName} in collection: ${collection} with id: ${targetVariable.id}`,
-      );
-    }
-  }
+
   return {
     alias,
     targetValue: targetValue as
@@ -285,17 +274,10 @@ export async function generateColorsThemesCollections(
       const targetContrastVariableName =
         `${colorFamily}/${category}/contrast/${shadeName}`.toLowerCase();
 
-      //   logger.debug(`Getting contrast variable: ${targetContrastVariableName}`);
-      //   logger.debug(`From collection: Style\\Colors\\Themes`);
-
       const TargetValueForDebug = await getTargetValue(
         targetContrastVariableName,
         "Style\\Colors\\Themes",
       );
-      //   logger.debug(`Target Value for debug:`);
-      //   for (const key in TargetValueForDebug) {
-      //     logger.debug(`${key}:`, (TargetValueForDebug as any)[key]);
-      //   }
       const { alias: contrastAlias } = await getTargetValue(
         targetContrastVariableName,
         "Style\\Colors\\Themes",
