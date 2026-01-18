@@ -9,6 +9,7 @@ import {
 } from "../../../../types/variablesTypes";
 import { variableBuilder } from "../../variableBuilder";
 import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
+import { logger } from "../../../../utils/logger";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -216,8 +217,9 @@ export async function generateColorThemes(
         );
 
         // Créer la variable de thème avec alias vers la palette
+        logger.info("State:", state);
         variables.push({
-          name: `${colorFamily}/${category}/state/${state}`.toLowerCase(),
+          name: `${colorFamily}/${category}/${state === "border" ? state : `state/${state}`}`.toLowerCase(),
           collection: COLLECTION_NAME,
           type: "COLOR",
           mode,
@@ -235,11 +237,27 @@ export async function generateColorThemes(
 
 export async function generateNeutralThemes(
   colors: Record<string, string | Record<string, number>>,
+  border: number = 500,
 ) {
   const variables: VariableConfig[] = [];
 
   for (const mode of MODES) {
     const targetMode = mode === "Light" ? "dark" : "light";
+
+    const targetBorderVariableName = `neutral/${targetMode}Grey/opacity/${border}`;
+    const { alias: borderAlias } = await getOrCreateTargetNeutralColor(
+      targetBorderVariableName,
+      colors.greyHue as string,
+    );
+    variables.push({
+      name: `neutral/border`,
+      collection: COLLECTION_NAME,
+      type: "COLOR",
+      mode,
+      alias: borderAlias,
+      value: borderAlias ? undefined : mode === "Dark" ? "#000" : "#fff",
+    });
+
     const targetVariableGroup = "neutral/grey/shade/";
     const targetVariableName =
       targetVariableGroup + (mode === "Light" ? "950" : "50");
