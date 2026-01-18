@@ -3,12 +3,13 @@
  */
 
 import { toPascalCase } from "../common/utils/textUtils";
-import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
+import { generateElevationEffects } from "./builders/styles/Effets/dropshadowsBuilder";
 import {
   generateColorPalette,
   genrateNeutralPalette,
 } from "./builders/variables/styles/colors/PalettesBuilder";
 import {
+  generateColorsThemesCollections,
   generateColorThemes,
   generateNeutralThemes,
 } from "./builders/variables/styles/colors/ThemesBuilder";
@@ -87,7 +88,7 @@ figma.ui.onmessage = async (msg) => {
     for (const key of colorFamilies) {
       const coreThemes = msg.datas?.[`${key}CoreThemes`];
       const colors = msg.datas?.colorsData?.[key];
-      if (coreThemes && colors) {
+      if (coreThemes && colors && themes && greyHue) {
         try {
           await generateColorThemes(
             coreThemes,
@@ -95,6 +96,11 @@ figma.ui.onmessage = async (msg) => {
             toPascalCase(key),
             colors,
             greyHue,
+          );
+          await generateColorsThemesCollections(
+            coreThemes,
+            themes,
+            toPascalCase(key),
           );
           figma.notify(
             `✅ Thèmes de couleurs de ${toPascalCase(key)} générés avec succès`,
@@ -126,13 +132,6 @@ figma.ui.onmessage = async (msg) => {
         return;
       }
     }
-
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateFeedbackThemes(...);
-     */
-    // figma.notify("✅ Thèmes générés avec succès");
   }
 
   if (msg.type === "generateLayoutGuide" || msg.type === "generateAll") {

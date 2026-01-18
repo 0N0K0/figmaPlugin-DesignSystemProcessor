@@ -9,6 +9,8 @@ import {
 } from "../../../../types/variablesTypes";
 import { variableBuilder } from "../../variableBuilder";
 import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
+import { logger } from "../../../../utils/logger";
+import { toPascalCase } from "../../../../../common/utils/textUtils";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -28,13 +30,16 @@ function generateDarkElevationSteps(greyHue: string): string[] {
   });
 }
 
-async function getTargetValue(targetVariableName: string): Promise<{
+async function getTargetValue(
+  targetVariableName: string,
+  collection: string,
+): Promise<{
   alias: string | undefined;
   targetValue: { r: number; g: number; b: number; a: number } | undefined;
   targetVariable: Variable | undefined;
 }> {
   let targetVariable = await variableBuilder.findVariable(
-    "Style\\Colors\\Palette",
+    collection,
     targetVariableName,
   );
 
@@ -42,6 +47,17 @@ async function getTargetValue(targetVariableName: string): Promise<{
     ? targetVariable.valuesByMode[Object.keys(targetVariable.valuesByMode)[0]]
     : undefined;
   let alias = targetVariable ? targetVariable.id : undefined;
+  if (collection === "Style\\Colors\\Themes") {
+    if (!targetVariable) {
+      logger.debug(
+        `Variable not found: ${targetVariableName} in collection: ${collection}`,
+      );
+    } else {
+      logger.debug(
+        `Variable found: ${targetVariableName} in collection: ${collection} with id: ${targetVariable.id}`,
+      );
+    }
+  }
   return {
     alias,
     targetValue: targetValue as
@@ -59,8 +75,10 @@ async function getOrCreateTargetColor(
   alias: string | undefined;
   targetValue: { r: number; g: number; b: number; a: number } | undefined;
 }> {
-  let { alias, targetValue, targetVariable } =
-    await getTargetValue(targetVariableName);
+  let { alias, targetValue, targetVariable } = await getTargetValue(
+    targetVariableName,
+    "Style\\Colors\\Palette",
+  );
 
   if (!targetVariable) {
     // Si la variable n'existe pas, générer la palette
@@ -90,8 +108,10 @@ async function getOrCreateTargetNeutralColor(
   alias: string | undefined;
   targetValue: { r: number; g: number; b: number; a: number } | undefined;
 }> {
-  let { alias, targetValue, targetVariable } =
-    await getTargetValue(targetVariableName);
+  let { alias, targetValue, targetVariable } = await getTargetValue(
+    targetVariableName,
+    "Style\\Colors\\Palette",
+  );
 
   if (!targetVariable) {
     // Si la variable n'existe pas, générer la palette
@@ -196,7 +216,7 @@ export async function generateColorThemes(
           );
 
           variables.push({
-            name: `${colorFamily}/${category}/constrast/${shadeName}`.toLowerCase(),
+            name: `${colorFamily}/${category}/contrast/${shadeName}`.toLowerCase(),
             collection: COLLECTION_NAME,
             type: "COLOR",
             mode,
@@ -225,6 +245,91 @@ export async function generateColorThemes(
           value: alias ? undefined : "#fff",
         });
       }
+    }
+  }
+
+  const newVariables = await variableBuilder.createOrUpdateVariables(variables);
+
+  return newVariables;
+}
+
+export async function generateColorsThemesCollections(
+  coreShades: Record<string, Record<string, number>>,
+  themes: Record<string, string>,
+  colorFamily: string,
+): Promise<Variable[]> {
+  const variables: VariableConfig[] = [];
+
+  for (const [category, shades] of Object.entries(coreShades)) {
+    for (let shadeName of Object.keys(shades)) {
+      // Construire le nom de la variable cible dans la palette
+      const targetVariableName =
+        `${colorFamily}/${category}/core/${shadeName}`.toLowerCase();
+
+      const { alias } = await getTargetValue(
+        targetVariableName,
+        "Style\\Colors\\Themes",
+      );
+
+      // Créer la variable de thème avec alias vers la palette
+      variables.push({
+        name: `core/${shadeName}`.toLowerCase(),
+        collection: `Style\\Colors\\${colorFamily}`,
+        type: "COLOR",
+        mode: toPascalCase(category),
+        alias,
+        value: alias ? undefined : "#fff",
+      });
+
+      // Gérer les couleurs de contraste
+      const targetContrastVariableName =
+        `${colorFamily}/${category}/contrast/${shadeName}`.toLowerCase();
+
+      //   logger.debug(`Getting contrast variable: ${targetContrastVariableName}`);
+      //   logger.debug(`From collection: Style\\Colors\\Themes`);
+
+      const TargetValueForDebug = await getTargetValue(
+        targetContrastVariableName,
+        "Style\\Colors\\Themes",
+      );
+      //   logger.debug(`Target Value for debug:`);
+      //   for (const key in TargetValueForDebug) {
+      //     logger.debug(`${key}:`, (TargetValueForDebug as any)[key]);
+      //   }
+      const { alias: contrastAlias } = await getTargetValue(
+        targetContrastVariableName,
+        "Style\\Colors\\Themes",
+      );
+
+      // Créer la variable de thème avec alias vers la palette
+      variables.push({
+        name: `contrast/${shadeName}`.toLowerCase(),
+        collection: `Style\\Colors\\${colorFamily}`,
+        type: "COLOR",
+        mode: toPascalCase(category),
+        alias: contrastAlias,
+        value: contrastAlias ? undefined : "#fff",
+      });
+    }
+
+    for (const state of Object.keys(themes)) {
+      const targetVariableName =
+        `${colorFamily}/${category}/${state === "border" ? state : `state/${state}`}`.toLowerCase();
+
+      const { alias } = await getTargetValue(
+        targetVariableName,
+        "Style\\Colors\\Themes",
+      );
+
+      // Créer la variable de thème avec alias vers la palette
+      variables.push({
+        name: `${state === "border" ? state : `state/${state}`}`.toLowerCase(),
+        collection: `Style\\Colors\\${colorFamily}`,
+        type: "COLOR",
+        mode: toPascalCase(category),
+        alias,
+        value: alias ? undefined : "#fff",
+      });
     }
   }
 
