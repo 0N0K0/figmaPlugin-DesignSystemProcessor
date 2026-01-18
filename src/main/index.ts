@@ -13,6 +13,7 @@ import {
   generateColorThemes,
   generateNeutralThemes,
 } from "./builders/variables/styles/colors/ThemesBuilder";
+import { generateRadius } from "./builders/variables/styles/RadiusBuilder";
 import { logger } from "./utils/logger";
 
 figma.showUI(__html__, {
@@ -144,6 +145,22 @@ figma.ui.onmessage = async (msg) => {
   }
 
   if (msg.type === "generateRadius" || msg.type === "generateAll") {
+    const radius = msg.datas?.radius;
+    if (radius === undefined) {
+      figma.notify("⚠️ Aucune donnée de radius fournie", { error: true });
+      return;
+    } else {
+      try {
+        await generateRadius(radius);
+        figma.notify("✅ Radius générés avec succès");
+      } catch (error) {
+        logger.error("Erreur génération des Radius:", error);
+        figma.notify("❌ Erreur lors de la génération des Radius", {
+          error: true,
+        });
+        return;
+      }
+    }
     /**
      * @TODO
      * const { ... } = msg.data;
