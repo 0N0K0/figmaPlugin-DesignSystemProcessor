@@ -166,6 +166,7 @@ export async function generateImagesComponents(
 
         // Configurer le composant avec coin arrondi
         formatComponent.resize(width, height);
+        formatComponent.lockAspectRatio();
         formatComponent.cornerRadius = radiusValue;
         formatComponent.clipsContent = true;
         formatComponent.layoutMode = "HORIZONTAL";
@@ -181,6 +182,17 @@ export async function generateImagesComponents(
         imageInstance.layoutSizingVertical = "FILL";
         imageInstance.isExposedInstance = true;
 
+        // Ajout d'une propriété de swap d'instance 'image' sur le ComponentSet
+        formatComponent.addComponentProperty(
+          "image",
+          "INSTANCE_SWAP",
+          imageInstance.mainComponent!.id,
+          {
+            preferredValues: [
+              { type: "COMPONENT", key: imageInstance.mainComponent!.key },
+            ],
+          },
+        );
         imagePage.appendChild(formatComponent);
         formatComponents.push(formatComponent);
       }
@@ -194,7 +206,7 @@ export async function generateImagesComponents(
     formatComponents,
     imagePage,
   );
-  formatComponentSet.name = "<ImageFormat>";
+  formatComponentSet.name = "<MediaFormat>";
   // Utiliser auto-layout horizontal avec wrap pour simuler une grille 7x7
   formatComponentSet.layoutMode = "HORIZONTAL";
   formatComponentSet.primaryAxisSizingMode = "AUTO";
