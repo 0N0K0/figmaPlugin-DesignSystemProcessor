@@ -23,7 +23,7 @@
     gap: 4px;
     align-items: center;
 
-    &:not(:has(> .icon-btn)) {
+    &:not(:has(> .icon-btn, > .category-btn, > .generate-btn)) {
       padding-right: 28px;
     }
   }

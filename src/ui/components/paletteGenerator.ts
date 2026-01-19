@@ -119,7 +119,7 @@ export class PaletteGenerator {
               ${
                 canRemove
                   ? `<button class="palette-remove-btn icon-btn" title="Remove">
-                        <i class="mdi mdi-close"></i>
+                        <i class="mdi mdi-delete"></i>
                       </button>`
                   : ""
               }

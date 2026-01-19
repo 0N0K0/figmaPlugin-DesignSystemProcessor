@@ -3,7 +3,7 @@ import { VariableConfig } from "../../../types/variablesTypes";
 import { variableBuilder } from "../variableBuilder";
 
 export async function generateRadius(
-  radius: Record<string, string>,
+  radius: Record<string, number>,
 ): Promise<Variable[]> {
   const variables: VariableConfig[] = [];
 
@@ -12,12 +12,10 @@ export async function generateRadius(
       name: name.toLowerCase(),
       collection: "Style\\Radius",
       type: "FLOAT",
-      value: parseFloat(value),
+      value,
       scopes: [SCOPES.FLOAT.CORNER_RADIUS],
     });
   }
 
-  const newVariables = await variableBuilder.createOrUpdateVariables(variables);
-
-  return newVariables;
+  return await variableBuilder.createOrUpdateVariables(variables);
 }

@@ -17,11 +17,13 @@ export class FileList {
   private clearBtn!: HTMLButtonElement;
   private files: File[] = [];
   private imagePreview: boolean = false;
+  private alwaysShowClearBtn: boolean = false;
 
-  constructor(container: HTMLElement, input: HTMLInputElement) {
+  constructor(container: HTMLElement, input: HTMLInputElement, alwaysShowClearBtn: boolean = false) {
     this.container = container;
     this.input = input;
     this.imagePreview = container.dataset.imagePreview === "true";
+    this.alwaysShowClearBtn = alwaysShowClearBtn;
 
     const inputId = container.dataset.inputId;
     if (!inputId) {
@@ -107,8 +109,12 @@ export class FileList {
       const label = this.imagePreview ? "Choose images" : "Choose files";
       this.selectBtn.innerHTML = `<span>${label}</span><i class="mdi mdi-plus"></i>`;
 
-      // Cacher clear btn
-      this.clearBtn.style.display = "none";
+      // Cacher clear btn sauf si alwaysShowClearBtn
+      if (this.alwaysShowClearBtn) {
+        this.clearBtn.style.display = "";
+      } else {
+        this.clearBtn.style.display = "none";
+      }
     }
   }
 
@@ -148,7 +154,7 @@ export class FileList {
       const removeBtn = document.createElement("button");
       removeBtn.type = "button";
       removeBtn.className = "file-remove-btn icon-btn";
-      removeBtn.innerHTML = '<span class="mdi mdi-close"></span>';
+      removeBtn.innerHTML = '<span class="mdi mdi-delete"></span>';
       removeBtn.addEventListener("click", () => this.removeFile(index));
 
       item.appendChild(removeBtn);

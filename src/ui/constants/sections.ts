@@ -99,19 +99,27 @@ const selector = (
 });
 
 // File input factory
-const fileInput = (
-  id: string,
-  label: string,
-  accept: string,
-  imagePreview = false,
-): InputConfig => ({
+const fileInput = (id: string, label: string, accept: string): InputConfig => ({
   id,
   label,
   type: "file",
   accept,
   multiple: true,
   fileList: true,
-  ...(imagePreview && { imagePreview }),
+});
+
+// Image category input factory
+const imageCategoryInput = (
+  id: string,
+  label: string,
+  accept: string,
+): InputConfig => ({
+  id,
+  label,
+  type: "imageCategory",
+  accept,
+  multiple: true,
+  imageCategory: true,
 });
 
 // Color collection factory
@@ -264,32 +272,6 @@ export const TABS: TabConfig[] = [
     ],
   },
   {
-    title: "Layout guide",
-    sections: [
-      {
-        title: "Grid Settings",
-        inputs: [
-          numInput("minColumnWidth", "Min Column Width", 96),
-          numInput("gutter", "Gutter", 16),
-          numInput("horizontalBodyPadding", "Horizontal Body Padding", 32),
-          numInput("baselineGrid", "Baseline Grid", 24),
-          numInput("minViewportHeight", "Min Viewport Height", 312),
-        ],
-      },
-      {
-        title: "Content Settings",
-        inputs: [
-          numInput("horizontalMainPadding", "Horizontal Main Padding", 0),
-          numInput("maxContentHeight", "Max Content Height", 1080),
-          numInput("offsetHeight", "Offset Height", 96),
-        ],
-      },
-      {
-        inputs: [btn("Generate Layout Guide")],
-      },
-    ],
-  },
-  {
     title: "Radius",
     sections: [
       {
@@ -331,6 +313,40 @@ export const TABS: TabConfig[] = [
     ],
   },
   {
+    title: "Effects",
+    sections: [
+      {
+        inputs: [btn("Generate Elevations Effects")],
+      },
+    ],
+  },
+  {
+    title: "Layout guide",
+    sections: [
+      {
+        title: "Grid Settings",
+        inputs: [
+          numInput("minColumnWidth", "Min Column Width", 96),
+          numInput("gutter", "Gutter", 16),
+          numInput("horizontalBodyPadding", "Horizontal Body Padding", 32),
+          numInput("baselineGrid", "Baseline Grid", 24),
+          numInput("minViewportHeight", "Min Viewport Height", 312),
+        ],
+      },
+      {
+        title: "Content Settings",
+        inputs: [
+          numInput("horizontalMainPadding", "Horizontal Main Padding", 0),
+          numInput("maxContentHeight", "Max Content Height", 1080),
+          numInput("offsetHeight", "Offset Height", 96),
+        ],
+      },
+      {
+        inputs: [btn("Generate Layout Guide")],
+      },
+    ],
+  },
+  {
     title: "Datas",
     sections: [
       {
@@ -341,20 +357,12 @@ export const TABS: TabConfig[] = [
       },
       {
         inputs: [
-          fileInput("imagesDatasFiles", "Images", "image/*", true),
+          imageCategoryInput("imagesDatasFiles", "Images", "image/*"),
           btn("Generate Images Datas"),
         ],
       },
       {
         inputs: [btn("Generate Datas")],
-      },
-    ],
-  },
-  {
-    title: "Effects",
-    sections: [
-      {
-        inputs: [btn("Generate Elevations Effects")],
       },
     ],
   },

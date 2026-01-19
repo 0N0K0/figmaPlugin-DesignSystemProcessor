@@ -9,6 +9,7 @@ import {
   watchGreyHueChanges,
   attachButtonListeners,
 } from "./initializers";
+import { initImageCategoryList } from "./initializers/imageCategoryInitializer";
 
 document.addEventListener("DOMContentLoaded", () => {
   initTabs();
@@ -20,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initColorCollections();
 
   initFileLists();
+
+  initImageCategoryList();
 
   initAllColorSelectors();
 

@@ -67,4 +67,12 @@ input[type="file"]::file-selector-button {
   left: 0;
   width: 100%;
   background-color: var(--figma-color-bg, #2c2c2c);
+
+  .input-row {
+    align-items: stretch;
+    padding: 0;
+    .btn {
+      flex: 1 1 100%;
+    }
+  }
 }

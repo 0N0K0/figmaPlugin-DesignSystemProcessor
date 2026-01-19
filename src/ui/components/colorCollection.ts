@@ -197,7 +197,7 @@ export class ColorCollection {
     removeBtn.type = "button";
     removeBtn.className = "color-collection-remove-btn icon-btn";
     removeBtn.title = "Remove";
-    removeBtn.innerHTML = '<i class="mdi mdi-close"></i>';
+    removeBtn.innerHTML = '<i class="mdi mdi-delete"></i>';
     wrapper.appendChild(removeBtn);
 
     this.itemsContainer.appendChild(wrapper);
