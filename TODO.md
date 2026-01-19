@@ -24,14 +24,15 @@
 
 ## Styles :
 
-- ✅ Gradients
-- Shadows
+- Gradients
+- ✅ Shadows
 - Typography
 
 ## Components :
 
-- Images
-  - ImageData
-  - ImageFormat
+- 🔁 Images
+  - 🔁 ImageData
+  - 🔁 ImageFormat
+  - Gallery
 
 ## Pages

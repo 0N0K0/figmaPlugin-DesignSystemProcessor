@@ -24,6 +24,7 @@ import {
 import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
+import { generateImagesComponents } from "./builders/components/ImagesBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -274,17 +275,18 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateAll"
   ) {
     const imagesDatas = msg.datas?.imagesDatas;
+    const radiusDatas = msg.datas?.radius;
     if (imagesDatas === undefined) {
-      figma.notify(
-        "⚠️ Aucune donnée d'images fournie, des données par défaut seront utilisées",
-      );
-      // await generateImagesDatas();
+      figma.notify("⚠️ Aucune donnée d'images fournie fournie", {
+        error: true,
+      });
+      return;
     } else {
       try {
-        // await generateImagesDatas(imagesDatas);
+        await generateImagesComponents(imagesDatas, radiusDatas);
         figma.notify("✅ Images générées avec succès");
       } catch (error) {
-        logger.error("Erreur lors de lagénération des images:", error);
+        logger.error("Erreur lors de la génération des images:", error);
         figma.notify("❌ Erreur lors de la génération des images", {
           error: true,
         });
