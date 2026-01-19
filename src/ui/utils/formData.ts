@@ -1,5 +1,5 @@
 export interface FormData {
-  [key: string]: string | number;
+  [key: string]: string | number | File[];
 }
 
 export function getFormData(): FormData {
@@ -61,13 +61,36 @@ export function getFormData(): FormData {
       const inputId = selector.dataset.inputId;
       if (!inputId) return;
 
-      const button = selector.querySelector<HTMLElement>(".custom-selector-btn");
+      const button = selector.querySelector<HTMLElement>(
+        ".custom-selector-btn",
+      );
       if (!button) return;
 
       const value = button.dataset.value;
       if (value !== undefined) {
         // Convertir en nombre si c'est un nombre
         data[inputId] = isNaN(Number(value)) ? value : Number(value);
+      }
+    });
+
+  // Récupérer les fichiers des file lists
+  document
+    .querySelectorAll<HTMLElement>(".file-list-items") // ⭐ Chercher directement les conteneurs de liste
+    .forEach((container) => {
+      const inputId = container.dataset.inputId;
+
+      if (!inputId) return;
+
+      const fileListInstance = window.fileLists?.[inputId];
+
+      if (fileListInstance && typeof fileListInstance.getFiles === "function") {
+        const files = fileListInstance.getFiles();
+        data[inputId] = files;
+      } else {
+        console.warn(
+          "❌ Pas d'instance ou pas de méthode getFiles pour:",
+          inputId,
+        );
       }
     });
 

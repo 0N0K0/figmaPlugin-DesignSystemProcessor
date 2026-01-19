@@ -73,15 +73,12 @@ export class PaletteGenerator {
     const maxAttempts = 50;
     let attempts = 0;
     let hex: string;
-    
+
     do {
       hex = randomHex();
       attempts++;
-    } while (
-      this.colors.some((c) => c.hex === hex) &&
-      attempts < maxAttempts
-    );
-    
+    } while (this.colors.some((c) => c.hex === hex) && attempts < maxAttempts);
+
     return hex;
   }
 
@@ -170,7 +167,7 @@ export class PaletteGenerator {
 
   private regenerateUnlocked(): void {
     this.colors = this.colors.map((color) =>
-      color.locked ? color : { ...color, hex: this.getUniqueRandomHex() }
+      color.locked ? color : { ...color, hex: this.getUniqueRandomHex() },
     );
     this.renderColors();
   }
@@ -211,9 +208,7 @@ export class PaletteGenerator {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard
         .writeText(color.hex)
-        .then(() => {
-          console.log(`📋 Copied: ${color.hex}`);
-        })
+        .then(() => {})
         .catch((err) => {
           console.error("Failed to copy:", err);
           this.fallbackCopy(color.hex);
@@ -233,7 +228,6 @@ export class PaletteGenerator {
     textarea.select();
     try {
       document.execCommand("copy");
-      console.log(`📋 Copied: ${text}`);
     } catch (err) {
       console.error("Fallback copy failed:", err);
     }

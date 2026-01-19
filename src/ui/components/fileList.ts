@@ -1,3 +1,15 @@
+// Déclarer le registre global
+declare global {
+  interface Window {
+    fileLists: Record<string, FileList>;
+  }
+}
+
+// Initialiser le registre au chargement
+if (typeof window !== "undefined" && !window.fileLists) {
+  window.fileLists = {};
+}
+
 export class FileList {
   private container: HTMLElement;
   private input: HTMLInputElement;
@@ -16,6 +28,12 @@ export class FileList {
       console.error("File list container missing data-input-id");
       return;
     }
+
+    // Enregistrer l'instance dans le registre global
+    if (!window.fileLists) {
+      window.fileLists = {};
+    }
+    window.fileLists[inputId] = this;
 
     // Trouver les boutons
     const wrapper = input.closest(".file-input-wrapper");

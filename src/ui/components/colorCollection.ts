@@ -15,13 +15,13 @@ export class ColorCollection {
 
   constructor(
     container: HTMLElement,
-    initialColors: ColorSelectorConfig[] = []
+    initialColors: ColorSelectorConfig[] = [],
   ) {
     this.collectionId = container.dataset.collectionId || "colors";
     this.maxColors = parseInt(container.dataset.maxColors || "10");
 
     const addBtnEl = document.querySelector<HTMLElement>(
-      `.color-collection-add-btn[data-collection-id="${this.collectionId}"]`
+      `.color-collection-add-btn[data-collection-id="${this.collectionId}"]`,
     );
 
     if (!addBtnEl) {
@@ -55,7 +55,7 @@ export class ColorCollection {
       : {
           inputId: `${this.collectionId}${String(this.counter).padStart(
             2,
-            "0"
+            "0",
           )}`,
           label: undefined,
           defaultColor: undefined,
@@ -293,7 +293,7 @@ export class ColorCollection {
     this.shadeSelectors.delete(inputId);
 
     const item = this.itemsContainer.querySelector(
-      `[data-color-id="${inputId}"]`
+      `[data-color-id="${inputId}"]`,
     );
     if (item) {
       item.remove();
@@ -313,7 +313,7 @@ export class ColorCollection {
 
   private updateRemoveButtons(): void {
     const removeButtons = this.itemsContainer.querySelectorAll<HTMLElement>(
-      ".color-collection-remove-btn"
+      ".color-collection-remove-btn",
     );
     removeButtons.forEach((btn) => {
       if (this.colors.length <= 1) {
@@ -328,7 +328,7 @@ export class ColorCollection {
     const data: Record<string, string> = {};
     this.colors.forEach((color) => {
       const button = this.itemsContainer.querySelector<HTMLElement>(
-        `[data-input-id="${color.inputId}"]`
+        `[data-input-id="${color.inputId}"]`,
       );
       if (button) {
         const colorText = button.querySelector<HTMLElement>(".color-text");
@@ -339,7 +339,7 @@ export class ColorCollection {
 
       // Récupérer aussi les labels
       const labelInput = this.itemsContainer.querySelector<HTMLInputElement>(
-        `[data-input-id="${color.inputId}-label"]`
+        `[data-input-id="${color.inputId}-label"]`,
       );
       if (labelInput) {
         data[`${color.inputId}-label`] = labelInput.value || "";
@@ -350,15 +350,11 @@ export class ColorCollection {
 }
 
 export function initColorCollections(): void {
-  console.log("🎨 Initializing color collections...");
-
   const containers =
     document.querySelectorAll<HTMLElement>(".color-collection");
-  console.log(`Found ${containers.length} color collections`);
 
   containers.forEach((container) => {
     const collectionId = container.dataset.collectionId;
-    console.log(`Initializing color collection: ${collectionId}`);
 
     // Récupérer les couleurs initiales depuis TABS
     new ColorCollection(container, []);

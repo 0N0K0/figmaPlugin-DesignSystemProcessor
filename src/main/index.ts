@@ -23,6 +23,7 @@ import {
 } from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
+import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -186,12 +187,6 @@ figma.ui.onmessage = async (msg) => {
         return;
       }
     }
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateRadius(...);
-     */
-    // figma.notify("✅ Radius générés avec succès");
   }
 
   if (
@@ -217,12 +212,6 @@ figma.ui.onmessage = async (msg) => {
         return;
       }
     }
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateRadius(...);
-     */
-    // figma.notify("✅ Tailles de police générées avec succès");
   }
 
   if (
@@ -255,12 +244,28 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateDatas" ||
     msg.type === "generateAll"
   ) {
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateTextDatas(...);
-     */
-    // figma.notify("✅ Textes générés avec succès");
+    logger.info(
+      "Received generateTextDatas message:",
+      msg.datas?.textDatasList,
+    );
+    const textDatas = msg.datas?.textDatasList;
+    if (textDatas === undefined) {
+      figma.notify(
+        "⚠️ Aucune donnée de textes fournie, des données par défaut seront utilisées",
+      );
+      await generateTextDatas();
+    } else {
+      try {
+        await generateTextDatas(textDatas);
+        figma.notify("✅ Textes générés avec succès");
+      } catch (error) {
+        logger.error("Erreur lors de lagénération des textes:", error);
+        figma.notify("❌ Erreur lors de la génération des textes", {
+          error: true,
+        });
+        return;
+      }
+    }
   }
 
   if (
@@ -268,12 +273,24 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateDatas" ||
     msg.type === "generateAll"
   ) {
-    /**
-     * @TODO
-     * const { ... } = msg.data;
-     * await generateImagesDatas(...);
-     */
-    // figma.notify("✅ Images générées avec succès");
+    const imagesDatas = msg.datas?.imagesDatas;
+    if (imagesDatas === undefined) {
+      figma.notify(
+        "⚠️ Aucune donnée d'images fournie, des données par défaut seront utilisées",
+      );
+      // await generateImagesDatas();
+    } else {
+      try {
+        // await generateImagesDatas(imagesDatas);
+        figma.notify("✅ Images générées avec succès");
+      } catch (error) {
+        logger.error("Erreur lors de lagénération des images:", error);
+        figma.notify("❌ Erreur lors de la génération des images", {
+          error: true,
+        });
+        return;
+      }
+    }
   }
 
   if (msg.type === "generateElevationsEffects" || msg.type === "generateAll") {

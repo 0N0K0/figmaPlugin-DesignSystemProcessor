@@ -5,7 +5,6 @@ import {
   DensitiesMode,
   VariableConfig,
 } from "../../types/variablesTypes";
-import { logger } from "../../utils/logger";
 import { variableBuilder } from "./variableBuilder";
 import { layoutGuideType } from "../../../common/types";
 
@@ -454,11 +453,6 @@ export async function generateFontSizes(
       for (const [size, [fontSize, lineHeight]] of Object.entries(sizes)) {
         const currentIndex = sizeOrder.indexOf(size);
         const shouldAlias = maxTypoIndex >= 0 && currentIndex < maxTypoIndex;
-        logger.info("Should alias?", {
-          currentIndex,
-          maxTypoIndex,
-          shouldAlias,
-        });
 
         if (shouldAlias && maxTypography) {
           const targetVariablesGroup = `typography/${category}/${maxTypography}/`;
