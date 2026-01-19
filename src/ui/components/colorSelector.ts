@@ -13,7 +13,7 @@ function createColorGrid(
   popup: HTMLElement,
   onSelectColor: (color: string, source?: HTMLElement) => void,
   onClear: () => void,
-  inputId?: string
+  inputId?: string,
 ): void {
   const gridContainer = popup.querySelector(".color-selector-grid");
   if (!gridContainer) return;
@@ -165,7 +165,7 @@ export function initColorSelector(wrapper: HTMLElement): void {
 
   const setCustomInputValue = () => {
     const customInput = popup.querySelector<HTMLInputElement>(
-      ".color-custom-input"
+      ".color-custom-input",
     );
     if (customInput && !isTransparent) {
       customInput.value = defaultColor;
@@ -199,7 +199,7 @@ export function initColorSelector(wrapper: HTMLElement): void {
       setColor(color);
       // Mettre à jour le champ custom color
       const customInput = popup.querySelector<HTMLInputElement>(
-        ".color-custom-input"
+        ".color-custom-input",
       );
       if (customInput) {
         customInput.value = color;
@@ -217,13 +217,13 @@ export function initColorSelector(wrapper: HTMLElement): void {
       // clearSelection avec mise à jour du champ custom
       clearSelection();
       const customInput = popup.querySelector<HTMLInputElement>(
-        ".color-custom-input"
+        ".color-custom-input",
       );
       if (customInput) {
         customInput.value = "";
       }
     },
-    button.dataset.inputId
+    button.dataset.inputId,
   );
 
   // Mettre à jour le champ custom color avec la valeur par défaut après création
@@ -233,8 +233,6 @@ export function initColorSelector(wrapper: HTMLElement): void {
   button.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-    console.log("🖱️ Color button clicked");
 
     const isActive = popup.classList.contains("active");
 
@@ -253,11 +251,9 @@ export function initColorSelector(wrapper: HTMLElement): void {
     if (!isActive) {
       popup.classList.add("active");
       button.classList.add("active");
-      console.log("✅ Popup opened");
     } else {
       popup.classList.remove("active");
       button.classList.remove("active");
-      console.log("✅ Popup closed");
     }
   });
 
@@ -265,12 +261,9 @@ export function initColorSelector(wrapper: HTMLElement): void {
 }
 
 export function initAllColorSelectors(): void {
-  console.log("🎨 Initializing color selectors...");
-
   const wrappers = document.querySelectorAll<HTMLElement>(
-    ".color-selector-wrapper"
+    ".color-selector-wrapper",
   );
-  console.log(`Found ${wrappers.length} color selector wrappers in DOM`);
 
   if (wrappers.length === 0) {
     console.error("❌ CRITICAL: No color selector wrappers found!");
@@ -279,7 +272,6 @@ export function initAllColorSelectors(): void {
   }
 
   wrappers.forEach((wrapper, index) => {
-    console.log(`Initializing color selector ${index + 1}`);
     initColorSelector(wrapper);
   });
 

@@ -160,33 +160,19 @@ export class VariableBuilder {
 
     // Défini la valeur
     if (config.value !== undefined) {
-      try {
-        // Convertit les valeurs hex en RGB pour les variables de couleur
-        let valueToSet = config.value;
-        if (config.type === "COLOR" && typeof config.value === "string") {
-          valueToSet = hexToFigmaRgba(config.value);
-        }
-        variable.setValueForMode(modeId, valueToSet);
-      } catch (error) {
-        console.warn(
-          `Erreur lors de la définition de la valeur pour ${varName}:`,
-          error,
-        );
+      // Convertit les valeurs hex en RGB pour les variables de couleur
+      let valueToSet = config.value;
+      if (config.type === "COLOR" && typeof config.value === "string") {
+        valueToSet = hexToFigmaRgba(config.value);
       }
+      variable.setValueForMode(modeId, valueToSet);
     }
 
     if (config.alias !== undefined) {
-      try {
-        variable.setValueForMode(modeId, {
-          type: "VARIABLE_ALIAS",
-          id: config.alias,
-        });
-      } catch (error) {
-        console.warn(
-          `Erreur lors de la définition de l'alias pour ${varName}:`,
-          error,
-        );
-      }
+      variable.setValueForMode(modeId, {
+        type: "VARIABLE_ALIAS",
+        id: config.alias,
+      });
     }
 
     // Configure les scopes

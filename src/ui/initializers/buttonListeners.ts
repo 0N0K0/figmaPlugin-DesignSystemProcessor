@@ -63,7 +63,6 @@ function manageCoreThemes(
   const relevantKeys = Object.keys(formData).filter((k) =>
     k.startsWith(colorFamily),
   );
-  console.log(`🔍 Clés commençant par "${colorFamily}":`, relevantKeys);
 
   Object.entries(formData).forEach(([key, value]) => {
     if (
@@ -84,15 +83,10 @@ function manageCoreThemes(
         const colorCCName = toCamelCase(colorName);
         if (!coreThemes[colorCCName]) coreThemes[colorCCName] = {};
         coreThemes[colorCCName][toCamelCase(shadeName)] = value;
-      } else {
-        console.log(
-          `    ✗ Clé ignorée (type !== number): ${key}, type: ${typeof value}`,
-        );
       }
     }
   });
 
-  console.log(`✅ coreThemes pour ${colorFamily}:`, coreThemes);
   return coreThemes;
 }
 
@@ -106,6 +100,7 @@ export function attachButtonListeners() {
         debugPanel.show();
 
         const formData = getFormData();
+        console.log("📋 FormData complète:", formData);
 
         // Handle Color Families
         const colorsData: Record<string, Record<string, string>> = {};
@@ -171,18 +166,11 @@ export function attachButtonListeners() {
 
         // Handle Text Datas
         let textDatasList: Record<string, any>[] = [];
-        const textDatasFiles = formData["textDatasFiles"] as unknown as
-          | FileList
-          | File
-          | undefined;
-        if (textDatasFiles) {
-          try {
-            const filesToProcess =
-              textDatasFiles instanceof FileList
-                ? Array.prototype.slice.call(textDatasFiles)
-                : [textDatasFiles];
+        const textDatasFiles = formData["textDatasFiles"] as File[] | undefined;
 
-            for (const file of filesToProcess) {
+        if (textDatasFiles && textDatasFiles.length > 0) {
+          try {
+            for (const file of textDatasFiles) {
               const jsonText = await file.text();
               const textData = JSON.parse(jsonText);
               textDatasList.push(textData);
@@ -194,18 +182,13 @@ export function attachButtonListeners() {
 
         // Handle Images Datas
         let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
-        const imagesDatasFiles = formData["imagesDatasFiles"] as unknown as
-          | FileList
-          | File
+        const imagesDatasFiles = formData["imagesDatasFiles"] as
+          | File[]
           | undefined;
-        if (imagesDatasFiles) {
-          try {
-            const filesToProcess =
-              imagesDatasFiles instanceof FileList
-                ? Array.prototype.slice.call(imagesDatasFiles)
-                : [imagesDatasFiles];
 
-            for (const file of filesToProcess) {
+        if (imagesDatasFiles && imagesDatasFiles.length > 0) {
+          try {
+            for (const file of imagesDatasFiles) {
               const arrayBuffer = await file.arrayBuffer();
               imagesDatasList.push({
                 name: file.name,
