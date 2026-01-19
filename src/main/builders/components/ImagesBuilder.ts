@@ -248,12 +248,7 @@ export async function generateImagesComponents(
    */
   const galleryComponents: ComponentNode[] = [];
 
-  const layouts = [
-    // "grid",
-    // "masonry",
-    "justified",
-    // "carousel",
-  ];
+  const layouts = ["grid", "masonry", "justified", "carousel"];
   const breakpoints = {
     xl: { width: 1392, columns: 4 }, // 12
     lg: { width: 1056, columns: 3 }, // 9
@@ -414,6 +409,7 @@ export async function generateImagesComponents(
         galleryComponent.overflowDirection = "HORIZONTAL";
       }
 
+      imagePage.appendChild(galleryComponent);
       galleryComponents.push(galleryComponent);
     }
   }

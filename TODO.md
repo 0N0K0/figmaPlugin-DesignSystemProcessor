@@ -8,8 +8,8 @@
   - ✅ Brand
   - ✅ Feedback
   - ✅ Neutral
-- ✅ adius
-- ✅ ypography
+- ✅ Radius
+- ✅ Typography
 
 ### ✅ Display Context :
 
