@@ -1,12 +1,9 @@
-import { log } from "console";
 import { logger } from "../../utils/logger";
 import { variableBuilder } from "../variables/variableBuilder";
 
 async function getRadiusVariables(
   radiusDatas: Record<string, number>,
 ): Promise<Record<string, number>> {
-  logger.info("Radius Datas:", radiusDatas);
-
   let radiusVariables =
     await variableBuilder.getCollectionVariables("Style\\Radius");
 
@@ -27,6 +24,28 @@ async function getRadiusVariables(
   return radius;
 }
 
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array]; // clone pour ne pas modifier l'original
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function calculateRowDimensions(
+  ratios: number[],
+  lineWidth: number,
+  gap: number,
+) {
+  const sumRatios = ratios.reduce((a, b) => a + b, 0);
+  const height = (lineWidth - gap * (ratios.length - 1)) / sumRatios;
+
+  const widths = ratios.map((r) => r * height);
+
+  return { height, widths };
+}
+
 export async function generateImagesComponents(
   imageDatas: Record<
     string,
@@ -44,7 +63,9 @@ export async function generateImagesComponents(
   }
   figma.currentPage = imagePage;
 
-  // Crée un componentSet pour les images
+  /**
+   * Créer les composants d'images
+   */
   const imageComponents: {
     component: ComponentNode;
     ratio: number;
@@ -109,6 +130,8 @@ export async function generateImagesComponents(
     return;
   }
 
+  // Créer le ComponentSet d'Images
+  figma.currentPage = imagePage;
   imagePage.selection = imageComponents.map((ic) => ic.component);
   const imageComponentSet: ComponentSetNode = figma.combineAsVariants(
     imageComponents.map((ic) => ic.component),
@@ -126,15 +149,16 @@ export async function generateImagesComponents(
   imageComponentSet.x = 0;
   imageComponentSet.y = 0;
 
+  /**
+   * Créer les composants de formats d'images
+   */
   const ratios = [
     { name: "1:1", ratio: 1 },
     { name: "4:3", ratio: 4 / 3 },
     { name: "16:9", ratio: 16 / 9 },
     { name: "20:9", ratio: 20 / 9 },
   ];
-
   const orientations = ["landscape", "portrait"];
-
   const radius = await getRadiusVariables(radiusDatas);
 
   const formatComponents = [];
@@ -199,7 +223,7 @@ export async function generateImagesComponents(
     }
   }
 
-  // Créer le ComponentSet format
+  // Créer le ComponentSet de Formats
   figma.currentPage = imagePage;
   imagePage.selection = formatComponents;
   const formatComponentSet = figma.combineAsVariants(
@@ -219,6 +243,209 @@ export async function generateImagesComponents(
   formatComponentSet.x = 0;
   formatComponentSet.y = imageComponentSet.height + 80;
 
-  imagePage.selection = [imageComponentSet, formatComponentSet];
-  figma.viewport.scrollAndZoomIntoView([imageComponentSet, formatComponentSet]);
+  /**
+   * Créer les composants de galerie d'images
+   */
+  const galleryComponents: ComponentNode[] = [];
+
+  const layouts = [
+    // "grid",
+    // "masonry",
+    "justified",
+    // "carousel",
+  ];
+  const breakpoints = {
+    xl: { width: 1392, columns: 4 }, // 12
+    lg: { width: 1056, columns: 3 }, // 9
+    md: { width: 720, columns: 2 }, // 6
+    xs: { width: 384, columns: 1 }, // 3
+  };
+  const columnWidth = 96 * 3 + 16 * 2;
+
+  const categoryLength = imageDatas[Object.keys(imageDatas)[0]].length;
+  const ratiosByOrientations = ratios.flatMap((ratio) => {
+    // Si ratio = 1:1, on ne veut que "false"
+    if (ratio.name === "1:1") {
+      return [{ ratio: ratio.name, orientation: "false" }];
+    }
+    // Sinon on crée toutes les orientations sauf "false"
+    return orientations
+      .filter((orientation) => orientation !== "false")
+      .map((orientation) => ({ ratio: ratio.name, orientation: orientation }));
+  });
+  const baseFormatComponent = formatComponentSet.children[0] as ComponentNode;
+
+  for (const layout of layouts) {
+    for (const [breakpoint, sizes] of Object.entries(breakpoints)) {
+      const galleryComponent = figma.createComponent();
+      galleryComponent.name = `layout=${layout}, breakpoint=${breakpoint}`;
+
+      galleryComponent.resize(sizes.width - 32 * 2, 1080);
+      galleryComponent.layoutMode = "HORIZONTAL";
+      galleryComponent.primaryAxisSizingMode = "FIXED";
+      galleryComponent.counterAxisSizingMode = "AUTO";
+      galleryComponent.itemSpacing = 16;
+
+      const formatInstances = [];
+      for (let i = 0; i < 24; i++) {
+        const categoryIndex = i % categoryLength;
+        const formatInstance = baseFormatComponent.createInstance();
+        const nestedImageInstance = formatInstance.findOne(
+          (n) => n.type === "INSTANCE" && n.name === "<Image>",
+        ) as InstanceNode;
+        nestedImageInstance.setProperties({
+          image: String(categoryIndex + 1),
+        });
+
+        const ratioOrientationIndex = i % ratiosByOrientations.length;
+        const { ratio, orientation } =
+          ratiosByOrientations[ratioOrientationIndex];
+        formatInstance.setProperties({
+          ratio,
+          orientation,
+        });
+        formatInstances.push(formatInstance);
+      }
+
+      if (layout === "masonry") {
+        const galleryLayoutFrames: FrameNode[] = [];
+        for (let i = 0; i < sizes.columns; i++) {
+          galleryLayoutFrames.push(figma.createFrame());
+        }
+
+        const imagesByColumn = Math.ceil(24 / sizes.columns);
+        // dispatcher les items
+        for (let col = 0; col < sizes.columns; col++) {
+          const start = col * imagesByColumn;
+          const end = start + imagesByColumn;
+          let itemsForColumn = formatInstances.slice(start, end);
+          itemsForColumn = shuffle(itemsForColumn);
+
+          itemsForColumn.forEach((item) => {
+            item.layoutAlign = "STRETCH";
+            galleryLayoutFrames[col].appendChild(item as SceneNode);
+          });
+        }
+
+        galleryLayoutFrames.forEach((frame) => {
+          frame.layoutMode = "VERTICAL";
+          frame.primaryAxisSizingMode = "AUTO";
+          frame.counterAxisSizingMode = "FIXED";
+          frame.resize(columnWidth, frame.height);
+          frame.itemSpacing = 24;
+          frame.fills = [];
+          galleryComponent.appendChild(frame);
+        });
+      }
+
+      if (layout === "justified") {
+        galleryComponent.layoutMode = "VERTICAL";
+        galleryComponent.primaryAxisSizingMode = "AUTO";
+        galleryComponent.counterAxisSizingMode = "FIXED";
+        galleryComponent.itemSpacing = 24;
+
+        const imagesByRows = sizes.columns;
+        for (let row = 0; row < Math.ceil(24 / imagesByRows); row++) {
+          const rowFrame = figma.createFrame();
+          rowFrame.layoutMode = "HORIZONTAL";
+          rowFrame.primaryAxisSizingMode = "AUTO";
+          rowFrame.counterAxisSizingMode = "AUTO";
+          rowFrame.itemSpacing = 16;
+          rowFrame.fills = [];
+
+          const start = row * imagesByRows;
+          const end = start + imagesByRows;
+          let itemsForRow = formatInstances.slice(start, end);
+          const ratios = itemsForRow.map((item) => {
+            const w = (item as InstanceNode).width;
+            const h = (item as InstanceNode).height;
+            return w / h;
+          });
+          const { height, widths } = calculateRowDimensions(
+            ratios,
+            galleryComponent.width,
+            rowFrame.itemSpacing,
+          );
+
+          itemsForRow = shuffle(itemsForRow);
+
+          itemsForRow.forEach((item, index) => {
+            item.resize(widths[index], height);
+            rowFrame.appendChild(item as SceneNode);
+          });
+          galleryComponent.appendChild(rowFrame);
+        }
+      }
+
+      if (layout === "grid") {
+        const shuffledInstances = shuffle(formatInstances);
+        shuffledInstances.forEach((item) => {
+          item.setProperties({
+            orientation: "false",
+            ratio: "1:1",
+          });
+          item.resize(96 * 3 + 16 * 2, 96 * 3 + 16 * 2);
+          galleryComponent.appendChild(item as SceneNode);
+        });
+        galleryComponent.layoutMode = "HORIZONTAL";
+        galleryComponent.primaryAxisSizingMode = "FIXED";
+        galleryComponent.counterAxisSizingMode = "AUTO";
+        galleryComponent.itemSpacing = 16;
+        galleryComponent.counterAxisSpacing = 24;
+
+        galleryComponent.layoutWrap = "WRAP";
+      }
+      if (layout === "carousel") {
+        const shuffledInstances = shuffle(formatInstances);
+        shuffledInstances.forEach((item) => {
+          const widthItem = item.width;
+          const heightItem = item.height;
+          const height = 96 * 3 + 16 * 2;
+          item.resize((height * widthItem) / heightItem, height);
+          galleryComponent.appendChild(item as SceneNode);
+        });
+        galleryComponent.layoutMode = "HORIZONTAL";
+        galleryComponent.primaryAxisSizingMode = "FIXED";
+        galleryComponent.counterAxisSizingMode = "AUTO";
+        galleryComponent.itemSpacing = 16;
+
+        galleryComponent.layoutWrap = "NO_WRAP";
+        galleryComponent.clipsContent = true;
+        galleryComponent.overflowDirection = "HORIZONTAL";
+      }
+
+      galleryComponents.push(galleryComponent);
+    }
+  }
+
+  // Créer le ComponentSet gallery
+  figma.currentPage = imagePage;
+  imagePage.selection = galleryComponents;
+  const galleryComponentSet = figma.combineAsVariants(
+    galleryComponents,
+    imagePage,
+  );
+  galleryComponentSet.name = "<MediaGallery>";
+  galleryComponentSet.layoutMode = "HORIZONTAL";
+  galleryComponentSet.primaryAxisSizingMode = "AUTO";
+  galleryComponentSet.counterAxisSizingMode = "AUTO";
+  galleryComponentSet.itemSpacing = 20;
+  galleryComponentSet.paddingLeft = 40;
+  galleryComponentSet.paddingRight = 40;
+  galleryComponentSet.paddingTop = 40;
+  galleryComponentSet.paddingBottom = 40;
+  galleryComponentSet.x = 0;
+  galleryComponentSet.y =
+    imageComponentSet.height + formatComponentSet.height + 160;
+
+  imagePage.selection = [
+    imageComponentSet,
+    formatComponentSet,
+    galleryComponentSet,
+  ];
+  figma.viewport.scrollAndZoomIntoView([
+    imageComponentSet,
+    formatComponentSet,
+    galleryComponentSet,
+  ]);
 }

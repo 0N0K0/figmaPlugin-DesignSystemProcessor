@@ -28,11 +28,11 @@
 - ✅ Shadows
 - Typography
 
-## 🔁 Components :
+## ✅ Components :
 
-- 🔁 Images
+- ✅ Images
   - ✅ ImageData
   - ✅ ImageFormat
-  - Gallery
+  - ✅ Gallery
 
 ## Pages
