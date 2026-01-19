@@ -181,24 +181,79 @@ export function attachButtonListeners() {
         }
 
         // Handle Images Datas
-        let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
-        const imagesDatasFiles = formData["imagesDatasFiles"] as
-          | File[]
-          | undefined;
-
-        if (imagesDatasFiles && imagesDatasFiles.length > 0) {
-          try {
-            for (const file of imagesDatasFiles) {
-              const arrayBuffer = await file.arrayBuffer();
-              imagesDatasList.push({
-                name: file.name,
-                data: arrayBuffer,
-              });
+        const imagesDatasList: Record<
+          string,
+          Array<{
+            name: string;
+            data: ArrayBuffer;
+            width: number;
+            height: number;
+          }>
+        > = {};
+        for (const [key, value] of Object.entries(formData)) {
+          if (
+            key.startsWith("imagesDatasFiles") &&
+            !key.endsWith("-label") &&
+            Array.isArray(value) &&
+            value[0] instanceof File
+          ) {
+            const labelKey = `${key}-label`;
+            const categoryName = formData[labelKey] || key;
+            if (
+              categoryName &&
+              typeof categoryName === "string" &&
+              categoryName.trim() !== ""
+            ) {
+              imagesDatasList[categoryName.trim()] = [];
+              if (value && value.length > 0) {
+                try {
+                  for (const file of value) {
+                    const arrayBuffer = await file.arrayBuffer();
+                    const { width, height } = await new Promise<{
+                      width: number;
+                      height: number;
+                    }>((resolve, reject) => {
+                      const img = new window.Image();
+                      img.onload = () =>
+                        resolve({ width: img.width, height: img.height });
+                      img.onerror = reject;
+                      img.src = URL.createObjectURL(file);
+                    });
+                    imagesDatasList[categoryName.trim()].push({
+                      name: file.name,
+                      data: arrayBuffer,
+                      width,
+                      height,
+                    });
+                  }
+                } catch (error) {
+                  console.error("Failed to process image files:", error);
+                }
+              }
             }
-          } catch (error) {
-            console.error("Failed to process image files:", error);
           }
         }
+
+        console.log("📋 Images Datas complète:", imagesDatasList);
+
+        // let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
+        // const imagesDatasFiles = formData["imagesDatasFiles"] as
+        //   | File[]
+        //   | undefined;
+
+        // if (imagesDatasFiles && imagesDatasFiles.length > 0) {
+        //   try {
+        //     for (const file of imagesDatasFiles) {
+        //       const arrayBuffer = await file.arrayBuffer();
+        //       imagesDatasList.push({
+        //         name: file.name,
+        //         data: arrayBuffer,
+        //       });
+        //     }
+        //   } catch (error) {
+        //     console.error("Failed to process image files:", error);
+        //   }
+        // }
 
         // Send message to plugin
         parent.postMessage(

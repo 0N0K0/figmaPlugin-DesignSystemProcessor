@@ -274,7 +274,7 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateDatas" ||
     msg.type === "generateAll"
   ) {
-    const imagesDatas = msg.datas?.imagesDatas;
+    const imagesDatas = msg.datas?.imagesDatasList;
     const radiusDatas = msg.datas?.radius;
     if (imagesDatas === undefined) {
       figma.notify("⚠️ Aucune donnée d'images fournie fournie", {

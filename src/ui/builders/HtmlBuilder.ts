@@ -150,7 +150,7 @@ export class HtmlBuilder {
       </div>
 	  <div class="image-category-block" data-category-idx="1">
       	<div class="input-row file-input-wrapper">
-		  <input type="text" class="image-category-label" data-input-id="${id}-label" placeholder="Catégorie" value="${config.label}"/>
+		  <input type="text" class="image-category-label" id="${id}-label" placeholder="Catégorie" value="${config.label}"/>
       	  <input type="file" id="${id}" class="file-input-hidden"${acceptAttr}$ multiple />
       	  <button type="button" class="file-select-btn btn" data-input-id="${id}">
       	    <span>Choose images</span>

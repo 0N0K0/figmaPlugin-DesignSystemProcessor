@@ -1,6 +1,6 @@
-## Variables :
+## ✅ Variables :
 
-### Style :
+### ✅ Style :
 
 - ✅ Colors :
   - ✅ Palette
@@ -11,7 +11,7 @@
 - ✅ adius
 - ✅ ypography
 
-### Display Context :
+### ✅ Display Context :
 
 - ✅ Breakpoints
 - ✅ Orientations
@@ -22,17 +22,17 @@
 
 ### ✅ Datas
 
-## Styles :
+## 🔁 Styles :
 
 - Gradients
 - ✅ Shadows
 - Typography
 
-## Components :
+## 🔁 Components :
 
 - 🔁 Images
-  - 🔁 ImageData
-  - 🔁 ImageFormat
+  - ✅ ImageData
+  - ✅ ImageFormat
   - Gallery
 
 ## Pages

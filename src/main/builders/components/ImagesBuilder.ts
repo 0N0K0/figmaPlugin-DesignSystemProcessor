@@ -1,30 +1,37 @@
-import * as fs from "fs";
-import * as path from "path";
+import { log } from "console";
 import { logger } from "../../utils/logger";
 import { variableBuilder } from "../variables/variableBuilder";
 
 async function getRadiusVariables(
   radiusDatas: Record<string, number>,
 ): Promise<Record<string, number>> {
+  logger.info("Radius Datas:", radiusDatas);
+
   let radiusVariables =
     await variableBuilder.getCollectionVariables("Style\\Radius");
 
-  let radius: Record<string, number> = {};
+  const radius: Record<string, number> = {};
   if (radiusVariables.length > 0) {
     for (const radiusVariable of radiusVariables) {
       radius[radiusVariable.name] = radiusVariable.valuesByMode[
-        "Mode 1"
+        Object.keys(radiusVariable.valuesByMode)[0]
       ] as number;
     }
   } else {
-    radius = radiusDatas;
+    Object.assign(radius, radiusDatas);
   }
+
+  radius["square"] = 0;
+  radius["rounded"] = 9999;
 
   return radius;
 }
 
 export async function generateImagesComponents(
-  imageDatas: Record<string, Record<string, any>>,
+  imageDatas: Record<
+    string,
+    Array<{ name: string; data: ArrayBuffer; width: number; height: number }>
+  >,
   radiusDatas: Record<string, number>,
 ) {
   // Crée une page dédiée ♢ Media
@@ -45,11 +52,10 @@ export async function generateImagesComponents(
   }[] = [];
   let xOffset = 0;
 
-  for (const [key, files] of Object.entries(imageDatas)) {
+  for (const [category, files] of Object.entries(imageDatas)) {
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-
-      // Obtenir les dimensions originales transmises par l'UI
+      // Les dimensions sont transmises depuis l'UI
       const origWidth = file.width;
       const origHeight = file.height;
       const ratio = origWidth / origHeight;
@@ -65,12 +71,12 @@ export async function generateImagesComponents(
 
       // Créer un composant pour l'image
       const imageComponent = figma.createComponent();
-      imageComponent.name = `image=${i + 1}, category=${file.category || "miscellaneous"}`;
+      imageComponent.name = `image=${i + 1}, category=${category || "miscellaneous"}`;
 
       // Ajouter l'image en background du composant (cover + center)
       const bytes =
-        file.bytes && file.bytes.length
-          ? new Uint8Array(file.bytes)
+        file.data && file.data.byteLength
+          ? new Uint8Array(file.data)
           : new Uint8Array([]);
       const hash = figma.createImage(bytes).hash;
       imageComponent.fills = [
@@ -163,6 +169,8 @@ export async function generateImagesComponents(
         formatComponent.cornerRadius = radiusValue;
         formatComponent.clipsContent = true;
         formatComponent.layoutMode = "HORIZONTAL";
+        formatComponent.layoutSizingHorizontal = "FIXED";
+        formatComponent.layoutSizingVertical = "FIXED";
 
         // Ajouter directement une instance d'un composant de la galerie et la faire remplir
         const baseImageComponent = imageComponentSet
