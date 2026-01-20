@@ -24,7 +24,7 @@
 
 ## 🔁 Styles :
 
-- Gradients
+- ✅ Gradients
 - ✅ Shadows
 - Typography
 
