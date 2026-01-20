@@ -62,16 +62,13 @@ export async function generateColorPalette(
     });
   }
 
-  // Crée toutes les variables dans une seule collection
-  const newVariables = await variableBuilder.createOrUpdateVariables(variables);
-
-  return newVariables;
+  return await variableBuilder.createOrUpdateVariables(variables);
 }
 
 /**
  * Génère la palette de couleurs Neutral
  */
-export async function genrateNeutralPalette(
+export async function generateNeutralPalette(
   greyHue: string | undefined,
 ): Promise<Variable[]> {
   let hue = 0;

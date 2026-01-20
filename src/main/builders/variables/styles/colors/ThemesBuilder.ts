@@ -8,7 +8,10 @@ import {
   VariableConfig,
 } from "../../../../types/variablesTypes";
 import { variableBuilder } from "../../variableBuilder";
-import { generateColorPalette, genrateNeutralPalette } from "./PalettesBuilder";
+import {
+  generateColorPalette,
+  generateNeutralPalette,
+} from "./PalettesBuilder";
 import { toPascalCase } from "../../../../../common/utils/textUtils";
 import { SCOPES } from "../../../../constants/variablesConstants";
 
@@ -105,7 +108,7 @@ async function getOrCreateTargetNeutralColor(
 
   if (!targetVariable) {
     // Si la variable n'existe pas, générer la palette
-    const newVariables = await genrateNeutralPalette(greyHue);
+    const newVariables = await generateNeutralPalette(greyHue);
     const newVariable = newVariables.find((v) => v.name === targetVariableName);
     if (newVariable) {
       targetValue = newVariable.valuesByMode[

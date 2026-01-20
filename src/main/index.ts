@@ -6,7 +6,7 @@ import { toPascalCase } from "../common/utils/textUtils";
 import { generateElevationEffects } from "./builders/styles/Effets/dropshadowsBuilder";
 import {
   generateColorPalette,
-  genrateNeutralPalette,
+  generateNeutralPalette,
 } from "./builders/variables/styles/colors/PalettesBuilder";
 import {
   generateColorsThemesCollections,
@@ -25,6 +25,7 @@ import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 import { generateImagesComponents } from "./builders/components/ImagesBuilder";
+import { generateGradients } from "./builders/styles/Effets/GradientsBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -54,6 +55,7 @@ figma.ui.onmessage = async (msg) => {
       }
       try {
         await generateColorPalette(colors, toPascalCase(key));
+        if (key === "brand") await generateGradients(colors);
         figma.notify(
           `✅ Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
         );
@@ -76,7 +78,7 @@ figma.ui.onmessage = async (msg) => {
   ) {
     const greyHue = msg.datas?.neutralColors?.greyHue;
     try {
-      await genrateNeutralPalette(greyHue ?? "");
+      await generateNeutralPalette(greyHue ?? "");
       figma.notify("✅ Palette de couleurs Neutral générée avec succès");
     } catch (error) {
       logger.error("Erreur génération Neutral:", error);

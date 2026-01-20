@@ -8,8 +8,8 @@
   - ✅ Brand
   - ✅ Feedback
   - ✅ Neutral
-- ✅ adius
-- ✅ ypography
+- ✅ Radius
+- ✅ Typography
 
 ### ✅ Display Context :
 
@@ -24,7 +24,7 @@
 
 ## 🔁 Styles :
 
-- Gradients
+- ✅ Gradients
 - ✅ Shadows
 - Typography
 
