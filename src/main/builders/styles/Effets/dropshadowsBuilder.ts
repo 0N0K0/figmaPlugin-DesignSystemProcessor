@@ -64,7 +64,11 @@ export async function generateElevationEffects(): Promise<void> {
       spread: shadow.spread,
     }));
 
-    // Créer le style d'effet
+    // Mettre à jour ou créer le style d'effet
+    if (await styleBuilder.getStyle(`Elevation/${level}`, "effect")) {
+      styleBuilder.updateStyle(`Elevation/${level}`, "effect", effects);
+      continue;
+    }
     await styleBuilder.createOrUpdateStyle(
       `Elevation/${level}`,
       "effect",

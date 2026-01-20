@@ -28,66 +28,65 @@ export class StyleBuilder {
     return style;
   }
 
-  async createStyle(
-    name: string,
-    type: "paint" | "text" | "effect",
-    params: Paint[] | TextStyleParams | Effect[],
-  ): Promise<PaintStyle | TextStyle | EffectStyle | GridStyle> {
-    figma.createTextStyle();
-    return await this.createOrUpdateStyle(name, type, params as Paint[]);
-  }
-
-  async getOrCreateStyle(
-    name: string,
-    type: "paint" | "text" | "effect",
-    params: Paint[] | TextStyleParams | Effect[],
-  ) {
-    let style = await this.getStyle(name, type);
-    if (!style) {
-      style = await this.createStyle(name, type, params);
-    }
-    return style;
-  }
-
   async createOrUpdateStyle(
     name: string,
     type: "paint" | "text" | "effect",
     params: Paint[] | TextStyleParams | Effect[],
-  ): Promise<PaintStyle | TextStyle | EffectStyle | GridStyle> {
+  ): Promise<PaintStyle | TextStyle | EffectStyle | GridStyle | undefined> {
+    await this.removeStyle(name, type);
+    let newStyle;
+    switch (type) {
+      case "paint":
+        newStyle = figma.createPaintStyle();
+        break;
+      case "effect":
+        newStyle = figma.createEffectStyle();
+        break;
+      case "text":
+        newStyle = figma.createTextStyle();
+        break;
+    }
+    newStyle.name = name;
+
+    return await this.updateStyle(name, type, params);
+  }
+
+  async updateStyle(
+    name: string,
+    type: "paint" | "text" | "effect",
+    params: Paint[] | TextStyleParams | Effect[],
+  ): Promise<PaintStyle | TextStyle | EffectStyle | GridStyle | undefined> {
     let style = await this.getStyle(name, type);
-    if (!style) {
-      style = await this.createStyle(name, type, params);
-    } else {
-      switch (type) {
-        case "paint":
-          (style as PaintStyle).paints = params as Paint[];
-          break;
-        case "text":
-          const textParams = params as TextStyleParams;
-          const fontName = textParams.fontName || {
-            family: "Roboto",
-            style: "Regular",
-          };
-          await figma.loadFontAsync(fontName);
-          const textStyle = style as TextStyle;
-          textStyle.fontName = fontName;
-          textStyle.fontSize = textParams.fontSize || 16;
-          textStyle.lineHeight = textParams.lineHeight || {
-            value: 24,
-            unit: "PIXELS",
-          };
-          textStyle.letterSpacing = textParams.letterSpacing || {
-            value: 0,
-            unit: "PIXELS",
-          };
-          textStyle.paragraphSpacing = textParams.paragraphSpacing || 0;
-          textStyle.textCase = textParams.textCase || "ORIGINAL";
-          textStyle.textDecoration = textParams.textDecoration || "NONE";
-          break;
-        case "effect":
-          (style as EffectStyle).effects = params as Effect[];
-          break;
-      }
+    if (!style) return;
+    switch (type) {
+      case "paint":
+        (style as PaintStyle).paints = params as Paint[];
+        break;
+      case "text":
+        const textParams = params as TextStyleParams;
+        const fontName = textParams.fontName || {
+          family: "Roboto",
+          style: "Regular",
+        };
+        await figma.loadFontAsync(fontName);
+        const textStyle = style as TextStyle;
+        textStyle.fontName = fontName;
+        textStyle.fontSize = textParams.fontSize || 16;
+        textStyle.lineHeight = textParams.lineHeight || {
+          value: 24,
+          unit: "PIXELS",
+        };
+        textStyle.letterSpacing = textParams.letterSpacing || {
+          value: 0,
+          unit: "PIXELS",
+        };
+        textStyle.paragraphSpacing = textParams.paragraphSpacing || 0;
+        textStyle.textCase = textParams.textCase || "ORIGINAL";
+        textStyle.textDecoration = textParams.textDecoration || "NONE";
+        break;
+      case "effect":
+        (style as EffectStyle).effects = params as Effect[];
+        break;
     }
     return style;
   }

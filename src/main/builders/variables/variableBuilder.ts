@@ -90,6 +90,9 @@ export class VariableBuilder {
     }
   }
 
+  /**
+   * Supprime un mode d'une collection
+   */
   async removeModeFromCollection(
     collectionName: string,
     modeName: string,
@@ -121,13 +124,45 @@ export class VariableBuilder {
    * Obtient toutes les variables d'une collection
    */
   async getCollectionVariables(collectionName: string): Promise<Variable[]> {
-    const collections =
-      await figma.variables.getLocalVariableCollectionsAsync();
-    const collection = collections.find((c) => c.name === collectionName);
+    const collection = await this.getCollection(collectionName);
     if (!collection) return [];
 
     const variables = await figma.variables.getLocalVariablesAsync();
     return variables.filter((v) => v.variableCollectionId === collection.id);
+  }
+
+  /**
+   * Obtient toutes les variables d'une collection par groupe
+   */
+  async getCollectionVariablesByGroup(
+    collectionName: string,
+    groupName: string,
+  ): Promise<Variable[]> {
+    const collection = await this.getCollection(collectionName);
+    if (!collection) return [];
+
+    const variables = await figma.variables.getLocalVariablesAsync();
+    return variables.filter(
+      (v) =>
+        v.variableCollectionId === collection.id &&
+        v.name.startsWith(`${groupName}/`),
+    );
+  }
+
+  async getOrCreateCollectionVariablesByGroup(
+    collectionName: string,
+    groupName: string,
+    configs: VariableConfig[],
+  ): Promise<Variable[]> {
+    const existingVars = await this.getCollectionVariablesByGroup(
+      collectionName,
+      groupName,
+    );
+    if (existingVars.length > 0) {
+      return existingVars;
+    }
+
+    return this.createVariables(configs);
   }
 
   /**
@@ -192,6 +227,18 @@ export class VariableBuilder {
     this.variables.set(`${config.collection}/${varName}`, variable);
 
     return variable;
+  }
+
+  /**
+   * Crée plusieurs variables
+   */
+  async createVariables(configs: VariableConfig[]): Promise<Variable[]> {
+    const variables: Variable[] = [];
+    for (const config of configs) {
+      const variable = await this.createVariable(config);
+      variables.push(variable);
+    }
+    return variables;
   }
 
   /**
@@ -270,6 +317,9 @@ export class VariableBuilder {
     return variable;
   }
 
+  /**
+   * Crée ou met à jour une variable
+   */
   async createOrUpdateVariable(config: VariableConfig): Promise<Variable> {
     const existingVariable = await this.findVariable(
       config.collection,
