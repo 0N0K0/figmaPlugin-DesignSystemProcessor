@@ -1,8 +1,7 @@
-import { ColorsCollection } from "../../../types/variablesTypes";
-import { logger } from "../../../utils/logger";
-import { generateColorPalette } from "../../variables/styles/colors/PalettesBuilder";
-import { variableBuilder } from "../../variables/variableBuilder";
-import { styleBuilder } from "../styleBuilder";
+import { ColorsCollection } from "../../types/variablesTypes";
+import { generateColorPalette } from "../variables/styles/colors/PalettesBuilder";
+import { variableBuilder } from "../variables/variableBuilder";
+import { styleBuilder } from "./styleBuilder";
 
 function angleToTransform(deg: number): number[][] {
   const rad = (deg * Math.PI) / 180;
@@ -41,11 +40,6 @@ export async function generateGradients(
   if (colors.length === 0) {
     colors = await generateColorPalette(brandColors, "brand");
   }
-  logger.info("colors", colors);
-  for (const color of colors) {
-    logger.info("color", color.name);
-  }
-
   const brandColorsKeys = Object.keys(brandColors);
   const combos2 = getCombinations(brandColorsKeys, 2);
   const combos3 = getCombinations(brandColorsKeys, 3);

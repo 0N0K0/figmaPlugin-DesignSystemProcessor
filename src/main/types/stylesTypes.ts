@@ -14,5 +14,11 @@ export interface Shadow {
   y: number;
   blur: number;
   spread: number;
-  color: string;
+  color: RGBA;
+  boundVariables?: {
+    color: {
+      type: "VARIABLE_ALIAS";
+      id: string;
+    };
+  };
 }

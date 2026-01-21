@@ -3,7 +3,7 @@
  */
 
 import { toPascalCase } from "../common/utils/textUtils";
-import { generateElevationEffects } from "./builders/styles/Effets/dropshadowsBuilder";
+import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
 import {
   generateColorPalette,
   generateNeutralPalette,
@@ -25,7 +25,7 @@ import { logger } from "./utils/logger";
 import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 import { generateImagesComponents } from "./builders/components/ImagesBuilder";
-import { generateGradients } from "./builders/styles/Effets/GradientsBuilder";
+import { generateGradients } from "./builders/styles/GradientsBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -298,6 +298,15 @@ figma.ui.onmessage = async (msg) => {
   }
 
   if (msg.type === "generateElevationsEffects" || msg.type === "generateAll") {
-    generateElevationEffects();
+    try {
+      generateElevationEffects();
+      figma.notify("✅ Élévations générées avec succès");
+    } catch (error) {
+      logger.error("Erreur lors de la génération des élévations :", error);
+      figma.notify("❌ Erreur lors de la génération des élévations", {
+        error: true,
+      });
+      return;
+    }
   }
 };

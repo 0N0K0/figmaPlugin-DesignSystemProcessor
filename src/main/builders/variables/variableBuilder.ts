@@ -113,11 +113,20 @@ export class VariableBuilder {
     collectionName: string,
     variableName: string,
   ): Promise<Variable | undefined> {
-    const cached = this.variables.get(`${collectionName}/${variableName}`);
-    if (cached) return cached;
-
     const vars = await this.getCollectionVariables(collectionName);
     return vars.filter((v) => v.name === variableName)[0];
+  }
+
+  async findVariables(
+    collectionName: string,
+    variableNames: string[],
+  ): Promise<Variable[]> {
+    const variables: Variable[] = [];
+    for (const name of variableNames) {
+      const variable = await this.findVariable(collectionName, name);
+      if (variable) variables.push(variable);
+    }
+    return variables;
   }
 
   /**
