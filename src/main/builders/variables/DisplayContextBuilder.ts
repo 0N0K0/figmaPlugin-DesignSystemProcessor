@@ -673,7 +673,7 @@ export async function generateDevices({
               100,
           );
           variables.push({
-            name: `${device}/${mode}/${size}/content/height/minusOffset/${pourcentage}%`,
+            name: `${device}/${mode}/${size}/content/height/minus-offset/${pourcentage}%`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: minusOffsetHeight,

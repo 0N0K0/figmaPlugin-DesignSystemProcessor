@@ -162,30 +162,51 @@ export function attachButtonListeners() {
         const baseFontSize = formData["baseFontSize"] as number;
         const fontStyles: Record<
           string,
-          Record<string, string | Record<string, string>>
+          Record<
+            string,
+            Record<string, string | number | Record<string, string | number>>
+          >
         > = {};
-        for (const type of [
-          "body",
-          "subtitles",
-          "editorialHeading",
-          "accent",
-          "interfaceHeading",
-          "meta",
-          "tech",
-        ]) {
-          if (!fontStyles[type]) fontStyles[type] = {};
-          for (const property of ["FontFamily", "FontStyle", "LetterSpacing"]) {
-            if (type === "editorialHeading") {
-              for (const size of ["2XL", "XL", "LG", "MD", "SM", "XS"]) {
-                if (!fontStyles[type][property])
-                  fontStyles[type][property] = {};
-                (fontStyles[type][property] as Record<string, string>)[size] =
-                  formData[`${type}${size}${property}`] as string;
+        for (const category of ["core", "editorial", "interface"]) {
+          if (!fontStyles[category]) fontStyles[category] = {};
+          for (const type of [
+            "Body",
+            "Subtitles",
+            "Tech",
+            "Heading",
+            "Accent",
+            "Meta",
+          ]) {
+            if (!fontStyles[category][type]) fontStyles[category][type] = {};
+            for (const property of [
+              "FontFamily",
+              "FontStyle",
+              "LetterSpacing",
+            ]) {
+              if (category === "editorial" && type === "Heading") {
+                if (property === "FontFamily") {
+                  fontStyles[category][type][property] = formData[
+                    `${category}${type}${property}`
+                  ] as string | number;
+                } else {
+                  for (const size of ["2XL", "XL", "LG", "MD", "SM", "XS"]) {
+                    if (!fontStyles[category][type][property])
+                      fontStyles[category][type][property] = {};
+                    (
+                      fontStyles[category][type][property] as Record<
+                        string,
+                        string | number
+                      >
+                    )[size] = formData[
+                      `${category}${type}${size}${property}`
+                    ] as string | number;
+                  }
+                }
+              } else {
+                fontStyles[category][type][property] = formData[
+                  `${category}${type}${property}`
+                ] as string | number;
               }
-            } else {
-              fontStyles[type][property] = formData[
-                `${type}${property}`
-              ] as string;
             }
           }
         }

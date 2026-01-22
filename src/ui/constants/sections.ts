@@ -152,18 +152,18 @@ export const TABS: TabConfig[] = [
       {
         title: "Brand",
         colorCollection: colorCollection("brand", 10, [
-          { inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
-          { inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
-          { inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
+          { inputId: "brand01", label: "Core", defaultColor: "#0db9f2" },
+          { inputId: "brand02", label: "Support", defaultColor: "#4db2a1" },
+          { inputId: "brand03", label: "Accent", defaultColor: "#a68659" },
         ]),
         inputs: [btn("Generate Brand Colors")],
       },
       {
         title: "Feedback",
         colorCollection: colorCollection("feedback", 10, [
-          { inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
+          { inputId: "feedback01", label: "Info", defaultColor: "#00a6cb" },
           { inputId: "feedback02", label: "Success", defaultColor: "#a9c800" },
-          { inputId: "feedback03", label: "Warning", defaultColor: "#e87d00" },
+          { inputId: "feedback03", label: "Warning", defaultColor: "#e09f00" },
           { inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
         ]),
         inputs: [btn("Generate Feedback Colors")],
@@ -302,19 +302,28 @@ export const TABS: TabConfig[] = [
           {
             title: "Body",
             inputs: [
-              textInput("bodyFontFamily", "Family", "Roboto"),
-              textInput("bodyFontStyle", "Style", "Light"),
-              numInput("bodyLetterSpacing", "Letter Spacing", 0),
+              textInput("coreBodyFontFamily", "Family", "Roboto"),
+              textInput("coreBodyFontStyle", "Style", "Light"),
+              numInput("coreBodyLetterSpacing", "Letter Spacing", 0),
             ],
           },
           {
             title: "Subtitles",
             inputs: [
-              textInput("subtitlesFontFamily", "Family", "Roboto"),
-              textInput("subtitlesFontStyle", "Style", "Thin italic"),
-              numInput("subtitlesLetterSpacing", "Letter Spacing", 0),
+              textInput("coreSubtitlesFontFamily", "Family", "Roboto"),
+              textInput("coreSubtitlesFontStyle", "Style", "Thin italic"),
+              numInput("coreSubtitlesLetterSpacing", "Letter Spacing", 0),
             ],
           },
+          {
+            title: "Tech",
+            inputs: [
+              textInput("coreTechFontFamily", "Family", "Roboto Mono"),
+              textInput("coreTechFontStyle", "Style", "Regular"),
+              numInput("coreTechLetterSpacing", "Letter Spacing", -5),
+            ],
+          },
+
           {
             title: "Editorial",
             subsections: [
@@ -425,9 +434,13 @@ export const TABS: TabConfig[] = [
               {
                 title: "Accent",
                 inputs: [
-                  textInput("accentFontFamily", "Family", "Parisienne"),
-                  textInput("accentFontStyle", "Style", "Regular"),
-                  numInput("accentLetterSpacing", "Letter Spacing", 0),
+                  textInput(
+                    "editorialAccentFontFamily",
+                    "Family",
+                    "Parisienne",
+                  ),
+                  textInput("editorialAccentFontStyle", "Style", "Regular"),
+                  numInput("editorialAccentLetterSpacing", "Letter Spacing", 0),
                 ],
               },
             ],
@@ -454,17 +467,13 @@ export const TABS: TabConfig[] = [
               {
                 title: "Meta",
                 inputs: [
-                  textInput("metaFontFamily", "Family", "Roboto Condensed"),
-                  textInput("metaFontStyle", "Style", "Medium"),
-                  numInput("metaLetterSpacing", "Letter Spacing", 0),
-                ],
-              },
-              {
-                title: "Tech",
-                inputs: [
-                  textInput("techFontFamily", "Family", "Roboto Mono"),
-                  textInput("techFontStyle", "Style", "Regular"),
-                  numInput("techLetterSpacing", "Letter Spacing", -5),
+                  textInput(
+                    "interfaceMetaFontFamily",
+                    "Family",
+                    "Roboto Condensed",
+                  ),
+                  textInput("interfaceMetaFontStyle", "Style", "Medium"),
+                  numInput("interfaceMetaLetterSpacing", "Letter Spacing", 0),
                 ],
               },
             ],
