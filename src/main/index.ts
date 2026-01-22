@@ -230,8 +230,9 @@ figma.ui.onmessage = async (msg) => {
       return;
     } else {
       try {
-        await generateTypography(fontStyles);
-        figma.notify("✅ Styles de typographie générées avec succès");
+        logger.info("fontStyles", fontStyles);
+        // await generateTypography(fontStyles);
+        // figma.notify("✅ Styles de typographie générées avec succès");
       } catch (error) {
         logger.error("Erreur génération des styles de typographie:", error);
         figma.notify(

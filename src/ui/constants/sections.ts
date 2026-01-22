@@ -310,9 +310,9 @@ export const TABS: TabConfig[] = [
           {
             title: "Subtitles",
             inputs: [
-              textInput("bodyFontFamily", "Family", "Roboto"),
-              textInput("bodyFontStyle", "Style", "Thin italic"),
-              numInput("bodyLetterSpacing", "Letter Spacing", 0),
+              textInput("subtitlesFontFamily", "Family", "Roboto"),
+              textInput("subtitlesFontStyle", "Style", "Thin italic"),
+              numInput("subtitlesLetterSpacing", "Letter Spacing", 0),
             ],
           },
           {
@@ -341,7 +341,7 @@ export const TABS: TabConfig[] = [
                       numInput(
                         "editorialHeading2XLLetterSpacing",
                         "Letter Spacing",
-                        0,
+                        -5,
                       ),
                     ],
                   },
@@ -351,7 +351,7 @@ export const TABS: TabConfig[] = [
                       textInput(
                         "editorialHeadingXLFontStyle",
                         "Style",
-                        "Light",
+                        "ExtraLight",
                       ),
                       numInput(
                         "editorialHeadingXLLetterSpacing",
@@ -366,7 +366,7 @@ export const TABS: TabConfig[] = [
                       textInput(
                         "editorialHeadingLGFontStyle",
                         "Style",
-                        "Light",
+                        "ExtraLight",
                       ),
                       numInput(
                         "editorialHeadingLGLetterSpacing",
@@ -411,7 +411,7 @@ export const TABS: TabConfig[] = [
                       textInput(
                         "editorialHeadingXSFontStyle",
                         "Style",
-                        "Light",
+                        "Regular",
                       ),
                       numInput(
                         "editorialHeadingXSLetterSpacing",
@@ -439,13 +439,13 @@ export const TABS: TabConfig[] = [
                 title: "Headings",
                 inputs: [
                   textInput(
-                    "interfaceHeadingsFontFamily",
+                    "interfaceHeadingFontFamily",
                     "Family",
                     "Roboto Condensed",
                   ),
-                  textInput("interfaceHeadingsFontStyle", "Style", "Black"),
+                  textInput("interfaceHeadingFontStyle", "Style", "Black"),
                   numInput(
-                    "interfaceHeadingsLetterSpacing",
+                    "interfaceHeadingLetterSpacing",
                     "Letter Spacing",
                     -5,
                   ),
@@ -469,9 +469,6 @@ export const TABS: TabConfig[] = [
               },
             ],
           },
-          // {
-          //   inputs: [btn("Generate Font Styles")],
-          // },
         ],
         inputs: [btn("Generate Font Styles")],
       },

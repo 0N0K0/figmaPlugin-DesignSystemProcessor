@@ -18,7 +18,7 @@ const btns = [
   "layout-guide",
   "radius",
   "font-sizes",
-  "font-families",
+  "font-styles",
   "typography",
   "text-datas",
   "images-datas",
@@ -180,14 +180,16 @@ export function attachButtonListeners() {
                 if (!fontStyles[type][property])
                   fontStyles[type][property] = {};
                 (fontStyles[type][property] as Record<string, string>)[size] =
-                  formData[`${type}${property}${size}`] as string;
+                  formData[`${type}${size}${property}`] as string;
               }
+            } else {
+              fontStyles[type][property] = formData[
+                `${type}${property}`
+              ] as string;
             }
-            fontStyles[type][property] = formData[
-              `${type}${property}`
-            ] as string;
           }
         }
+        console.log("📋 Font Styles complète:", fontStyles);
 
         // Handle Text Datas
         let textDatasList: Record<string, any>[] = [];
@@ -258,8 +260,6 @@ export function attachButtonListeners() {
             }
           }
         }
-
-        console.log("📋 Images Datas complète:", imagesDatasList);
 
         // Send message to plugin
         parent.postMessage(
