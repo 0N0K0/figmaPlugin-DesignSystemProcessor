@@ -1,5 +1,6 @@
 /* Sections Styles */
 section {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -10,11 +11,28 @@ section {
     border-bottom: 1px solid var(--figma-color-border, #444444);
   }
 
-  &.section-depth-1 {
-    padding: 6px 0 6px 16px;
-    border-top: none;
-    border-bottom: none;
-    border-left: 2px solid var(--figma-color-border, #444444);
+  &:not(.section-depth-0) {
+    border: none;
+    gap: 0;
+    padding-right: 0;
+
+    input:not([type="number"]) {
+      width: 100%;
+      max-width: 174px;
+      min-width: 0;
+      flex: 1 1 0%;
+    }
+
+    &.section-depth-1 {
+      padding: 0;
+    }
+    &:not(.section-depth-1) {
+      border-left: 2px solid var(--figma-color-border, #444444);
+    }
+    fieldset {
+      padding: 6px 0 6px 16px;
+      border-left: 2px solid var(--figma-color-border, #444444);
+    }
   }
 }
 
@@ -40,4 +58,5 @@ fieldset {
   gap: 8px;
   border: none;
   padding: 8px 0 0;
+  width: 100%;
 }

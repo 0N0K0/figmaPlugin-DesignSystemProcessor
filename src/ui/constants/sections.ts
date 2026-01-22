@@ -297,15 +297,183 @@ export const TABS: TabConfig[] = [
         ],
       },
       {
-        title: "Font Families",
-        inputs: [
-          textInput("bodyFontFamily", "Body", "Roboto"),
-          textInput("metaFontFamily", "Meta", "Roboto"),
-          textInput("interfaceFontFamily", "Interface", "Roboto Condensed"),
-          textInput("accentFontFamily", "Accent", "Parisienne"),
-          textInput("techFontFamily", "Tech", "Roboto Mono"),
-          btn("Generate Font Families"),
+        title: "Font Styles",
+        subsections: [
+          {
+            title: "Body",
+            inputs: [
+              textInput("bodyFontFamily", "Family", "Roboto"),
+              textInput("bodyFontStyle", "Style", "Light"),
+              numInput("bodyLetterSpacing", "Letter Spacing", 0),
+            ],
+          },
+          {
+            title: "Subtitles",
+            inputs: [
+              textInput("bodyFontFamily", "Family", "Roboto"),
+              textInput("bodyFontStyle", "Style", "Thin italic"),
+              numInput("bodyLetterSpacing", "Letter Spacing", 0),
+            ],
+          },
+          {
+            title: "Editorial",
+            subsections: [
+              {
+                title: "Heading",
+                subsections: [
+                  {
+                    inputs: [
+                      textInput(
+                        "editorialHeadingFontFamily",
+                        "Family",
+                        "Roboto Condensed",
+                      ),
+                    ],
+                  },
+                  {
+                    title: "2XL",
+                    inputs: [
+                      textInput(
+                        "editorialHeading2XLFontStyle",
+                        "Style",
+                        "Black",
+                      ),
+                      numInput(
+                        "editorialHeading2XLLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "XL",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingXLFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingXLLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "LG",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingLGFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingLGLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "MD",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingMDFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingMDLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "SM",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingSMFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingSMLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "XS",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingXSFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingXSLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                ],
+              },
+              {
+                title: "Accent",
+                inputs: [
+                  textInput("accentFontFamily", "Family", "Parisienne"),
+                  textInput("accentFontStyle", "Style", "Regular"),
+                  numInput("accentLetterSpacing", "Letter Spacing", 0),
+                ],
+              },
+            ],
+          },
+          {
+            title: "Interface",
+            subsections: [
+              {
+                title: "Headings",
+                inputs: [
+                  textInput(
+                    "interfaceHeadingsFontFamily",
+                    "Family",
+                    "Roboto Condensed",
+                  ),
+                  textInput("interfaceHeadingsFontStyle", "Style", "Black"),
+                  numInput(
+                    "interfaceHeadingsLetterSpacing",
+                    "Letter Spacing",
+                    -5,
+                  ),
+                ],
+              },
+              {
+                title: "Meta",
+                inputs: [
+                  textInput("metaFontFamily", "Family", "Roboto Condensed"),
+                  textInput("metaFontStyle", "Style", "Medium"),
+                  numInput("metaLetterSpacing", "Letter Spacing", 0),
+                ],
+              },
+              {
+                title: "Tech",
+                inputs: [
+                  textInput("techFontFamily", "Family", "Roboto Mono"),
+                  textInput("techFontStyle", "Style", "Regular"),
+                  numInput("techLetterSpacing", "Letter Spacing", -5),
+                ],
+              },
+            ],
+          },
+          // {
+          //   inputs: [btn("Generate Font Styles")],
+          // },
         ],
+        inputs: [btn("Generate Font Styles")],
       },
       {
         inputs: [btn("Generate Typography")],

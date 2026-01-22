@@ -6,6 +6,7 @@ import {
 import { FormData, getFormData } from "../utils/formData";
 import { debugPanel } from "../components/debugPanel";
 import { layoutGuideType } from "../../common/types";
+import { stringify } from "querystring";
 
 // List of button IDs corresponding to different actions
 const btns = [
@@ -159,9 +160,33 @@ export function attachButtonListeners() {
 
         // Handle Typography
         const baseFontSize = formData["baseFontSize"] as number;
-        const fontFamilies: Record<string, string> = {};
-        for (const key of ["body", "meta", "interface", "accent", "tech"]) {
-          fontFamilies[key] = formData[`${key}FontFamily`] as string;
+        const fontStyles: Record<
+          string,
+          Record<string, string | Record<string, string>>
+        > = {};
+        for (const type of [
+          "body",
+          "subtitles",
+          "editorialHeading",
+          "accent",
+          "interfaceHeading",
+          "meta",
+          "tech",
+        ]) {
+          if (!fontStyles[type]) fontStyles[type] = {};
+          for (const property of ["FontFamily", "FontStyle", "LetterSpacing"]) {
+            if (type === "editorialHeading") {
+              for (const size of ["2XL", "XL", "LG", "MD", "SM", "XS"]) {
+                if (!fontStyles[type][property])
+                  fontStyles[type][property] = {};
+                (fontStyles[type][property] as Record<string, string>)[size] =
+                  formData[`${type}${property}${size}`] as string;
+              }
+            }
+            fontStyles[type][property] = formData[
+              `${type}${property}`
+            ] as string;
+          }
         }
 
         // Handle Text Datas
@@ -236,25 +261,6 @@ export function attachButtonListeners() {
 
         console.log("📋 Images Datas complète:", imagesDatasList);
 
-        // let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
-        // const imagesDatasFiles = formData["imagesDatasFiles"] as
-        //   | File[]
-        //   | undefined;
-
-        // if (imagesDatasFiles && imagesDatasFiles.length > 0) {
-        //   try {
-        //     for (const file of imagesDatasFiles) {
-        //       const arrayBuffer = await file.arrayBuffer();
-        //       imagesDatasList.push({
-        //         name: file.name,
-        //         data: arrayBuffer,
-        //       });
-        //     }
-        //   } catch (error) {
-        //     console.error("Failed to process image files:", error);
-        //   }
-        // }
-
         // Send message to plugin
         parent.postMessage(
           {
@@ -269,7 +275,7 @@ export function attachButtonListeners() {
                 layoutGuide,
                 radius,
                 baseFontSize,
-                fontFamilies,
+                fontStyles,
                 textDatasList,
                 imagesDatasList,
               },

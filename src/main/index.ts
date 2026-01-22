@@ -22,7 +22,7 @@ import {
   generateFontSizes,
 } from "./builders/variables/DisplayContextBuilder";
 import { logger } from "./utils/logger";
-import { generateFontFamilies } from "./builders/variables/styles/TypographyBuilder";
+import { generateTypography } from "./builders/variables/styles/TypographyBuilder";
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 import { generateImagesComponents } from "./builders/components/ImagesBuilder";
 import { generateGradients } from "./builders/styles/GradientsBuilder";
@@ -218,25 +218,28 @@ figma.ui.onmessage = async (msg) => {
   }
 
   if (
-    msg.type === "generateFontFamilies" ||
+    msg.type === "generateFontStyles" ||
     msg.type === "generateTypography" ||
     msg.type === "generateAll"
   ) {
-    const fontFamilies = msg.datas?.fontFamilies;
-    if (fontFamilies === undefined) {
-      figma.notify("⚠️ Aucune donnée de familles de police fournie", {
+    const fontStyles = msg.datas?.fontStyles;
+    if (fontStyles === undefined) {
+      figma.notify("⚠️ Aucune donnée de styles de typographie fournie", {
         error: true,
       });
       return;
     } else {
       try {
-        await generateFontFamilies(fontFamilies);
-        figma.notify("✅ Familles de police générées avec succès");
+        await generateTypography(fontStyles);
+        figma.notify("✅ Styles de typographie générées avec succès");
       } catch (error) {
-        logger.error("Erreur génération des familles de police:", error);
-        figma.notify("❌ Erreur lors de la génération des familles de police", {
-          error: true,
-        });
+        logger.error("Erreur génération des styles de typographie:", error);
+        figma.notify(
+          "❌ Erreur lors de la génération des styles de typographie",
+          {
+            error: true,
+          },
+        );
         return;
       }
     }
