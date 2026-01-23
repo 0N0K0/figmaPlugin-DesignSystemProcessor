@@ -35,4 +35,7 @@
   - ✅ ImageFormat
   - ✅ Gallery
 
-## Pages
+## 🔁 Pages
+
+- ✅ Presentations
+- Graphic Charter

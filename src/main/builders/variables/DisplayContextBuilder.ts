@@ -199,6 +199,7 @@ export async function generateBreakpoints({
         mode: modeName,
         value,
         hidden: true,
+        scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
       });
     }
 
@@ -229,6 +230,7 @@ export async function generateBreakpoints({
             mode: modeName,
             value,
             hidden: true,
+            scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
           });
         }
       }
@@ -352,7 +354,7 @@ export async function generateDensities({
     variables.push({
       name: `viewport-height/min`,
       type: "FLOAT",
-      collection: "System\\VerticalDensity",
+      collection: "System\\VerticalDensities",
       mode,
       value: values.minHeight,
       scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
@@ -367,7 +369,7 @@ export async function generateDensities({
     variables.push({
       name: `viewport-height/max`,
       type: "FLOAT",
-      collection: "System\\VerticalDensity",
+      collection: "System\\VerticalDensities",
       mode,
       value: maxHeight,
       scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
@@ -381,7 +383,7 @@ export async function generateDensities({
       let alias: string | undefined = undefined;
       if (shouldAlias) {
         const targetVariable = await variableBuilder.findVariable(
-          "System\\VerticalDensity",
+          "System\\VerticalDensities",
           `spacing/${values.maxSpacing}`,
         );
         alias = targetVariable ? targetVariable.id : undefined;
@@ -390,7 +392,7 @@ export async function generateDensities({
         await variableBuilder.createOrUpdateVariable({
           name: `spacing/${key}`,
           type: "FLOAT",
-          collection: "System\\VerticalDensity",
+          collection: "System\\VerticalDensities",
           mode,
           alias,
           value: alias ? undefined : baselineGrid * multiplier,
@@ -403,7 +405,7 @@ export async function generateDensities({
     variables.push({
       name: `position-sticky`,
       type: "BOOLEAN",
-      collection: "System\\VerticalDensity",
+      collection: "System\\VerticalDensities",
       mode,
       value: values.positionSticky,
     });
@@ -460,7 +462,7 @@ export async function generateFontSizes(
           const aliases: Record<string, Variable | undefined> = {};
           for (const targetVariableType of targetVariablesTypes) {
             const alias = await variableBuilder.findVariable(
-              "System\\VerticalDensity",
+              "System\\VerticalDensities",
               `${targetVariablesGroup}${targetVariableType}`,
             );
             aliases[targetVariableType] = alias;
@@ -468,7 +470,7 @@ export async function generateFontSizes(
           for (const [type, alias] of Object.entries(aliases)) {
             const newVariable: VariableConfig = {
               name: `typography/${category}/${size}/${type}`,
-              collection: "System\\VerticalDensity",
+              collection: "System\\VerticalDensities",
               mode,
               type: "FLOAT",
               value: alias ? undefined : 0,
@@ -485,7 +487,7 @@ export async function generateFontSizes(
         } else {
           const fontSizeVariable: VariableConfig = {
             name: `typography/${category}/${size}/font-size`,
-            collection: "System\\VerticalDensity",
+            collection: "System\\VerticalDensities",
             mode,
             type: "FLOAT",
             value: fontSize,
@@ -493,7 +495,7 @@ export async function generateFontSizes(
           };
           const lineHeightVariable: VariableConfig = {
             name: `typography/${category}/${size}/line-height`,
-            collection: "System\\VerticalDensity",
+            collection: "System\\VerticalDensities",
             mode,
             type: "FLOAT",
             value: lineHeight,
@@ -586,14 +588,16 @@ export async function generateDevices({
             ? value / (modes["ratio"] as number)
             : value * (modes["ratio"] as number);
         variables.push({
-          name: `${device}/${mode}/${size}/width`,
+          name: `viewport/width`,
+          mode: `${device}/${mode}/${size}`,
           collection: "System\\Devices",
           type: "FLOAT",
           value,
           scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
         });
         variables.push({
-          name: `${device}/${mode}/${size}/height`,
+          name: `viewport/height`,
+          mode: `${device}/${mode}/${size}`,
           collection: "System\\Devices",
           type: "FLOAT",
           value: heights[mode],
@@ -620,13 +624,15 @@ export async function generateDevices({
           }
 
           variables.push({
-            name: `${device}/${mode}/${size}/content/widths/columns/${i}`,
+            name: `content/width/columns/${i}`,
+            mode: `${device}/${mode}/${size}`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: Math.min(
               width,
               value - horizontalBodyPadding * 2 - horizontalMainPadding * 2,
             ),
+            scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
           });
         }
 
@@ -647,7 +653,8 @@ export async function generateDevices({
               gutter * (columns / validDivision - 1);
           }
           variables.push({
-            name: `${device}/${mode}/${size}/content/widths/divisions/1:${division}`,
+            name: `content/widths/divisions/1:${division}`,
+            mode: `${device}/${mode}/${size}`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: Math.min(
@@ -662,7 +669,8 @@ export async function generateDevices({
         pourcentages.forEach((pourcentage) => {
           const fullHeight = Math.round((heights[mode] * pourcentage) / 100);
           variables.push({
-            name: `${device}/${mode}/${size}/content/height/full/${pourcentage}%`,
+            name: `content/height/full/${pourcentage}%`,
+            mode: `${device}/${mode}/${size}`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: fullHeight,
@@ -673,7 +681,8 @@ export async function generateDevices({
               100,
           );
           variables.push({
-            name: `${device}/${mode}/${size}/content/height/minus-offset/${pourcentage}%`,
+            name: `content/height/minus-offset/${pourcentage}%`,
+            mode: `${device}/${mode}/${size}`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: minusOffsetHeight,

@@ -516,7 +516,7 @@ export const TABS: TabConfig[] = [
         ],
       },
       {
-        inputs: [btn("Generate Layout Guide")],
+        inputs: [btn("Generate Layout Guide"), btn("Generate Viewports Pages")],
       },
     ],
   },

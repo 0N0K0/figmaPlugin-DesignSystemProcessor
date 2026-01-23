@@ -53,18 +53,66 @@ export async function generateImagesComponents(
   radiusDatas: Record<string, number>,
 ) {
   // Crée une page dédiée ♢ Media
-  let imagePage = figma.root.children.find(
+  let componentPage = figma.root.children.find(
+    (page) => page.name === "COMPONENTS",
+  ) as PageNode | undefined;
+  if (!componentPage) {
+    const separator = figma.createPage();
+    separator.name = "---";
+    separator.isPageDivider = true;
+    componentPage = figma.createPage();
+    componentPage.name = "COMPONENTS";
+  }
+  let dataDisplayPage = figma.root.children.find(
+    (page) => page.name === "↓ Data Display",
+  ) as PageNode | undefined;
+  if (!dataDisplayPage) {
+    dataDisplayPage = figma.createPage();
+    dataDisplayPage.name = "↓ Data Display";
+  }
+  let mediaPage = figma.root.children.find(
     (page) => page.name === "    ♢ Media",
+  ) as PageNode | undefined;
+  if (!mediaPage) {
+    mediaPage = figma.createPage();
+    mediaPage.name = "    ♢ Media";
+  }
+
+  let layoutPage = figma.root.children.find(
+    (page) => page.name === "↓ Layout",
+  ) as PageNode | undefined;
+  if (!layoutPage) {
+    layoutPage = figma.createPage();
+    layoutPage.name = "↓ Layout";
+  }
+  let galleryPage = figma.root.children.find(
+    (page) => page.name === "    ♢ Gallery",
+  ) as PageNode | undefined;
+  if (!galleryPage) {
+    galleryPage = figma.createPage();
+    galleryPage.name = "    ♢ Gallery";
+  }
+
+  let datasPage = figma.root.children.find((page) => page.name === "DATAS") as
+    | PageNode
+    | undefined;
+  if (!datasPage) {
+    datasPage = figma.createPage();
+    datasPage.name = "DATAS";
+  }
+  let imagePage = figma.root.children.find(
+    (page) => page.name === "    ♢ Image",
   ) as PageNode | undefined;
   if (!imagePage) {
     imagePage = figma.createPage();
-    imagePage.name = "    ♢ Media";
+    imagePage.name = "    ♢ Image";
   }
-  figma.currentPage = imagePage;
 
   /**
    * Créer les composants d'images
    */
+  figma.currentPage = imagePage;
+
   const imageComponents: {
     component: ComponentNode;
     ratio: number;
@@ -135,7 +183,7 @@ export async function generateImagesComponents(
     imageComponents.map((ic) => ic.component),
     imagePage,
   );
-  imageComponentSet.name = "<Image>";
+  imageComponentSet.name = "<ImageDatas>";
   imageComponentSet.layoutMode = "HORIZONTAL";
   imageComponentSet.layoutSizingHorizontal = "HUG";
   imageComponentSet.layoutSizingVertical = "HUG";
@@ -150,6 +198,8 @@ export async function generateImagesComponents(
   /**
    * Créer les composants de formats d'images
    */
+  figma.currentPage = mediaPage;
+
   const ratios = [
     { name: "1:1", ratio: 1 },
     { name: "4:3", ratio: 4 / 3 },
@@ -215,20 +265,20 @@ export async function generateImagesComponents(
             ],
           },
         );
-        imagePage.appendChild(formatComponent);
+        mediaPage.appendChild(formatComponent);
         formatComponents.push(formatComponent);
       }
     }
   }
 
   // Créer le ComponentSet de Formats
-  figma.currentPage = imagePage;
-  imagePage.selection = formatComponents;
+  figma.currentPage = mediaPage;
+  mediaPage.selection = formatComponents;
   const formatComponentSet = figma.combineAsVariants(
     formatComponents,
-    imagePage,
+    mediaPage,
   );
-  formatComponentSet.name = "<MediaFormat>";
+  formatComponentSet.name = "<Media>";
   // Utiliser auto-layout horizontal avec wrap pour simuler une grille 7x7
   formatComponentSet.layoutMode = "HORIZONTAL";
   formatComponentSet.primaryAxisSizingMode = "AUTO";
@@ -244,6 +294,7 @@ export async function generateImagesComponents(
   /**
    * Créer les composants de galerie d'images
    */
+  figma.currentPage = galleryPage;
   const galleryComponents: ComponentNode[] = [];
 
   const layouts = ["grid", "masonry", "justified", "carousel"];
@@ -284,7 +335,7 @@ export async function generateImagesComponents(
         const categoryIndex = i % categoryLength;
         const formatInstance = baseFormatComponent.createInstance();
         const nestedImageInstance = formatInstance.findOne(
-          (n) => n.type === "INSTANCE" && n.name === "<Image>",
+          (n) => n.type === "INSTANCE" && n.name === "<ImageDatas>",
         ) as InstanceNode;
         nestedImageInstance.setProperties({
           image: String(categoryIndex + 1),
@@ -407,19 +458,19 @@ export async function generateImagesComponents(
         galleryComponent.overflowDirection = "HORIZONTAL";
       }
 
-      imagePage.appendChild(galleryComponent);
+      galleryPage.appendChild(galleryComponent);
       galleryComponents.push(galleryComponent);
     }
   }
 
   // Créer le ComponentSet gallery
-  figma.currentPage = imagePage;
-  imagePage.selection = galleryComponents;
+  figma.currentPage = galleryPage;
+  galleryPage.selection = galleryComponents;
   const galleryComponentSet = figma.combineAsVariants(
     galleryComponents,
-    imagePage,
+    galleryPage,
   );
-  galleryComponentSet.name = "<MediaGallery>";
+  galleryComponentSet.name = "<Gallery>";
   galleryComponentSet.layoutMode = "HORIZONTAL";
   galleryComponentSet.primaryAxisSizingMode = "AUTO";
   galleryComponentSet.counterAxisSizingMode = "AUTO";
@@ -432,14 +483,5 @@ export async function generateImagesComponents(
   galleryComponentSet.y =
     imageComponentSet.height + formatComponentSet.height + 160;
 
-  imagePage.selection = [
-    imageComponentSet,
-    formatComponentSet,
-    galleryComponentSet,
-  ];
-  figma.viewport.scrollAndZoomIntoView([
-    imageComponentSet,
-    formatComponentSet,
-    galleryComponentSet,
-  ]);
+  figma.viewport.scrollAndZoomIntoView([galleryComponentSet]);
 }

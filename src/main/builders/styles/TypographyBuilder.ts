@@ -6,19 +6,6 @@ import { generateTypography } from "../variables/styles/TypographyBuilder";
 import { variableBuilder } from "../variables/variableBuilder";
 import { styleBuilder } from "./styleBuilder";
 
-/**
- * Headings
- *  - Black | letter spacing -5%
- *  - H2-H3 : ExtraLight
- *  - H4-H5 : Light
- *  - H6 : Regular
- * Subtitles : Thin italic
- * Body : Light
- * Accent : Regular
- * Meta : Medium
- * Tech : Regular
- */
-
 export async function generateTypographyStyles(
   baseFontStyles: Record<
     string,
@@ -39,7 +26,7 @@ export async function generateTypographyStyles(
       fontSizes[group][property] =
         (
           await variableBuilder.getCollectionVariablesByGroup(
-            "System\\VerticalDensity",
+            "System\\VerticalDensities",
             `typography/${group}`,
           )
         )?.filter((v) => v.name.endsWith(property)) || [];
@@ -220,7 +207,4 @@ export async function generateTypographyStyles(
       }
     }
   }
-  /**
-   * @TODO Générer une page contenant tous les styles
-   */
 }
