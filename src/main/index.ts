@@ -3,7 +3,7 @@
  */
 
 import { toPascalCase } from "../common/utils/textUtils";
-import { generateElevationEffects } from "./builders/styles/dropshadowsBuilder";
+import { generateElevationEffects } from "./builders/styles/DropshadowsBuilder";
 import {
   generateColorPalette,
   generateNeutralPalette,
