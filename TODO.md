@@ -36,3 +36,6 @@
   - ✅ Gallery
 
 ## 🔁 Pages
+
+- ✅ Presentations
+- Graphic Charter
