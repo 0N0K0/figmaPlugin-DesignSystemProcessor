@@ -1,4 +1,3 @@
-import { logger } from "../../utils/logger";
 import { variableBuilder } from "../variables/variableBuilder";
 
 async function getRadiusVariables(
@@ -126,7 +125,6 @@ export async function generateImagesComponents(
   }
 
   if (imageComponents.length === 0) {
-    logger.error("❌ Aucune image n'a pu être traitée");
     return;
   }
 

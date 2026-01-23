@@ -67,6 +67,7 @@ input[type="file"]::file-selector-button {
   left: 0;
   width: 100%;
   background-color: var(--figma-color-bg, #2c2c2c);
+  z-index: 3;
 
   .input-row {
     align-items: stretch;

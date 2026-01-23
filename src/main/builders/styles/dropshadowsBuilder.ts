@@ -1,6 +1,6 @@
-import { Shadow } from "../../../types/stylesTypes";
-import { hexToFigmaRgba } from "../../../utils/colorUtils";
-import { styleBuilder } from "../styleBuilder";
+import { Shadow } from "../../types/stylesTypes";
+import { variableBuilder } from "../variables/variableBuilder";
+import { styleBuilder } from "./styleBuilder";
 
 /**
  * Génère les ombres pour les 24 niveaux d'élévation MUI
@@ -28,6 +28,12 @@ import { styleBuilder } from "../styleBuilder";
  */
 
 export async function generateElevationEffects(): Promise<void> {
+  const group = "neutral/darkGrey/opacity/";
+  const colors = await variableBuilder.findVariables("Style\\Colors\\Palette", [
+    `${group}100`,
+    `${group}150`,
+    `${group}200`,
+  ]);
   // Créer les 24 effect styles
   for (let level = 1; level <= 12; level++) {
     const shadows: Shadow[] = [
@@ -36,21 +42,45 @@ export async function generateElevationEffects(): Promise<void> {
         y: Math.round(level * 2.6),
         blur: Math.round(level * 2),
         spread: Math.round(level * 0.13),
-        color: "#00000010",
+        color: colors[0].valuesByMode[
+          Object.keys(colors[0].valuesByMode)[0]
+        ] as RGBA,
+        boundVariables: {
+          color: {
+            type: "VARIABLE_ALIAS",
+            id: colors[0].id,
+          },
+        },
       },
       {
         x: 0,
         y: level,
         blur: Math.floor(level * 1.6),
         spread: Math.floor(level / 6.3),
-        color: "#00000015",
+        color: colors[1].valuesByMode[
+          Object.keys(colors[1].valuesByMode)[0]
+        ] as RGBA,
+        boundVariables: {
+          color: {
+            type: "VARIABLE_ALIAS",
+            id: colors[1].id,
+          },
+        },
       },
       {
         x: 0,
         y: Math.round(level / 2),
         blur: Math.ceil(level * 1.65),
         spread: -Math.ceil(level / -3.5),
-        color: "#00000020",
+        color: colors[2].valuesByMode[
+          Object.keys(colors[2].valuesByMode)[0]
+        ] as RGBA,
+        boundVariables: {
+          color: {
+            type: "VARIABLE_ALIAS",
+            id: colors[2].id,
+          },
+        },
       },
     ];
 
@@ -58,10 +88,11 @@ export async function generateElevationEffects(): Promise<void> {
       type: "DROP_SHADOW",
       visible: true,
       blendMode: "NORMAL",
-      color: hexToFigmaRgba(shadow.color),
+      color: shadow.color,
       offset: { x: shadow.x, y: shadow.y },
       radius: shadow.blur,
       spread: shadow.spread,
+      boundVariables: shadow.boundVariables,
     }));
 
     // Mettre à jour ou créer le style d'effet

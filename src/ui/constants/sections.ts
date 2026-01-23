@@ -152,18 +152,18 @@ export const TABS: TabConfig[] = [
       {
         title: "Brand",
         colorCollection: colorCollection("brand", 10, [
-          { inputId: "brand01", label: "Core", defaultColor: "#0DB9F2" },
-          { inputId: "brand02", label: "Support", defaultColor: "#4DB2A1" },
-          { inputId: "brand03", label: "Accent", defaultColor: "#A68659" },
+          { inputId: "brand01", label: "Core", defaultColor: "#0db9f2" },
+          { inputId: "brand02", label: "Support", defaultColor: "#4db2a1" },
+          { inputId: "brand03", label: "Accent", defaultColor: "#a68659" },
         ]),
         inputs: [btn("Generate Brand Colors")],
       },
       {
         title: "Feedback",
         colorCollection: colorCollection("feedback", 10, [
-          { inputId: "feedback01", label: "Info", defaultColor: "#00b899" },
+          { inputId: "feedback01", label: "Info", defaultColor: "#00a6cb" },
           { inputId: "feedback02", label: "Success", defaultColor: "#a9c800" },
-          { inputId: "feedback03", label: "Warning", defaultColor: "#e87d00" },
+          { inputId: "feedback03", label: "Warning", defaultColor: "#e09f00" },
           { inputId: "feedback04", label: "Error", defaultColor: "#de3f26" },
         ]),
         inputs: [btn("Generate Feedback Colors")],
@@ -297,15 +297,189 @@ export const TABS: TabConfig[] = [
         ],
       },
       {
-        title: "Font Families",
-        inputs: [
-          textInput("bodyFontFamily", "Body", "Roboto"),
-          textInput("metaFontFamily", "Meta", "Roboto"),
-          textInput("interfaceFontFamily", "Interface", "Roboto Condensed"),
-          textInput("accentFontFamily", "Accent", "Parisienne"),
-          textInput("techFontFamily", "Tech", "Roboto Mono"),
-          btn("Generate Font Families"),
+        title: "Font Styles",
+        subsections: [
+          {
+            title: "Body",
+            inputs: [
+              textInput("coreBodyFontFamily", "Family", "Roboto"),
+              textInput("coreBodyFontStyle", "Style", "Light"),
+              numInput("coreBodyLetterSpacing", "Letter Spacing", 0),
+            ],
+          },
+          {
+            title: "Subtitles",
+            inputs: [
+              textInput("coreSubtitlesFontFamily", "Family", "Roboto"),
+              textInput("coreSubtitlesFontStyle", "Style", "Thin Italic"),
+              numInput("coreSubtitlesLetterSpacing", "Letter Spacing", 0),
+            ],
+          },
+          {
+            title: "Tech",
+            inputs: [
+              textInput("coreTechFontFamily", "Family", "Roboto Mono"),
+              textInput("coreTechFontStyle", "Style", "Regular"),
+              numInput("coreTechLetterSpacing", "Letter Spacing", -5),
+            ],
+          },
+
+          {
+            title: "Editorial",
+            subsections: [
+              {
+                title: "Heading",
+                subsections: [
+                  {
+                    inputs: [
+                      textInput(
+                        "editorialHeadingFontFamily",
+                        "Family",
+                        "Roboto Condensed",
+                      ),
+                    ],
+                  },
+                  {
+                    title: "2XL",
+                    inputs: [
+                      textInput(
+                        "editorialHeading2XLFontStyle",
+                        "Style",
+                        "Black",
+                      ),
+                      numInput(
+                        "editorialHeading2XLLetterSpacing",
+                        "Letter Spacing",
+                        -5,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "XL",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingXLFontStyle",
+                        "Style",
+                        "ExtraLight",
+                      ),
+                      numInput(
+                        "editorialHeadingXLLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "LG",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingLGFontStyle",
+                        "Style",
+                        "ExtraLight",
+                      ),
+                      numInput(
+                        "editorialHeadingLGLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "MD",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingMDFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingMDLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "SM",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingSMFontStyle",
+                        "Style",
+                        "Light",
+                      ),
+                      numInput(
+                        "editorialHeadingSMLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                  {
+                    title: "XS",
+                    inputs: [
+                      textInput(
+                        "editorialHeadingXSFontStyle",
+                        "Style",
+                        "Regular",
+                      ),
+                      numInput(
+                        "editorialHeadingXSLetterSpacing",
+                        "Letter Spacing",
+                        0,
+                      ),
+                    ],
+                  },
+                ],
+              },
+              {
+                title: "Accent",
+                inputs: [
+                  textInput(
+                    "editorialAccentFontFamily",
+                    "Family",
+                    "Parisienne",
+                  ),
+                  textInput("editorialAccentFontStyle", "Style", "Regular"),
+                  numInput("editorialAccentLetterSpacing", "Letter Spacing", 0),
+                ],
+              },
+            ],
+          },
+          {
+            title: "Interface",
+            subsections: [
+              {
+                title: "Headings",
+                inputs: [
+                  textInput(
+                    "interfaceHeadingFontFamily",
+                    "Family",
+                    "Roboto Condensed",
+                  ),
+                  textInput("interfaceHeadingFontStyle", "Style", "Black"),
+                  numInput(
+                    "interfaceHeadingLetterSpacing",
+                    "Letter Spacing",
+                    -5,
+                  ),
+                ],
+              },
+              {
+                title: "Meta",
+                inputs: [
+                  textInput(
+                    "interfaceMetaFontFamily",
+                    "Family",
+                    "Roboto Condensed",
+                  ),
+                  textInput("interfaceMetaFontStyle", "Style", "Medium"),
+                  numInput("interfaceMetaLetterSpacing", "Letter Spacing", 0),
+                ],
+              },
+            ],
+          },
         ],
+        inputs: [btn("Generate Font Styles")],
       },
       {
         inputs: [btn("Generate Typography")],

@@ -3,6 +3,7 @@
   &-row,
   &-column {
     display: flex;
+    width: 100%;
 
     &:hover {
       label {
@@ -23,9 +24,9 @@
     gap: 4px;
     align-items: center;
 
-    &:not(:has(> .icon-btn, > .category-btn, > .generate-btn)) {
-      padding-right: 28px;
-    }
+    // &:not(:has(> .icon-btn, > .category-btn, > .generate-btn)) {
+    //   padding-right: 28px;
+    // }
   }
 
   &-column {
@@ -37,19 +38,21 @@
 label {
   color: var(--figma-color-text-secondary, #ffffffb3);
   letter-spacing: 0.05504px;
-  width: 100%;
+  flex: 0 1 auto;
+  min-width: fit-content;
 }
 
 input:not([type="file"]),
 select,
-.custom-shade-select-btn,
+.custom-selector-btn,
 .color-selector-btn {
   background-color: var(--figma-color-bg-secondary, #383838);
   border: 1px solid var(--figma-color-bg-secondary, #383838);
   border-radius: 5px;
-  margin: 1px 0;
+  margin: 1px 0 1px auto;
   color: var(--figma-color-text, #ffffff);
   flex-shrink: 0;
+  max-width: 174px;
 
   &.active,
   &:focus,

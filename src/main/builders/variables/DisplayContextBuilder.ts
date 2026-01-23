@@ -424,7 +424,7 @@ export async function generateFontSizes(
 
   const typographyScales = {
     body: { lg: 2, md: 1.25, sm: 1, xs: 0.75 },
-    heading: { xl: 5, lg: 4, md: 3, sm: 2, xs: 1.25 },
+    heading: { "2xl": 5, xl: 4, lg: 3, md: 2.5, sm: 2, xs: 1.5 },
   };
 
   // Génération des valeurs de typographie avec lineHeight calculée (arrondie au multiple de BASELINE_GRID supérieur)
@@ -673,7 +673,7 @@ export async function generateDevices({
               100,
           );
           variables.push({
-            name: `${device}/${mode}/${size}/content/height/minusOffset/${pourcentage}%`,
+            name: `${device}/${mode}/${size}/content/height/minus-offset/${pourcentage}%`,
             collection: "System\\Devices",
             type: "FLOAT",
             value: minusOffsetHeight,

@@ -6,6 +6,7 @@ import {
 import { FormData, getFormData } from "../utils/formData";
 import { debugPanel } from "../components/debugPanel";
 import { layoutGuideType } from "../../common/types";
+import { stringify } from "querystring";
 
 // List of button IDs corresponding to different actions
 const btns = [
@@ -17,7 +18,7 @@ const btns = [
   "layout-guide",
   "radius",
   "font-sizes",
-  "font-families",
+  "font-styles",
   "typography",
   "text-datas",
   "images-datas",
@@ -97,7 +98,7 @@ export function attachButtonListeners() {
     if (btn) {
       btn.addEventListener("click", async () => {
         // Ouvrir le debug panel automatiquement
-        debugPanel.show();
+        // debugPanel.show();
 
         const formData = getFormData();
         console.log("📋 FormData complète:", formData);
@@ -159,9 +160,55 @@ export function attachButtonListeners() {
 
         // Handle Typography
         const baseFontSize = formData["baseFontSize"] as number;
-        const fontFamilies: Record<string, string> = {};
-        for (const key of ["body", "meta", "interface", "accent", "tech"]) {
-          fontFamilies[key] = formData[`${key}FontFamily`] as string;
+        const fontStyles: Record<
+          string,
+          Record<
+            string,
+            Record<string, string | number | Record<string, string | number>>
+          >
+        > = {};
+        for (const category of ["core", "editorial", "interface"]) {
+          if (!fontStyles[category]) fontStyles[category] = {};
+          for (const type of [
+            "Body",
+            "Subtitles",
+            "Tech",
+            "Heading",
+            "Accent",
+            "Meta",
+          ]) {
+            if (!fontStyles[category][type]) fontStyles[category][type] = {};
+            for (const property of [
+              "FontFamily",
+              "FontStyle",
+              "LetterSpacing",
+            ]) {
+              if (category === "editorial" && type === "Heading") {
+                if (property === "FontFamily") {
+                  fontStyles[category][type][property] = formData[
+                    `${category}${type}${property}`
+                  ] as string | number;
+                } else {
+                  for (const size of ["2XL", "XL", "LG", "MD", "SM", "XS"]) {
+                    if (!fontStyles[category][type][property])
+                      fontStyles[category][type][property] = {};
+                    (
+                      fontStyles[category][type][property] as Record<
+                        string,
+                        string | number
+                      >
+                    )[size] = formData[
+                      `${category}${type}${size}${property}`
+                    ] as string | number;
+                  }
+                }
+              } else {
+                fontStyles[category][type][property] = formData[
+                  `${category}${type}${property}`
+                ] as string | number;
+              }
+            }
+          }
         }
 
         // Handle Text Datas
@@ -234,27 +281,6 @@ export function attachButtonListeners() {
           }
         }
 
-        console.log("📋 Images Datas complète:", imagesDatasList);
-
-        // let imagesDatasList: Array<{ name: string; data: ArrayBuffer }> = [];
-        // const imagesDatasFiles = formData["imagesDatasFiles"] as
-        //   | File[]
-        //   | undefined;
-
-        // if (imagesDatasFiles && imagesDatasFiles.length > 0) {
-        //   try {
-        //     for (const file of imagesDatasFiles) {
-        //       const arrayBuffer = await file.arrayBuffer();
-        //       imagesDatasList.push({
-        //         name: file.name,
-        //         data: arrayBuffer,
-        //       });
-        //     }
-        //   } catch (error) {
-        //     console.error("Failed to process image files:", error);
-        //   }
-        // }
-
         // Send message to plugin
         parent.postMessage(
           {
@@ -269,7 +295,7 @@ export function attachButtonListeners() {
                 layoutGuide,
                 radius,
                 baseFontSize,
-                fontFamilies,
+                fontStyles,
                 textDatasList,
                 imagesDatasList,
               },

@@ -3,6 +3,7 @@
  */
 
 import { TextStyleParams } from "../../types/stylesTypes";
+import { variableBuilder } from "../variables/variableBuilder";
 
 export class StyleBuilder {
   async getStyle(
@@ -83,6 +84,27 @@ export class StyleBuilder {
         textStyle.paragraphSpacing = textParams.paragraphSpacing || 0;
         textStyle.textCase = textParams.textCase || "ORIGINAL";
         textStyle.textDecoration = textParams.textDecoration || "NONE";
+
+        // Bind variables to text style properties if provided
+        if (textParams.boundVariables) {
+          for (const field of Object.keys(textParams.boundVariables) as Array<
+            keyof typeof textParams.boundVariables
+          >) {
+            const variableAlias = textParams.boundVariables[field];
+            // Si ce n'est pas une Variable, mais un alias ou un id, on récupère la Variable
+            if (variableAlias) {
+              const variable = await figma.variables.getVariableByIdAsync(
+                variableAlias.id,
+              );
+              if (variable) {
+                textStyle.setBoundVariable(
+                  field as VariableBindableTextField,
+                  variable,
+                );
+              }
+            }
+          }
+        }
         break;
       case "effect":
         (style as EffectStyle).effects = params as Effect[];
