@@ -27,6 +27,7 @@ import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 import { generateImagesComponents } from "./builders/components/ImagesBuilder";
 import { generateGradients } from "./builders/styles/GradientsBuilder";
 import { generateTypographyStyles } from "./builders/styles/TypographyBuilder";
+import { generateViewportsPages } from "./builders/pages/ViewportsBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -172,6 +173,22 @@ figma.ui.onmessage = async (msg) => {
         );
         return;
       }
+    }
+  }
+
+  if (msg.type === "generateViewportsPages" || msg.type === "generateAll") {
+    try {
+      await generateViewportsPages();
+      figma.notify("✅ Pages de présentations générées avec succès");
+    } catch (error) {
+      logger.error("Erreur génération des Pages de présentations:", error);
+      figma.notify(
+        "❌ Erreur lors de la génération des Pages de présentations",
+        {
+          error: true,
+        },
+      );
+      return;
     }
   }
 

@@ -16,6 +16,7 @@ const btns = [
   "palettes",
   "themes",
   "layout-guide",
+  "viewports-pages",
   "radius",
   "font-sizes",
   "font-styles",

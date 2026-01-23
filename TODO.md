@@ -35,4 +35,4 @@
   - ✅ ImageFormat
   - ✅ Gallery
 
-## Pages
+## 🔁 Pages
