@@ -199,6 +199,7 @@ export async function generateBreakpoints({
         mode: modeName,
         value,
         hidden: true,
+        scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
       });
     }
 
@@ -229,6 +230,7 @@ export async function generateBreakpoints({
             mode: modeName,
             value,
             hidden: true,
+            scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
           });
         }
       }
@@ -627,6 +629,7 @@ export async function generateDevices({
               width,
               value - horizontalBodyPadding * 2 - horizontalMainPadding * 2,
             ),
+            scopes: [SCOPES.FLOAT.WIDTH_HEIGHT],
           });
         }
 

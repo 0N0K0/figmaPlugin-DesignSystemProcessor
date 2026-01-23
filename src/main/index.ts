@@ -114,6 +114,7 @@ figma.ui.onmessage = async (msg) => {
             coreThemes,
             themes,
             toPascalCase(key),
+            colors,
           );
           figma.notify(
             `✅ Thèmes de couleurs de ${toPascalCase(key)} générés avec succès`,

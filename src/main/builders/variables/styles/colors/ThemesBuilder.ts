@@ -14,6 +14,11 @@ import {
 } from "./PalettesBuilder";
 import { toPascalCase } from "../../../../../common/utils/textUtils";
 import { SCOPES } from "../../../../constants/variablesConstants";
+import {
+  OPACITIES_STEPS,
+  SHADE_STEPS,
+} from "../../../../../common/constants/colorConstants";
+import { logger } from "../../../../utils/logger";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -230,7 +235,7 @@ export async function generateColorThemes(
 
         // Créer la variable de thème avec alias vers la palette
         variables.push({
-          name: `${colorFamily}/${category}/${state === "border" ? state : `state/${state}`}`.toLowerCase(),
+          name: `${colorFamily}/${category}/${state === "border" ? `core/${state}` : `state/${state}`}`.toLowerCase(),
           collection: COLLECTION_NAME,
           type: "COLOR",
           mode,
@@ -250,28 +255,71 @@ export async function generateColorsThemesCollections(
   coreShades: Record<string, Record<string, number>>,
   themes: Record<string, string>,
   colorFamily: string,
+  colors: ColorsCollection,
 ): Promise<Variable[]> {
   const variables: VariableConfig[] = [];
 
+  for (const [name, baseColor] of Object.entries(colors)) {
+    for (const step of SHADE_STEPS) {
+      const targetShadeVariableName =
+        `${colorFamily}/${name}/shade/${step}`.toLowerCase();
+      const { alias: shadeAlias } = await getTargetValue(
+        targetShadeVariableName,
+        "Style\\Colors\\Palette",
+      );
+      logger.info("targetShadeVariableName", targetShadeVariableName);
+      logger.info("shadeAlias", shadeAlias);
+      variables.push({
+        name: `shade/${step}`.toLowerCase(),
+        collection: `Style\\Colors\\${colorFamily}`,
+        type: "COLOR",
+        mode: toPascalCase(name),
+        alias: shadeAlias,
+        value: shadeAlias ? undefined : "#fff",
+        scopes: [SCOPES.COLOR.ALL],
+      });
+    }
+
+    for (const step of OPACITIES_STEPS) {
+      const targetOpacityVariableName =
+        `${colorFamily}/${name}/opacity/${step}`.toLowerCase();
+      const { alias: opacityAlias } = await getTargetValue(
+        targetOpacityVariableName,
+        "Style\\Colors\\Palette",
+      );
+      logger.info("targetOpacityVariableName", targetOpacityVariableName);
+      logger.info("opacityAlias", opacityAlias);
+      variables.push({
+        name: `opacity/${step}`.toLowerCase(),
+        collection: `Style\\Colors\\${colorFamily}`,
+        type: "COLOR",
+        mode: toPascalCase(name),
+        alias: opacityAlias,
+        value: opacityAlias ? undefined : "#fff",
+        scopes: [SCOPES.COLOR.ALL],
+      });
+    }
+  }
+
   for (const [category, shades] of Object.entries(coreShades)) {
     for (let shadeName of Object.keys(shades)) {
-      // Construire le nom de la variable cible dans la palette
-      const targetVariableName =
+      // Gérer les couleurs centrales
+      const targetCoreVariableName =
         `${colorFamily}/${category}/core/${shadeName}`.toLowerCase();
 
-      const { alias } = await getTargetValue(
-        targetVariableName,
+      const { alias: coreAlias } = await getTargetValue(
+        targetCoreVariableName,
         "Style\\Colors\\Themes",
       );
 
-      // Créer la variable de thème avec alias vers la palette
+      // Créer la variable centrale avec alias vers Themes
       variables.push({
         name: `core/${shadeName}`.toLowerCase(),
         collection: `Style\\Colors\\${colorFamily}`,
         type: "COLOR",
         mode: toPascalCase(category),
-        alias,
-        value: alias ? undefined : "#fff",
+        alias: coreAlias,
+        value: coreAlias ? undefined : "#fff",
         scopes: [SCOPES.COLOR.ALL_FILLS],
       });
 
@@ -279,16 +327,12 @@ export async function generateColorsThemesCollections(
       const targetContrastVariableName =
         `${colorFamily}/${category}/contrast/${shadeName}`.toLowerCase();
 
-      const TargetValueForDebug = await getTargetValue(
-        targetContrastVariableName,
-        "Style\\Colors\\Themes",
-      );
       const { alias: contrastAlias } = await getTargetValue(
         targetContrastVariableName,
         "Style\\Colors\\Themes",
       );
 
-      // Créer la variable de thème avec alias vers la palette
+      // Créer la variable de contraste avec alias vers Themes
       variables.push({
         name: `contrast/${shadeName}`.toLowerCase(),
         collection: `Style\\Colors\\${colorFamily}`,
@@ -302,16 +346,16 @@ export async function generateColorsThemesCollections(
 
     for (const state of Object.keys(themes)) {
       const targetVariableName =
-        `${colorFamily}/${category}/${state === "border" ? state : `state/${state}`}`.toLowerCase();
+        `${colorFamily}/${category}/${state === "border" ? `core/${state}` : `state/${state}`}`.toLowerCase();
 
       const { alias } = await getTargetValue(
         targetVariableName,
         "Style\\Colors\\Themes",
       );
 
-      // Créer la variable de thème avec alias vers la palette
+      // Créer la variable de bordure ou d'état avec alias vers Themes
       variables.push({
-        name: `${state === "border" ? state : `state/${state}`}`.toLowerCase(),
+        name: `${state === "border" ? `core/${state}` : `state/${state}`}`.toLowerCase(),
         collection: `Style\\Colors\\${colorFamily}`,
         type: "COLOR",
         mode: toPascalCase(category),
