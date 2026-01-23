@@ -22,11 +22,11 @@
 
 ### ✅ Datas
 
-## 🔁 Styles :
+## ✅ Styles :
 
 - ✅ Gradients
 - ✅ Shadows
-- Typography
+- ✅ Typography
 
 ## ✅ Components :
 

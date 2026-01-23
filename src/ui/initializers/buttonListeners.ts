@@ -210,7 +210,6 @@ export function attachButtonListeners() {
             }
           }
         }
-        console.log("📋 Font Styles complète:", fontStyles);
 
         // Handle Text Datas
         let textDatasList: Record<string, any>[] = [];

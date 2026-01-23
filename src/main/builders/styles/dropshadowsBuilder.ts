@@ -1,6 +1,4 @@
 import { Shadow } from "../../types/stylesTypes";
-import { hexToFigmaRgba } from "../../utils/colorUtils";
-import { logger } from "../../utils/logger";
 import { variableBuilder } from "../variables/variableBuilder";
 import { styleBuilder } from "./styleBuilder";
 

@@ -311,7 +311,7 @@ export const TABS: TabConfig[] = [
             title: "Subtitles",
             inputs: [
               textInput("coreSubtitlesFontFamily", "Family", "Roboto"),
-              textInput("coreSubtitlesFontStyle", "Style", "Thin italic"),
+              textInput("coreSubtitlesFontStyle", "Style", "Thin Italic"),
               numInput("coreSubtitlesLetterSpacing", "Letter Spacing", 0),
             ],
           },

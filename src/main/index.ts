@@ -26,6 +26,7 @@ import { generateTypography } from "./builders/variables/styles/TypographyBuilde
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
 import { generateImagesComponents } from "./builders/components/ImagesBuilder";
 import { generateGradients } from "./builders/styles/GradientsBuilder";
+import { generateTypographyStyles } from "./builders/styles/TypographyBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -223,6 +224,8 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateAll"
   ) {
     const fontStyles = msg.datas?.fontStyles;
+    const baseFontSize = msg.datas?.baseFontSize;
+    const lineGrid = msg.datas?.lineGrid;
     if (fontStyles === undefined) {
       figma.notify("⚠️ Aucune donnée de styles de typographie fournie", {
         error: true,
@@ -230,8 +233,8 @@ figma.ui.onmessage = async (msg) => {
       return;
     } else {
       try {
-        logger.info("fontStyles", fontStyles);
         await generateTypography(fontStyles);
+        await generateTypographyStyles(fontStyles, baseFontSize, lineGrid);
         figma.notify("✅ Styles de typographie générées avec succès");
       } catch (error) {
         logger.error("Erreur génération des styles de typographie:", error);
