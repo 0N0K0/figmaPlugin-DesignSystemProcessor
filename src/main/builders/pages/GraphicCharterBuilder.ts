@@ -110,6 +110,21 @@ async function generateText(
   }
 }
 
+function distribute() {
+  const gap = 80;
+
+  const nodes = figma.currentPage.children;
+  // Point de départ
+  let cursorX = nodes[0]?.x ?? 0;
+  const baseY = nodes[0]?.y ?? 0;
+
+  for (const node of nodes) {
+    node.x = cursorX;
+    node.y = baseY;
+    cursorX += node.width + gap;
+  }
+}
+
 async function generateColorFrame(
   color: Variable,
   colorIndex: number,
@@ -327,20 +342,42 @@ export async function generateGraphicCharterColors(
     }
   }
 
-  const gap = 80;
+  distribute();
+}
 
-  // Optionnel : trier par position X actuelle
-  const nodes = figma.currentPage.children;
+export async function generateGraphicCharterGradients() {
+  const gradientStyles = await figma.getLocalPaintStylesAsync();
+  if (!gradientStyles) return;
 
-  // Point de départ
-  let cursorX = nodes[0]?.x ?? 0;
-  const baseY = nodes[0]?.y ?? 0;
+  const gradientsFrame = await generateFrame(
+    `Style\\Colors\\Gradients`,
+    "light",
+    "GRID",
+  );
+  gradientsFrame.y = 0;
+  gradientsFrame.gridColumnCount = 2;
+  gradientsFrame.gridRowCount = gradientStyles.length;
+  gradientsFrame.gridRowSizes = new Array(gradientStyles.length).fill({
+    type: "HUG",
+  });
 
-  for (const node of nodes) {
-    node.x = cursorX;
-    node.y = baseY;
-    cursorX += node.width + gap;
+  for (const style of gradientStyles) {
+    await generateText(
+      gradientsFrame,
+      style.name,
+      "meta",
+      gradientStyles.indexOf(style),
+      0,
+    );
+
+    const gradientFrame = figma.createFrame();
+    gradientFrame.name = style.name;
+    gradientFrame.fillStyleId = style.id;
+    gradientFrame.resize(72, 72);
+    gradientsFrame.appendChild(gradientFrame);
+    gradientFrame.setGridChildPosition(gradientStyles.indexOf(style), 1);
   }
+  distribute();
 }
 
 export async function generateGraphicCharterNeutral(): Promise<void> {
@@ -414,16 +451,46 @@ export async function generateGraphicCharterNeutral(): Promise<void> {
     }
   }
 
-  const gap = 80;
+  distribute();
+}
 
-  const nodes = figma.currentPage.children;
-  // Point de départ
-  let cursorX = nodes[0]?.x ?? 0;
-  const baseY = nodes[0]?.y ?? 0;
+export async function generateGraphicCharterTypography(): Promise<void> {
+  const textStyles = await figma.getLocalTextStylesAsync();
+  if (!textStyles) return;
 
-  for (const node of nodes) {
-    node.x = cursorX;
-    node.y = baseY;
-    cursorX += node.width + gap;
+  await figma.loadFontAsync({ family: "Inter", style: "Regular" });
+
+  const typographyFrame = await generateFrame(
+    `Style\\Typography`,
+    "light",
+    "GRID",
+  );
+  typographyFrame.y = 0;
+  typographyFrame.gridColumnCount = 2;
+  typographyFrame.gridRowCount = textStyles.length;
+  typographyFrame.gridRowSizes = new Array(textStyles.length).fill({
+    type: "HUG",
+  });
+  typographyFrame.gridColumnSizes = [{ type: "FLEX" }, { type: "HUG" }];
+
+  for (const style of textStyles) {
+    await figma.loadFontAsync(style.fontName as FontName);
+
+    await generateText(
+      typographyFrame,
+      style.name,
+      "meta",
+      textStyles.indexOf(style),
+      0,
+    );
+
+    const text = figma.createText();
+    text.name = style.name;
+    text.characters = "The quick brown fox jumps over the lazy dog.";
+    text.textStyleId = style.id;
+    typographyFrame.appendChild(text);
+    text.setGridChildPosition(textStyles.indexOf(style), 1);
   }
+
+  distribute();
 }
