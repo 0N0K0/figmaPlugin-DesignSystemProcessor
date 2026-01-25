@@ -267,7 +267,10 @@ export const TABS: TabConfig[] = [
         inputs: [selector("themesBorder", "Border", 500, colorOpacityOptions)],
       },
       {
-        inputs: [btn("Generate Themes")],
+        inputs: [
+          btn("Generate Themes"),
+          btn("Generate Graphic Charter Colors"),
+        ],
       },
     ],
   },
@@ -479,7 +482,10 @@ export const TABS: TabConfig[] = [
             ],
           },
         ],
-        inputs: [btn("Generate Font Styles")],
+        inputs: [
+          btn("Generate Font Styles"),
+          btn("Generate Graphic Charter Typography"),
+        ],
       },
       {
         inputs: [btn("Generate Typography")],

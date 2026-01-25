@@ -40,6 +40,17 @@ export class VariableBuilder {
     return collection;
   }
 
+  async getModesFromCollection(collectionName: string): Promise<
+    {
+      modeId: string;
+      name: string;
+    }[]
+  > {
+    const collection = await this.getCollection(collectionName);
+    if (!collection) return [];
+    return collection.modes;
+  }
+
   /**
    * Obtient un mode d'une collection par nom
    */

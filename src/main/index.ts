@@ -28,6 +28,10 @@ import { generateImagesComponents } from "./builders/components/ImagesBuilder";
 import { generateGradients } from "./builders/styles/GradientsBuilder";
 import { generateTypographyStyles } from "./builders/styles/TypographyBuilder";
 import { generateViewportsPages } from "./builders/pages/ViewportsBuilder";
+import {
+  generateGraphicCharterColors,
+  generateGraphicCharterNeutral,
+} from "./builders/pages/GraphicCharterBuilder";
 
 figma.showUI(__html__, {
   width: 304,
@@ -149,6 +153,30 @@ figma.ui.onmessage = async (msg) => {
     }
   }
 
+  if (
+    msg.type === "generateGraphicCharterColors" ||
+    msg.type === "generateAll"
+  ) {
+    try {
+      await generateGraphicCharterColors("Brand");
+      await generateGraphicCharterColors("Feedback");
+      await generateGraphicCharterNeutral();
+      figma.notify(`✅ Charte graphique couleurs générée avec succès`);
+    } catch (error) {
+      logger.error(
+        `Erreur lors de la génération de la charte graphique couleurs:`,
+        error,
+      );
+      figma.notify(
+        `❌ Erreur lors de la génération de la charte graphique couleurs`,
+        {
+          error: true,
+        },
+      );
+      return;
+    }
+  }
+
   if (msg.type === "generateLayoutGuide" || msg.type === "generateAll") {
     const layoutGuide = msg.datas?.layoutGuide;
     if (layoutGuide === undefined) {
@@ -265,6 +293,15 @@ figma.ui.onmessage = async (msg) => {
         return;
       }
     }
+  }
+
+  if (
+    msg.type === "generateGraphicCharterTypography" ||
+    msg.type === "generateAll"
+  ) {
+    /**
+     * TODO: Implémenter la génération de la charte graphique typographique
+     */
   }
 
   if (
