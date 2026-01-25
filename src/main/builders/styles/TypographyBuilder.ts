@@ -101,7 +101,9 @@ export async function generateTypographyStyles(
       }
 
       const fontSizesProperties =
-        type === "Heading" ? fontSizes["heading"] : fontSizes["body"];
+        type === "Heading" || type === "Accent"
+          ? fontSizes["heading"]
+          : fontSizes["body"];
       const sizes = fontSizesProperties["font-size"];
       const lineHeights = fontSizesProperties["line-height"];
 
@@ -187,7 +189,7 @@ export async function generateTypographyStyles(
               ? "UPPER"
               : "ORIGINAL",
           letterSpacing: {
-            unit: "PIXELS",
+            unit: "PERCENT",
             value:
               Number(
                 letterSpacing.valuesByMode[
@@ -200,7 +202,6 @@ export async function generateTypographyStyles(
             fontStyle: { type: "VARIABLE_ALIAS", id: fontStyle.id },
             fontSize: { type: "VARIABLE_ALIAS", id: fontSize.id },
             lineHeight: { type: "VARIABLE_ALIAS", id: lineHeight.id },
-            letterSpacing: { type: "VARIABLE_ALIAS", id: letterSpacing.id },
           },
         } as TextStyleParams;
         await styleBuilder.createOrUpdateStyle(name, "text", textStyleParams);

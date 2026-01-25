@@ -96,12 +96,12 @@ export async function generateElevationEffects(): Promise<void> {
     }));
 
     // Mettre à jour ou créer le style d'effet
-    if (await styleBuilder.getStyle(`Elevation/${level}`, "effect")) {
-      styleBuilder.updateStyle(`Elevation/${level}`, "effect", effects);
+    if (await styleBuilder.getStyle(`elevation/${level}`, "effect")) {
+      styleBuilder.updateStyle(`elevation/${level}`, "effect", effects);
       continue;
     }
     await styleBuilder.createOrUpdateStyle(
-      `Elevation/${level}`,
+      `elevation/${level}`,
       "effect",
       effects,
     );

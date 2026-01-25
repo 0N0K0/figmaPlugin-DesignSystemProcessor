@@ -67,7 +67,7 @@ export async function generateGradients(
       });
     }
     await styleBuilder.createOrUpdateStyle(
-      `Gradient/${key.toLowerCase()}`,
+      `gradient/${key.toLowerCase()}`,
       "paint",
       [
         {
@@ -100,7 +100,7 @@ export async function generateGradients(
         });
       }
       styleBuilder.createOrUpdateStyle(
-        `Gradient/${combo.map((k) => k.toLowerCase()).join("-")}`,
+        `gradient/${combo.map((k) => k.toLowerCase()).join("-")}`,
         "paint",
         [
           {
@@ -134,7 +134,7 @@ export async function generateGradients(
         });
       }
       styleBuilder.createOrUpdateStyle(
-        `Gradient/${combo.map((k) => k.toLowerCase()).join("-")}`,
+        `gradient/${combo.map((k) => k.toLowerCase()).join("-")}`,
         "paint",
         [
           {
