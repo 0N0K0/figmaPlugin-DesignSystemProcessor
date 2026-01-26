@@ -101,7 +101,7 @@ export function attachButtonListeners() {
     if (btn) {
       btn.addEventListener("click", async () => {
         // Ouvrir le debug panel automatiquement
-        // debugPanel.show();
+        debugPanel.show();
 
         const formData = getFormData();
         console.log("📋 FormData complète:", formData);
