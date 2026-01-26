@@ -43,23 +43,6 @@ export async function generateColorPalette(
         scopes: [SCOPES.COLOR.ALL],
       });
     });
-
-    // Génère les opacités
-    const opacities = OPACITIES_STEPS.map((opacity) => {
-      return {
-        step: opacity,
-        color: hexToFigmaRgba(baseColor, opacity / 1000),
-      };
-    });
-    opacities.forEach(({ step, color }) => {
-      variables.push({
-        name: `${colorFamily}/${name}/opacity/${step}`.toLowerCase(),
-        collection: COLLECTION_NAME,
-        type: "COLOR",
-        value: color,
-        scopes: [SCOPES.COLOR.ALL],
-      });
-    });
   }
 
   return await variableBuilder.createOrUpdateVariables(variables);

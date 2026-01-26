@@ -19,6 +19,7 @@ import {
   SHADE_STEPS,
 } from "../../../../../common/constants/colorConstants";
 import { logger } from "../../../../utils/logger";
+import { hexToFigmaRgba } from "../../../../utils/colorUtils";
 
 const COLLECTION_NAME = "Style\\Colors\\Themes";
 const MODES = ["Light", "Dark"] as const;
@@ -147,6 +148,7 @@ export async function generateColorThemes(
     for (const [category, shades] of Object.entries(coreShades)) {
       for (let [shadeName, shadeValue] of Object.entries(shades)) {
         if (mode === "Light") shadeValue += 100;
+
         // Construire le nom de la variable cible dans la palette
         const targetVariableName =
           `${colorFamily}/${category}/shade/${shadeValue}`.toLowerCase();
@@ -165,6 +167,25 @@ export async function generateColorThemes(
           mode,
           alias,
           value: alias ? undefined : "#fff",
+        });
+
+        // Génère les opacités
+        const opacities = OPACITIES_STEPS.map((opacity) => {
+          return {
+            step: opacity,
+            color: targetValue,
+          };
+        });
+        opacities.forEach(({ step, color }) => {
+          if (!color) return;
+          color.a = step / 1000;
+          variables.push({
+            name: `${colorFamily}/${category}/opacity/${step}`.toLowerCase(),
+            collection: COLLECTION_NAME,
+            type: "COLOR",
+            value: color,
+            scopes: [SCOPES.COLOR.ALL],
+          });
         });
 
         // Gérer les couleurs de contraste
@@ -267,8 +288,6 @@ export async function generateColorsThemesCollections(
         targetShadeVariableName,
         "Style\\Colors\\Palette",
       );
-      logger.info("targetShadeVariableName", targetShadeVariableName);
-      logger.info("shadeAlias", shadeAlias);
       variables.push({
         name: `shade/${step}`.toLowerCase(),
         collection: `Style\\Colors\\${colorFamily}`,
@@ -285,10 +304,8 @@ export async function generateColorsThemesCollections(
         `${colorFamily}/${name}/opacity/${step}`.toLowerCase();
       const { alias: opacityAlias } = await getTargetValue(
         targetOpacityVariableName,
-        "Style\\Colors\\Palette",
+        "Style\\Colors\\Themes",
       );
-      logger.info("targetOpacityVariableName", targetOpacityVariableName);
-      logger.info("opacityAlias", opacityAlias);
       variables.push({
         name: `opacity/${step}`.toLowerCase(),
         collection: `Style\\Colors\\${colorFamily}`,
