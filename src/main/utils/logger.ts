@@ -35,6 +35,8 @@ class Logger {
       message,
       data,
     );
+
+    new Promise<void>((r) => setTimeout(r, 0));
   }
 
   info(message: string, data?: any) {
