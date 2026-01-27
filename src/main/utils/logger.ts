@@ -2,14 +2,7 @@
  * Logger système pour envoyer les logs vers l'UI
  */
 
-export type LogLevel = "info" | "success" | "warn" | "error" | "debug";
-
-export interface LogMessage {
-  timestamp: number;
-  level: LogLevel;
-  message: string;
-  data?: any;
-}
+import { LogLevel, LogMessage } from "../types/loggerTypes";
 
 class Logger {
   private logs: LogMessage[] = [];

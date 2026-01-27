@@ -36,7 +36,7 @@ export class VariableBuilder {
   /**
    * Crée une nouvelle collection de variables
    */
-  async createCollection(name: string): Promise<VariableCollection> {
+  private async createCollection(name: string): Promise<VariableCollection> {
     try {
       const collection = figma.variables.createVariableCollection(name);
       if (collection.modes.length === 0) {
@@ -58,7 +58,9 @@ export class VariableBuilder {
   /**
    * Obtient ou crée une collection de variables
    */
-  async getOrCreateCollection(name: string): Promise<VariableCollection> {
+  private async getOrCreateCollection(
+    name: string,
+  ): Promise<VariableCollection> {
     const existing = await this.getCollection(name);
     if (existing) return existing;
 
@@ -66,6 +68,9 @@ export class VariableBuilder {
     return collection;
   }
 
+  /**
+   * Obtient tous les modes d'une collection
+   */
   async getModesFromCollection(collectionName: string): Promise<
     {
       modeId: string;
@@ -104,7 +109,7 @@ export class VariableBuilder {
   /**
    * Obtient un mode d'une collection par nom
    */
-  async getModeFromCollection(
+  private async getModeFromCollection(
     collectionName: string,
     modeName: string,
   ): Promise<{
@@ -142,7 +147,7 @@ export class VariableBuilder {
   /**
    * Ajoute un mode à une collection
    */
-  async addModeToCollection(
+  private async addModeToCollection(
     collectionName: string,
     modeName: string,
   ): Promise<string> {
@@ -164,7 +169,7 @@ export class VariableBuilder {
     }
   }
 
-  async getOrAddModeToCollection(
+  private async getOrAddModeToCollection(
     collectionName: string,
     modeName: string,
   ): Promise<string> {
@@ -178,7 +183,7 @@ export class VariableBuilder {
   /**
    * Supprime un mode d'une collection
    */
-  async removeModeFromCollection(
+  private async removeModeFromCollection(
     collectionName: string,
     modeName: string,
   ): Promise<void> {
@@ -189,9 +194,8 @@ export class VariableBuilder {
       );
       if (!mode) {
         logger.warn(
-          `[removeModeFromCollection] Le mode '${modeName}' n'existe pas dans la collection '${collectionName}'.`,
+          `[removeModeFromCollection] Impossible de supprimer le mode '${modeName}': mode non trouvé dans la collection '${collectionName}'.`,
         );
-
         return;
       }
       collection.removeMode(mode.modeId);
@@ -203,7 +207,6 @@ export class VariableBuilder {
         `[removeModeFromCollection] Erreur lors de la suppression du mode '${modeName}' de la collection '${collectionName}':`,
         error,
       );
-
       throw error;
     }
   }
@@ -310,22 +313,6 @@ export class VariableBuilder {
     return variables;
   }
 
-  // async getOrCreateCollectionVariablesByGroup(
-  //   collectionName: string,
-  //   groupName: string,
-  //   configs: VariableConfig[],
-  // ): Promise<Variable[]> {
-  //   const existingVars = await this.getCollectionVariablesByGroup(
-  //     collectionName,
-  //     groupName,
-  //   );
-  //   if (existingVars.length > 0) {
-  //     return existingVars;
-  //   }
-
-  //   return this.createVariables(configs);
-  // }
-
   /**
    * Crée une variable
    */
@@ -371,6 +358,9 @@ export class VariableBuilder {
     }
   }
 
+  /**
+   * Définit la valeur ou l'alias d'une variable pour un mode donné
+   */
   private setVariableValue(
     variable: Variable,
     modeId: string,
@@ -384,10 +374,6 @@ export class VariableBuilder {
         valueToSet = hexToFigmaRgba(value);
       }
       variable.setValueForMode(modeId, valueToSet);
-      logger.success(
-        `[setVariableValue] Valeur de la variable '${variable.name}' définie pour le mode '${modeId}':`,
-        valueToSet,
-      );
     }
 
     if (alias !== undefined) {
@@ -395,13 +381,12 @@ export class VariableBuilder {
         type: "VARIABLE_ALIAS",
         id: alias,
       });
-      logger.success(
-        `[setVariableValue] Alias de la variable '${variable.name}' défini pour le mode '${modeId}':`,
-        alias,
-      );
     }
   }
 
+  /**
+   * Définit les scopes d'une variable
+   */
   private setVariableScopes(variable: Variable, scopes: VariableScope[]) {
     if (variable.resolvedType === "BOOLEAN") {
       logger.warn(
@@ -410,39 +395,21 @@ export class VariableBuilder {
       return;
     }
     variable.scopes = scopes;
-    logger.success(
-      `[setVariableScopes] Scopes de la variable '${variable.name}' définis:`,
-      scopes,
-    );
-  }
-
-  private setVariableHiddenFromPublishing(variable: Variable, hidden: boolean) {
-    variable.hiddenFromPublishing = hidden;
-    logger.success(
-      `[setVariableHiddenFromPublishing] Visibilité de la variable '${variable.name}' définie sur:`,
-      hidden,
-    );
-  }
-
-  private setVariableDescription(variable: Variable, description: string) {
-    variable.description = description;
-    logger.success(
-      `[setVariableDescription] Description de la variable '${variable.name}' définie sur:`,
-      description,
-    );
   }
 
   /**
-   * Crée plusieurs variables
+   * Définit la visibilité d'une variable lors de la publication de la bibliothèque
    */
-  // async createVariables(configs: VariableConfig[]): Promise<Variable[]> {
-  //   const variables: Variable[] = [];
-  //   for (const config of configs) {
-  //     const variable = await this.createVariable(config);
-  //     variables.push(variable);
-  //   }
-  //   return variables;
-  // }
+  private setVariableHiddenFromPublishing(variable: Variable, hidden: boolean) {
+    variable.hiddenFromPublishing = hidden;
+  }
+
+  /**
+   * Définit la description d'une variable
+   */
+  private setVariableDescription(variable: Variable, description: string) {
+    variable.description = description;
+  }
 
   /**
    * Crée ou met à jour une variable
@@ -528,66 +495,9 @@ export class VariableBuilder {
   }
 
   /**
-   * Crée ou met à jour des variables organisées hiérarchiquement
-   *
-   * @example
-   * { colors: { brand: { 500: { type: "COLOR", value: "#0DB9F2", scopes: [...] } } } }
-   * Résultat: colors/brand/500 comme nom de variable
-   */
-  // async createorUpdateHierarchicalVariables(
-  //   collectionName: string,
-  //   hierarchy: Record<string, any>,
-  // ): Promise<Variable[]> {
-  //   const configs: VariableConfig[] = [];
-
-  //   /**
-  //    * Vérifie si un objet est un VariableConfig
-  //    */
-  //   const isVariableConfig = (obj: any): obj is VariableConfig => {
-  //     return (
-  //       typeof obj === "object" &&
-  //       obj !== null &&
-  //       "type" in obj &&
-  //       (obj.type === "COLOR" ||
-  //         obj.type === "FLOAT" ||
-  //         obj.type === "STRING" ||
-  //         obj.type === "BOOLEAN")
-  //     );
-  //   };
-
-  //   /**
-  //    * Parcourt récursivement la hiérarchie pour extraire les variables
-  //    */
-  //   const extractVariables = (
-  //     obj: Record<string, any>,
-  //     path: string[] = [],
-  //   ): void => {
-  //     for (const [key, value] of Object.entries(obj)) {
-  //       const currentPath = [...path, key];
-
-  //       // Si c'est un VariableConfig, l'ajouter avec le chemin complet
-  //       if (isVariableConfig(value)) {
-  //         configs.push({
-  //           ...value,
-  //           name: currentPath.join("/"),
-  //           collection: value.collection || collectionName,
-  //         });
-  //       }
-  //       // Sinon, continuer à descendre dans la hiérarchie
-  //       else if (typeof value === "object" && value !== null) {
-  //         extractVariables(value, currentPath);
-  //       }
-  //     }
-  //   };
-
-  //   extractVariables(hierarchy);
-  //   return this.createOrUpdateVariables(configs);
-  // }
-
-  /**
    * Supprime une variable
    */
-  async deleteVariable(
+  private async deleteVariable(
     collectionName: string,
     variableName: string,
   ): Promise<void> {
@@ -595,7 +505,7 @@ export class VariableBuilder {
       const variable = await this.findVariable(collectionName, variableName);
       if (!variable) {
         logger.warn(
-          `[deleteVariable] Variable '${variableName}' introuvable dans la collection '${collectionName}'.`,
+          `[deleteVariable] Impossible de supprimer la variable '${variableName}': variable non trouvée dans la collection '${collectionName}'.`,
         );
         return;
       }
@@ -611,17 +521,6 @@ export class VariableBuilder {
       throw error;
     }
   }
-
-  /**
-   * Supprime toutes les variables d'une collection
-   */
-  // async deleteCollectionVariables(collectionName: string): Promise<void> {
-  //   const vars = await this.getCollectionVariables(collectionName);
-  //   vars.forEach((v) => {
-  //     v.remove();
-  //     this.variables.delete(`${collectionName}/${v.name}`);
-  //   });
-  // }
 }
 
 // Export singleton par défaut
