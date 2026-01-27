@@ -53,6 +53,7 @@ export class StyleBuilder {
   private async createStyle(
     name: string,
     type: "paint" | "text" | "effect",
+    params: Paint[] | TextStyleParams | Effect[],
   ): Promise<PaintStyle | TextStyle | EffectStyle | GridStyle | undefined> {
     try {
       let newStyle;
@@ -68,7 +69,11 @@ export class StyleBuilder {
           break;
       }
       newStyle.name = name;
-      const newStyleWithValues = await this.setStyleValues(newStyle, type, []);
+      const newStyleWithValues = await this.setStyleValues(
+        newStyle,
+        type,
+        params,
+      );
       return newStyleWithValues;
     } catch (error) {
       await logger.error(
@@ -92,7 +97,8 @@ export class StyleBuilder {
       if (style) {
         return await this.updateStyle(name, type, params);
       }
-      style = await this.createStyle(name, type);
+      style = await this.createStyle(name, type, params);
+      return style;
     } catch (error) {
       await logger.error(
         `[createOrUpdateStyle] Erreur lors de la création ou mise à jour du style '${name}' de type '${type}':`,

@@ -1,34 +1,8 @@
 import { ColorsCollection } from "../../types/variablesTypes";
-import { generateColorPalette } from "../variables/styles/colors/PalettesBuilder";
+import { angleToTransform, getCombinations } from "../../utils/gradientUtils";
+import { logger } from "../../utils/logger";
 import { variableBuilder } from "../variables/variableBuilder";
 import { styleBuilder } from "./styleBuilder";
-
-function angleToTransform(deg: number): number[][] {
-  const rad = (deg * Math.PI) / 180;
-  const cos = Math.cos(rad);
-  const sin = Math.sin(rad);
-  return [
-    [cos, sin, 0],
-    [-sin, cos, 0],
-  ];
-}
-
-function getCombinations<T>(array: T[], comboLength: number): T[][] {
-  const results: T[][] = [];
-  function helper(start: number, combo: T[]) {
-    if (combo.length === comboLength) {
-      results.push([...combo]);
-      return;
-    }
-    for (let i = start; i < array.length; i++) {
-      combo.push(array[i]);
-      helper(i + 1, combo);
-      combo.pop();
-    }
-  }
-  helper(0, []);
-  return results;
-}
 
 export async function generateGradients(
   brandColors: ColorsCollection,
@@ -37,9 +11,11 @@ export async function generateGradients(
     "Style\\Colors\\Palette",
     "brand",
   );
-  if (colors.length === 0) {
-    colors = await generateColorPalette(brandColors, "brand");
-  }
+  logger.debug(
+    `Found ${colors.length} brand colors for gradient generation : `,
+    colors.map((c) => c.name),
+  );
+
   const brandColorsKeys = Object.keys(brandColors);
   const combos2 = getCombinations(brandColorsKeys, 2);
   const combos3 = getCombinations(brandColorsKeys, 3);
@@ -84,16 +60,17 @@ export async function generateGradients(
       const shades = [600, 400];
       const gradientStops: ColorStop[] = [];
       for (let i = 0; i < shades.length; i++) {
+        const id = colors.find(
+          (c) => c.name === `brand/${combo[i]}/${shades[i]}`.toLowerCase(),
+        )!.id;
+        logger.debug(`Found color ID for gradient stop: ${id}`);
         gradientStops.push({
           position: i,
           color: { r: 0, g: 0, b: 0, a: 1 },
           boundVariables: {
             color: {
               type: "VARIABLE_ALIAS",
-              id: colors.find(
-                (c) =>
-                  c.name === `brand/${combo[i]}/${shades[i]}`.toLowerCase(),
-              )!.id,
+              id,
             },
           },
         });
