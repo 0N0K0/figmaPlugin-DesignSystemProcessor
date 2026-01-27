@@ -14,7 +14,7 @@ export class ElementBuilder {
         | FrameNode
         | undefined;
       if (!frame) {
-        await logger.warn(`[getFrame] Frame '${name}' non trouvée.`);
+        await logger.info(`[getFrame] Frame '${name}' non trouvée.`);
         return undefined;
       }
       await logger.info(`[getFrame] Frame '${name}' trouvée.`);

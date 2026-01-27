@@ -9,7 +9,7 @@ export class PageBuilder {
       const pages = await this.getPages();
       const page = pages.find((p) => p.name === name) as PageNode | undefined;
       if (!page) {
-        await logger.warn(`[getPage] Page '${name}' non trouvée.`);
+        await logger.info(`[getPage] Page '${name}' non trouvée.`);
         return undefined;
       }
       await logger.info(`[getPage] Page '${name}' trouvée.`);

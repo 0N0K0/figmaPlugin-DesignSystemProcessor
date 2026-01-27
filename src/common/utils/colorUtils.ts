@@ -1,49 +1,36 @@
 import { clampChroma, converter, formatHex, wcagContrast } from "culori";
 import { SHADE_STEPS } from "../constants/colorConstants";
 
-export function generateShades(
-  colorHex: string,
-): { step: number; color: string }[] {
+export type Shade = { step: number; color: string };
+
+export function generateShades(colorHex: string): Shade[] {
+  const gammaL = 1.2;
+  const lMin = 0.15;
+  const lMax = 0.95;
+
   const base = converter("oklch")(colorHex);
   if (!base) return [];
-  const { l: baseL, c: CO, h: H0 } = base;
-  const lMax = 0.95;
-  const lMin = 0.15;
-  const stepNumbers = SHADE_STEPS.map(Number);
-  const minStep = Math.min.apply(Math, stepNumbers);
-  const maxStep = Math.max.apply(Math, stepNumbers);
-
-  // Trouve la shade la plus proche de la luminosité de base
-  let closestStep = SHADE_STEPS[0];
-  let minDiff = Infinity;
-
-  SHADE_STEPS.forEach((step) => {
-    const t = (step - minStep) / (maxStep - minStep);
-    const l = lMax - Math.pow(t, 1.15) * (lMax - lMin);
-    const diff = Math.abs(l - baseL);
-    if (diff < minDiff) {
-      minDiff = diff;
-      closestStep = step;
-    }
-  });
-
-  // Calculer la position de la couleur de base dans l'échelle
-  const closestT = (closestStep - minStep) / (maxStep - minStep);
-  const baseLFromFormula = lMax - Math.pow(closestT, 1.15) * (lMax - lMin);
-  const luminosityOffset = baseL - baseLFromFormula;
+  const { l: baseL, c: baseC, h } = base;
+  if (!h) return [];
 
   return SHADE_STEPS.map((step) => {
-    // Si c'est la shade la plus proche, on utilise la couleur de départ
-    if (step === closestStep) {
-      return { step, color: colorHex };
-    }
+    if (step === 500) return { step, color: colorHex };
 
-    const stepValue = step;
-    const t = (stepValue - minStep) / (maxStep - minStep);
-    // Appliquer le décalage de luminosité pour adapter le dégradé autour de la couleur de base
-    const l = lMax - Math.pow(t, 1.15) * (lMax - lMin) + luminosityOffset;
-    const c = CO * Math.pow(Math.sin(Math.PI * t), 0.9);
-    const color = clampChroma({ mode: "oklch", l, c, h: H0 });
+    const t = (step - 500) / 400; // -1 à 1
+
+    // Luminosité : cloche exponentielle
+    const L =
+      baseL +
+      (step < 500 ? lMax - baseL : lMin - baseL) *
+        Math.pow(Math.abs(t), gammaL);
+
+    // Chroma : proche de baseC, léger ajustement perceptuel
+    let C = baseC;
+    // optionnel : diminuer très légèrement pour steps extrêmes
+    if (step <= 100) C *= 0.95;
+    if (step >= 900) C *= 0.9;
+
+    const color = clampChroma({ mode: "oklch", l: L, c: C, h });
     return { step, color: formatHex(color) };
   });
 }

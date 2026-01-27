@@ -8,3 +8,37 @@ export const OPACITIES_STEPS: number[] = [];
 for (let i = 50; i <= 950; i += 50) {
   OPACITIES_STEPS.push(i);
 }
+
+export const HUES: Record<string, number> = {
+  deepOrange: 20,
+  orange: 30,
+  amber: 40,
+  yellow: 50,
+  lime: 70,
+  green: 110,
+  teal: 150,
+  cyan: 170,
+  lightBlue: 190,
+  blue: 210,
+  indigo: 250,
+  deepPurple: 270,
+  purple: 290,
+  fushia: 310,
+  pink: 330,
+  strawberry: 350,
+  red: 10,
+};
+
+export const CORRECTED_L: { [key: string]: number } = {
+  deepOrange: 0.65,
+  orange: 0.7,
+  amber: 0.75,
+  yellow: 0.8,
+  lime: 0.78,
+  green: 0.75,
+  teal: 0.71,
+  cyan: 0.69,
+  lightBlue: 0.67,
+  blue: 0.65,
+  indigo: 0.62,
+};
