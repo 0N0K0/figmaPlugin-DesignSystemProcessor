@@ -19,16 +19,29 @@ export interface VariableConfig {
  */
 export type VariableValue = string | number | boolean | RGB | RGBA;
 
+export interface ElevationConfig {
+  baseShade: number;
+  altShade?: number;
+  steps?: string[];
+}
+
 /**
  * Référence à une autre variable
  */
 export type ColorsCollection = Record<string, string>;
 
+export interface ModeConfig {
+  columns: number;
+  viewportWidth: { min: number; max: number };
+  viewportHeight: Record<string, Record<string, Record<string, number>>>;
+  contentWidth: Record<string, Record<string, Record<string, number>>>;
+}
+
 // Types des modes de densité
 export type DensitiesMode = "tight" | "compact" | "loose";
 
 // Configuration des densités
-export type DensitiesConfigType = {
+export type DensitiesConfig = {
   tight: {
     minHeight: number;
     maxSpacing: number;

@@ -68,7 +68,7 @@ figma.ui.onmessage = async (msg) => {
           `✅ Palette de couleurs de ${toPascalCase(key)} générée avec succès`,
         );
       } catch (error) {
-        logger.error(`Erreur génération ${key}:`, error);
+        await logger.error(`Erreur génération ${key}:`, error);
         figma.notify(
           `❌ Erreur lors de la génération de la palette de couleurs de ${toPascalCase(key)}`,
           {
@@ -89,7 +89,7 @@ figma.ui.onmessage = async (msg) => {
       await generateNeutralPalette(greyHue ?? "");
       figma.notify("✅ Palette de couleurs Neutral générée avec succès");
     } catch (error) {
-      logger.error("Erreur génération Neutral:", error);
+      await logger.error("Erreur génération Neutral:", error);
       figma.notify("❌ Erreur lors de la génération de la palette Neutral", {
         error: true,
       });
@@ -114,7 +114,6 @@ figma.ui.onmessage = async (msg) => {
             coreThemes,
             themes,
             toPascalCase(key),
-            colors,
             greyHue,
           );
           await generateColorsThemesCollections(
@@ -127,7 +126,7 @@ figma.ui.onmessage = async (msg) => {
             `✅ Thèmes de couleurs de ${toPascalCase(key)} générés avec succès`,
           );
         } catch (error) {
-          logger.error(
+          await logger.error(
             `Erreur lors de la génération des thèmes de ${toPascalCase(key)}:`,
             error,
           );
@@ -146,7 +145,10 @@ figma.ui.onmessage = async (msg) => {
         await generateNeutralThemes(neutralColors);
         figma.notify(`✅ Thèmes de couleurs Neutral générés avec succès`);
       } catch (error) {
-        logger.error(`Erreur lors de la génération des thèmes Neutral:`, error);
+        await logger.error(
+          `Erreur lors de la génération des thèmes Neutral:`,
+          error,
+        );
         figma.notify(`❌ Erreur lors de la génération des thèmes Neutral`, {
           error: true,
         });
@@ -166,7 +168,7 @@ figma.ui.onmessage = async (msg) => {
       await generateGraphicCharterNeutral();
       figma.notify(`✅ Charte graphique couleurs générée avec succès`);
     } catch (error) {
-      logger.error(
+      await logger.error(
         `Erreur lors de la génération de la charte graphique couleurs:`,
         error,
       );
@@ -195,7 +197,10 @@ figma.ui.onmessage = async (msg) => {
         await generateDevices(layoutGuide);
         figma.notify("✅ Guide de mise en page généré avec succès");
       } catch (error) {
-        logger.error("Erreur génération du Guide de mise en page:", error);
+        await logger.error(
+          "Erreur génération du Guide de mise en page:",
+          error,
+        );
         figma.notify(
           "❌ Erreur lors de la génération du Guide de mise en page",
           {
@@ -212,7 +217,10 @@ figma.ui.onmessage = async (msg) => {
       await generateViewportsPages();
       figma.notify("✅ Pages de présentations générées avec succès");
     } catch (error) {
-      logger.error("Erreur génération des Pages de présentations:", error);
+      await logger.error(
+        "Erreur génération des Pages de présentations:",
+        error,
+      );
       figma.notify(
         "❌ Erreur lors de la génération des Pages de présentations",
         {
@@ -233,7 +241,7 @@ figma.ui.onmessage = async (msg) => {
         await generateRadius(radius);
         figma.notify("✅ Radius générés avec succès");
       } catch (error) {
-        logger.error("Erreur génération des Radius:", error);
+        await logger.error("Erreur génération des Radius:", error);
         figma.notify("❌ Erreur lors de la génération des Radius", {
           error: true,
         });
@@ -258,7 +266,7 @@ figma.ui.onmessage = async (msg) => {
         await generateFontSizes(baseFontSize);
         figma.notify("✅ Tailles de police générées avec succès");
       } catch (error) {
-        logger.error("Erreur génération des tailles de police:", error);
+        await logger.error("Erreur génération des tailles de police:", error);
         figma.notify("❌ Erreur lors de la génération des tailles de police", {
           error: true,
         });
@@ -286,7 +294,10 @@ figma.ui.onmessage = async (msg) => {
         await generateTypographyStyles(fontStyles, baseFontSize, lineGrid);
         figma.notify("✅ Styles de typographie générées avec succès");
       } catch (error) {
-        logger.error("Erreur génération des styles de typographie:", error);
+        await logger.error(
+          "Erreur génération des styles de typographie:",
+          error,
+        );
         figma.notify(
           "❌ Erreur lors de la génération des styles de typographie",
           {
@@ -306,7 +317,7 @@ figma.ui.onmessage = async (msg) => {
       await generateGraphicCharterTypography();
       figma.notify(`✅ Charte graphique typographie générée avec succès`);
     } catch (error) {
-      logger.error(
+      await logger.error(
         `Erreur lors de la génération de la charte graphique typographie:`,
         error,
       );
@@ -325,7 +336,7 @@ figma.ui.onmessage = async (msg) => {
     msg.type === "generateDatas" ||
     msg.type === "generateAll"
   ) {
-    logger.info(
+    await logger.info(
       "Received generateTextDatas message:",
       msg.datas?.textDatasList,
     );
@@ -340,7 +351,7 @@ figma.ui.onmessage = async (msg) => {
         await generateTextDatas(textDatas);
         figma.notify("✅ Textes générés avec succès");
       } catch (error) {
-        logger.error("Erreur lors de lagénération des textes:", error);
+        await logger.error("Erreur lors de lagénération des textes:", error);
         figma.notify("❌ Erreur lors de la génération des textes", {
           error: true,
         });
@@ -366,7 +377,7 @@ figma.ui.onmessage = async (msg) => {
         await generateImagesComponents(imagesDatas, radiusDatas);
         figma.notify("✅ Images générées avec succès");
       } catch (error) {
-        logger.error("Erreur lors de la génération des images:", error);
+        await logger.error("Erreur lors de la génération des images:", error);
         figma.notify("❌ Erreur lors de la génération des images", {
           error: true,
         });
@@ -380,7 +391,10 @@ figma.ui.onmessage = async (msg) => {
       generateElevationEffects();
       figma.notify("✅ Élévations générées avec succès");
     } catch (error) {
-      logger.error("Erreur lors de la génération des élévations :", error);
+      await logger.error(
+        "Erreur lors de la génération des élévations :",
+        error,
+      );
       figma.notify("❌ Erreur lors de la génération des élévations", {
         error: true,
       });
