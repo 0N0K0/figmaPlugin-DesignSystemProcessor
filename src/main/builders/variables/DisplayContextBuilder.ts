@@ -1,7 +1,7 @@
 import { SCOPES } from "../../constants/variablesConstants";
 import { COLUMNS, ORIENTATIONS, RATIOS } from "../../constants/systemConstants";
 import {
-  DensitiesConfigType,
+  DensitiesConfig,
   DensitiesMode,
   VariableConfig,
 } from "../../types/variablesTypes";
@@ -328,7 +328,7 @@ export async function generateDensities({
     "8": 8,
   };
 
-  const config: DensitiesConfigType = {
+  const config: DensitiesConfig = {
     tight: {
       minHeight: baselineGrid * 13,
       maxSpacing: 4,
