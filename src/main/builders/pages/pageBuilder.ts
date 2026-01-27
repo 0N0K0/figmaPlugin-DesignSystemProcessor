@@ -9,13 +9,13 @@ export class PageBuilder {
       const pages = await this.getPages();
       const page = pages.find((p) => p.name === name) as PageNode | undefined;
       if (!page) {
-        logger.warn(`[getPage] Page '${name}' non trouvée.`);
+        await logger.warn(`[getPage] Page '${name}' non trouvée.`);
         return undefined;
       }
-      logger.info(`[getPage] Page '${name}' trouvée.`);
+      await logger.info(`[getPage] Page '${name}' trouvée.`);
       return page;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getPage] Erreur lors de la récupération de la page '${name}':`,
         error,
       );
@@ -29,10 +29,10 @@ export class PageBuilder {
   async getPages(): Promise<PageNode[]> {
     try {
       const pages = figma.root.children as PageNode[];
-      logger.info(`[getPages] Nombre de pages trouvées: ${pages.length}`);
+      await logger.info(`[getPages] Nombre de pages trouvées: ${pages.length}`);
       return pages;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getPages] Erreur lors de la récupération des pages:`,
         error,
       );
@@ -47,10 +47,9 @@ export class PageBuilder {
     try {
       const page = figma.createPage();
       page.name = name;
-      logger.success(`Page '${name}' créée.`);
       return page;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createPage] Erreur lors de la création de la page '${name}':`,
         error,
       );
@@ -65,15 +64,14 @@ export class PageBuilder {
     try {
       const page = await this.getPage(name);
       if (!page) {
-        logger.warn(
+        await logger.warn(
           `[removePage] Impossible de supprimer la page '${name}': page non trouvée.`,
         );
         return;
       }
       page.remove();
-      logger.success(`Page '${page.name}' supprimée.`);
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[removePage] Erreur lors de la suppression de la page '${name}':`,
         error,
       );

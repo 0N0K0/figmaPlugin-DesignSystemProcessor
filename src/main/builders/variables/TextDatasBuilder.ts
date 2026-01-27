@@ -3,6 +3,7 @@ import { variableBuilder } from "./variableBuilder";
 import datas from "../../assets/datas.json";
 import { SCOPES } from "../../constants/variablesConstants";
 import { flatten } from "../../utils/dataUtils";
+import { logger } from "../../utils/logger";
 
 export async function generateTextDatas(
   textDatas?: Record<string, string>[],
@@ -29,10 +30,18 @@ export async function generateTextDatas(
       });
     }
 
-    return await variableBuilder.createOrUpdateVariables(variables);
-  } catch (error) {
-    throw new Error(
-      `Erreur lors de la génération des variables de données: ${error}`,
+    const newVariables =
+      await variableBuilder.createOrUpdateVariables(variables);
+
+    await logger.success(
+      `[generateTextDatas] ${newVariables.length} variables de données créées ou mises à jour avec succès.`,
     );
+    return newVariables;
+  } catch (error) {
+    await logger.error(
+      "[generateTextDatas] Erreur lors de la génération des variables de données:",
+      error,
+    );
+    throw error;
   }
 }

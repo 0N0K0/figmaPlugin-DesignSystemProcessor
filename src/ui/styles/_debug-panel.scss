@@ -31,6 +31,39 @@
   gap: 4px;
 }
 
+.debug-panel-filters {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.debug-filter-btn {
+  background: transparent;
+  border: none;
+  opacity: 0.6;
+  transition:
+    all 0.15s,
+    opacity 0.15s;
+}
+.debug-filter-btn.active {
+  opacity: 1;
+}
+.debug-filter-btn-info.active {
+  box-shadow: 0 0 0 2px var(--figma-color-border-onbrand, #0a6dc2);
+}
+.debug-filter-btn-success.active {
+  box-shadow: 0 0 0 2px var(--figma-color-border-onsuccess, #078348);
+}
+.debug-filter-btn-warn.active {
+  box-shadow: 0 0 0 2px var(--figma-color-border-onwarning, #e4a711);
+}
+.debug-filter-btn-error.active {
+  box-shadow: 0 0 0 2px var(--figma-color-border-ondanger, #c4381c);
+}
+.debug-filter-btn-debug.active {
+  box-shadow: 0 0 0 2px var(--figma-color-border-oncomponent, #7a2ed6);
+}
+
 .debug-logs-container {
   flex: 1;
   overflow-y: auto;

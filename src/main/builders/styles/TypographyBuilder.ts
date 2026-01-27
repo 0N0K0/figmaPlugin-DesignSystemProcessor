@@ -94,7 +94,7 @@ export async function generateTypographyStyles(
         v.name.includes("letter-spacing"),
       );
       if (!fontFamily || !fontStyle || !letterSpacing) {
-        logger.warn(
+        await logger.warn(
           `Propriétés manquantes : fontFamily: ${!!fontFamily}, fontStyle: ${!!fontStyle}, letterSpacing: ${!!letterSpacing} pour ${category}/${type}`,
         );
         continue;
@@ -113,7 +113,7 @@ export async function generateTypographyStyles(
         const splitFontSizeName = fontSize.name.split("/");
         const fontSizeName = splitFontSizeName[splitFontSizeName.length - 2];
         if (!fontSizeName) {
-          logger.warn(
+          await logger.warn(
             `Nom de taille de police introuvable pour ${fontSize.name}`,
           );
           continue;
@@ -135,7 +135,7 @@ export async function generateTypographyStyles(
           lh.name.includes(fontSizeName),
         );
         if (!lineHeight) {
-          logger.warn(
+          await logger.warn(
             `Hauteur de ligne introuvable pour la taille ${fontSizeName}`,
           );
           continue;
@@ -163,7 +163,7 @@ export async function generateTypographyStyles(
           );
         }
         if (!fontStyle || !letterSpacing) {
-          logger.warn(
+          await logger.warn(
             `Propriétés manquantes : fontStyle: ${!!fontStyle}, letterSpacing: ${!!letterSpacing} pour ${category}/${type}/${fontSizeName}`,
           );
           continue;

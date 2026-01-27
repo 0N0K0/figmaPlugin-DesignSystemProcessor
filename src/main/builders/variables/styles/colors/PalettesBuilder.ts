@@ -18,6 +18,7 @@ import {
 } from "../../../../../common/constants/colorConstants";
 import { hexToFigmaRgba } from "../../../../utils/colorUtils";
 import { converter } from "culori";
+import { logger } from "../../../../utils/logger";
 
 const COLLECTION_NAME = "Style\\Colors\\Palette";
 
@@ -28,24 +29,33 @@ export async function generateColorPalette(
   colors: ColorsCollection,
   colorFamily: string,
 ): Promise<Variable[]> {
-  const variables: VariableConfig[] = [];
-
-  // Génère les nuances pour chaque couleur de base
-  for (const [name, baseColor] of Object.entries(colors)) {
-    // Génère les nuances
-    const shades = generateShades(baseColor);
-    shades.forEach(({ step, color }) => {
-      variables.push({
-        name: `${colorFamily}/${name}/${step}`.toLowerCase(),
-        collection: COLLECTION_NAME,
-        type: "COLOR",
-        value: color,
-        scopes: [SCOPES.COLOR.ALL],
+  try {
+    const variables: VariableConfig[] = [];
+    for (const [name, baseColor] of Object.entries(colors)) {
+      const shades = generateShades(baseColor);
+      shades.forEach(({ step, color }) => {
+        variables.push({
+          name: `${colorFamily}/${name}/${step}`.toLowerCase(),
+          collection: COLLECTION_NAME,
+          type: "COLOR",
+          value: color,
+          scopes: [SCOPES.COLOR.ALL],
+        });
       });
-    });
+    }
+    const newVariables =
+      await variableBuilder.createOrUpdateVariables(variables);
+    await logger.success(
+      `[generateColorPalette] Palette de couleurs ${colorFamily} générée avec succès.`,
+    );
+    return newVariables;
+  } catch (error) {
+    await logger.error(
+      `Erreur lors de la génération de la palette de couleurs ${colorFamily} :`,
+      error,
+    );
+    throw error;
   }
-
-  return await variableBuilder.createOrUpdateVariables(variables);
 }
 
 /**
@@ -58,7 +68,8 @@ export async function generateNeutralPalette(
   if (greyHue !== undefined && greyHue !== "") {
     hue = converter("hsl")(greyHue)?.h || 0;
   }
-  const shades = generateGreyShades(SHADE_STEPS, hue);
+  const shadeSteps = [0, ...SHADE_STEPS, 1000];
+  const shades = generateGreyShades(shadeSteps, hue);
   const colorVariables: VariableConfig[] = [];
 
   for (const [step, color] of Object.entries(shades)) {
@@ -74,8 +85,8 @@ export async function generateNeutralPalette(
   for (const key of ["grey", "lightGrey", "darkGrey"] as const) {
     const baseColor =
       shades[key === "grey" ? 500 : key === "lightGrey" ? 50 : 950];
-    OPACITIES_STEPS.forEach((opacity) => {
-      const color = hexToFigmaRgba(baseColor, opacity / 1000);
+    OPACITIES_STEPS.forEach(async (opacity) => {
+      const color = await hexToFigmaRgba(baseColor, opacity / 1000);
       colorVariables.push({
         name: `neutral/${key}/opacity/${opacity}`,
         collection: COLLECTION_NAME,

@@ -47,7 +47,7 @@ export async function generateGradients(
   for (const key of Object.keys(brandColors)) {
     const gradientStops: ColorStop[] = [];
     const shades = [300, 500, 700];
-    for (const shade of [300, 500, 700]) {
+    for (const shade of shades) {
       gradientStops.push({
         position: shades.indexOf(shade) / (shades.length - 1),
         color: {

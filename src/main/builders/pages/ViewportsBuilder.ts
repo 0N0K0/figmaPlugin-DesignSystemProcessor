@@ -150,7 +150,10 @@ export async function generateViewportsPages() {
 
     const devOnlyPage = figma.createPage();
     devOnlyPage.name = "⚡ DEV ONLY";
-  } catch (err) {
-    logger.error("Erreur lors de la génération des pages de viewports.", err);
+  } catch (error) {
+    await logger.error(
+      "Erreur lors de la génération des pages de viewports.",
+      error,
+    );
   }
 }

@@ -24,17 +24,17 @@ export async function generateRadius(
     const newVariables =
       await variableBuilder.createOrUpdateVariables(variables);
     if (newVariables.length === 0) {
-      logger.error(
+      await logger.error(
         "[generateRadius] Aucune variable de radius créée ou mise à jour.",
       );
       throw new Error("Aucune variable de radius créée ou mise à jour.");
     }
-    logger.success(
+    await logger.success(
       `[generateRadius] ${newVariables.length} variables de radius créées ou mises à jour avec succès.`,
     );
     return newVariables;
   } catch (error) {
-    logger.error(
+    await logger.error(
       "[generateRadius] Erreur lors de la génération des variables de radius:",
       error,
     );

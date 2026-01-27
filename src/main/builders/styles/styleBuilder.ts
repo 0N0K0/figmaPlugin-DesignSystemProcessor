@@ -33,13 +33,13 @@ export class StyleBuilder {
           break;
       }
       const style = styles.find((s) => s.name === name);
-      logger.info(
+      await logger.info(
         `[getStyle] Style '${name}' de type '${type}' récupéré:`,
         style,
       );
       return style;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getStyle] Erreur lors de la récupération du style '${name}' de type '${type}':`,
         error,
       );
@@ -69,10 +69,9 @@ export class StyleBuilder {
       }
       newStyle.name = name;
       const newStyleWithValues = await this.setStyleValues(newStyle, type, []);
-      logger.success(`[createStyle] Style '${name}' de type '${type}' créé.`);
       return newStyleWithValues;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createStyle] Erreur lors de la création du style '${name}' de type '${type}':`,
         error,
       );
@@ -95,7 +94,7 @@ export class StyleBuilder {
       }
       style = await this.createStyle(name, type);
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createOrUpdateStyle] Erreur lors de la création ou mise à jour du style '${name}' de type '${type}':`,
         error,
       );
@@ -114,7 +113,7 @@ export class StyleBuilder {
     try {
       let style = await this.getStyle(name, type);
       if (!style) {
-        logger.error(
+        await logger.warn(
           `[updateStyle] Le style '${name}' de type '${type}' n'existe pas.`,
         );
         return;
@@ -122,7 +121,7 @@ export class StyleBuilder {
       const updatedStyle = await this.setStyleValues(style, type, params);
       return updatedStyle;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[updateStyle] Erreur lors de la mise à jour du style '${name}' de type '${type}':`,
         error,
       );
@@ -192,7 +191,7 @@ export class StyleBuilder {
       }
       return style;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[setStyleValues] Erreur lors de la définition des valeurs du style '${style.name}' de type '${type}':`,
         error,
       );

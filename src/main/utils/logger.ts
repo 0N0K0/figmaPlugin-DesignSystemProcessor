@@ -7,7 +7,7 @@ import { LogLevel, LogMessage } from "../types/loggerTypes";
 class Logger {
   private logs: LogMessage[] = [];
 
-  log(level: LogLevel, message: string, data?: any) {
+  async log(level: LogLevel, message: string, data?: any) {
     const logMessage: LogMessage = {
       timestamp: Date.now(),
       level,
@@ -29,27 +29,27 @@ class Logger {
       data,
     );
 
-    new Promise<void>((r) => setTimeout(r, 0));
+    await new Promise<void>((r) => setTimeout(r, 0));
   }
 
-  info(message: string, data?: any) {
-    this.log("info", message, data);
+  async info(message: string, data?: any) {
+    await this.log("info", message, data);
   }
 
-  success(message: string, data?: any) {
-    this.log("success", message, data);
+  async success(message: string, data?: any) {
+    await this.log("success", message, data);
   }
 
-  warn(message: string, data?: any) {
-    this.log("warn", message, data);
+  async warn(message: string, data?: any) {
+    await this.log("warn", message, data);
   }
 
-  error(message: string, data?: any) {
-    this.log("error", message, data);
+  async error(message: string, data?: any) {
+    await this.log("error", message, data);
   }
 
-  debug(message: string, data?: any) {
-    this.log("debug", message, data);
+  async debug(message: string, data?: any) {
+    await this.log("debug", message, data);
   }
 
   clear() {

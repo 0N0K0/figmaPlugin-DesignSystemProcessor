@@ -17,14 +17,11 @@ export class VariableBuilder {
         await figma.variables.getLocalVariableCollectionsAsync();
       const collection = collections.find((c) => c.name === name);
       if (!collection) {
-        logger.error(`[getCollection] Collection '${name}' introuvable.`);
-
-        throw new Error(`Collection '${name}' introuvable.`);
+        await logger.warn(`[getCollection] Collection '${name}' introuvable.`);
       }
-      logger.success(`[getCollection] Collection '${name}' trouvée.`);
       return collection;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getCollection] Erreur lors de la récupération de la collection '${name}':`,
         error,
       );
@@ -42,11 +39,10 @@ export class VariableBuilder {
       if (collection.modes.length === 0) {
         collection.addMode("Mode 1");
       }
-      logger.success(`[createCollection] Collection '${name}' créée.`);
 
       return collection;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createCollection] Erreur lors de la création de la collection '${name}':`,
         error,
       );
@@ -84,20 +80,16 @@ export class VariableBuilder {
       }
       const modes = collection.modes;
       if (modes.length === 0) {
-        logger.warn(
+        await logger.warn(
           `[getModesFromCollection] Aucun mode trouvé dans la collection '${collectionName}'.`,
         );
 
         return [];
       }
-      logger.success(
-        `[getModesFromCollection] Modes de la collection '${collectionName}':`,
-        modes,
-      );
 
       return collection.modes;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getModesFromCollection] Erreur lors de la récupération des modes de la collection '${collectionName}':`,
         error,
       );
@@ -113,29 +105,24 @@ export class VariableBuilder {
     collectionName: string,
     modeName: string,
   ): Promise<{
-    mode: { modeId: string; name: string };
+    mode: { modeId: string; name: string } | null;
     collection: VariableCollection;
   }> {
     try {
       const collection = await this.getOrCreateCollection(collectionName);
       const mode = collection.modes.find((m) => m.name === modeName);
       if (!mode) {
-        logger.warn(
+        await logger.warn(
           `[getModeFromCollection] Mode '${modeName}' introuvable dans la collection '${collectionName}'.`,
         );
-
-        return { mode: { modeId: "", name: "" }, collection };
+        return { mode: null, collection };
       }
-      logger.success(
-        `[getModeFromCollection] Mode '${modeName}' trouvé dans la collection '${collectionName}'.`,
-      );
-
       return {
         mode,
         collection,
       };
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getModeFromCollection] Erreur lors de la récupération du mode '${modeName}' de la collection '${collectionName}':`,
         error,
       );
@@ -154,17 +141,14 @@ export class VariableBuilder {
     try {
       const collection = await this.getOrCreateCollection(collectionName);
       const modeId = collection.addMode(modeName);
-      logger.success(
-        `[addModeToCollection] Mode '${modeName}' ajouté à la collection '${collectionName}'.`,
-      );
-
+      if (modeName !== "Mode 1" && modeId)
+        await this.removeModeFromCollection(collectionName, "Mode 1");
       return modeId;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[addModeToCollection] Erreur lors de l'ajout du mode '${modeName}' à la collection '${collectionName}':`,
         error,
       );
-
       throw error;
     }
   }
@@ -173,11 +157,14 @@ export class VariableBuilder {
     collectionName: string,
     modeName: string,
   ): Promise<string> {
-    const { mode } = await this.getModeFromCollection(collectionName, modeName);
-    if (mode) {
-      return mode.modeId;
+    const { mode, collection } = await this.getModeFromCollection(
+      collectionName,
+      modeName,
+    );
+    if (!mode) {
+      return await this.addModeToCollection(collectionName, modeName);
     }
-    return await this.addModeToCollection(collectionName, modeName);
+    return mode.modeId;
   }
 
   /**
@@ -193,17 +180,14 @@ export class VariableBuilder {
         modeName,
       );
       if (!mode) {
-        logger.warn(
+        await logger.warn(
           `[removeModeFromCollection] Impossible de supprimer le mode '${modeName}': mode non trouvé dans la collection '${collectionName}'.`,
         );
         return;
       }
       collection.removeMode(mode.modeId);
-      logger.success(
-        `[removeModeFromCollection] Mode '${modeName}' supprimé de la collection '${collectionName}'.`,
-      );
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[removeModeFromCollection] Erreur lors de la suppression du mode '${modeName}' de la collection '${collectionName}':`,
         error,
       );
@@ -222,17 +206,14 @@ export class VariableBuilder {
       const variables = await this.getCollectionVariables(collectionName);
       const variable = variables.find((v) => v.name === variableName);
       if (!variable) {
-        logger.warn(
+        await logger.warn(
           `[findVariable] Variable '${variableName}' introuvable dans la collection '${collectionName}'.`,
         );
         return;
       }
-      logger.success(
-        `[findVariable] Variable '${variableName}' trouvée dans la collection '${collectionName}'.`,
-      );
       return variable;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[findVariable] Erreur lors de la recherche de la variable '${variableName}' dans la collection '${collectionName}':`,
         error,
       );
@@ -265,17 +246,14 @@ export class VariableBuilder {
         (v) => v.variableCollectionId === collection.id,
       );
       if (!variables || variables.length === 0) {
-        logger.warn(
+        await logger.warn(
           `[getCollectionVariables] Aucune variable trouvée dans la collection '${collectionName}'.`,
         );
         return [];
       }
-      logger.success(
-        `[getCollectionVariables] Variables de la collection '${collectionName}' récupérées.`,
-      );
       return variables;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[getCollectionVariables] Erreur lors de la récupération des variables de la collection '${collectionName}':`,
         error,
       );
@@ -300,16 +278,12 @@ export class VariableBuilder {
         v.name.startsWith(`${groupName}/`),
     );
     if (!variables || variables.length === 0) {
-      logger.warn(
+      await logger.warn(
         `[getCollectionVariablesByGroup] Aucune variable trouvée dans le groupe '${groupName}' de la collection '${collectionName}'.`,
       );
 
       return [];
     }
-    logger.success(
-      `[getCollectionVariablesByGroup] Variables du groupe '${groupName}' de la collection '${collectionName}' récupérées.`,
-    );
-
     return variables;
   }
 
@@ -327,9 +301,6 @@ export class VariableBuilder {
         collection,
         config.type,
       );
-      logger.success(
-        `[createVariable] Variable '${varName}' de type '${config.type}' créée dans la collection '${config.collection}'.`,
-      );
 
       // Trouve ou crée le mode
       let modeId: string = collection.modes[0]?.modeId;
@@ -338,7 +309,6 @@ export class VariableBuilder {
           config.collection,
           config.mode,
         );
-        await this.removeModeFromCollection(config.collection, "Mode 1");
       }
 
       // Définit les propriétés de la variable
@@ -350,7 +320,7 @@ export class VariableBuilder {
 
       return variable;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createVariable] Erreur lors de la création de la variable '${config.name}' dans la collection '${config.collection}':`,
         error,
       );
@@ -361,7 +331,7 @@ export class VariableBuilder {
   /**
    * Définit la valeur ou l'alias d'une variable pour un mode donné
    */
-  private setVariableValue(
+  private async setVariableValue(
     variable: Variable,
     modeId: string,
     value?: any,
@@ -371,7 +341,7 @@ export class VariableBuilder {
       // Convertit les valeurs hex en RGB pour les variables de couleur
       let valueToSet = value;
       if (variable.resolvedType === "COLOR" && typeof value === "string") {
-        valueToSet = hexToFigmaRgba(value);
+        valueToSet = await hexToFigmaRgba(value);
       }
       variable.setValueForMode(modeId, valueToSet);
     }
@@ -387,9 +357,9 @@ export class VariableBuilder {
   /**
    * Définit les scopes d'une variable
    */
-  private setVariableScopes(variable: Variable, scopes: VariableScope[]) {
+  private async setVariableScopes(variable: Variable, scopes: VariableScope[]) {
     if (variable.resolvedType === "BOOLEAN") {
-      logger.warn(
+      await logger.warn(
         `[setVariableScopes] Les variables de type BOOLEAN ne peuvent pas avoir de scopes. La variable '${variable.name}' ne sera pas modifiée.`,
       );
       return;
@@ -418,7 +388,7 @@ export class VariableBuilder {
     try {
       const variable = await this.findVariable(config.collection, config.name);
       if (!variable) {
-        logger.warn(
+        await logger.warn(
           `[createOrUpdateVariable] La variable '${config.name}' n'existe pas dans la collection '${config.collection}'. Elle sera créée.`,
         );
         const newVariable = await this.createVariable(config as VariableConfig);
@@ -426,7 +396,7 @@ export class VariableBuilder {
       }
 
       if (config.type !== variable.resolvedType) {
-        logger.warn(
+        await logger.warn(
           `[createOrUpdateVariable] Le type de la variable '${config.name}' ne peut pas être modifié de '${variable.resolvedType}' à '${config.type}'. La variable sera recréée.`,
         );
         await this.deleteVariable(config.collection, config.name);
@@ -467,12 +437,9 @@ export class VariableBuilder {
       )
         this.setVariableDescription(variable, config.description);
 
-      logger.success(
-        `[createOrUpdateVariable] Variable '${config.name}' mise à jour dans la collection '${config.collection}'.`,
-      );
       return variable;
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[createOrUpdateVariable] Erreur lors de la mise à jour de la variable '${config.name}' dans la collection '${config.collection}':`,
         error,
       );
@@ -504,17 +471,14 @@ export class VariableBuilder {
     try {
       const variable = await this.findVariable(collectionName, variableName);
       if (!variable) {
-        logger.warn(
+        await logger.warn(
           `[deleteVariable] Impossible de supprimer la variable '${variableName}': variable non trouvée dans la collection '${collectionName}'.`,
         );
         return;
       }
       variable.remove();
-      logger.success(
-        `[deleteVariable] Variable '${variableName}' supprimée de la collection '${collectionName}'.`,
-      );
     } catch (error) {
-      logger.error(
+      await logger.error(
         `[deleteVariable] Erreur lors de la suppression de la variable '${variableName}' de la collection '${collectionName}':`,
         error,
       );

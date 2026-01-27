@@ -13,6 +13,13 @@ export class DebugPanel {
   private logs: LogMessage[] = [];
   private panel: HTMLElement | null = null;
   private isVisible = false;
+  private filter: Set<LogMessage["level"]> = new Set([
+    "info",
+    "success",
+    "warn",
+    "error",
+    "debug",
+  ]);
 
   constructor() {
     this.createPanel();
@@ -32,6 +39,28 @@ export class DebugPanel {
     const title = document.createElement("h2");
     title.textContent = "Debug Logs";
     header.appendChild(title);
+
+    // Filtres de type de log
+    const filterContainer = document.createElement("div");
+    filterContainer.className = "debug-panel-filters";
+    const levels: LogMessage["level"][] = [
+      "info",
+      "success",
+      "warn",
+      "error",
+      "debug",
+    ];
+    levels.forEach((level) => {
+      const btn = document.createElement("button");
+      btn.className = `debug-filter-btn debug-filter-btn-${level} icon-btn`;
+      btn.textContent = this.getIconForLevel(level);
+      btn.title = level.charAt(0).toUpperCase() + level.slice(1);
+      btn.onclick = () => this.toggleFilter(level, btn);
+      btn.setAttribute("data-level", level);
+      btn.classList.toggle("active", this.filter.has(level));
+      filterContainer.appendChild(btn);
+    });
+    header.appendChild(filterContainer);
 
     const buttonsContainer = document.createElement("div");
     buttonsContainer.className = "debug-panel-buttons";
@@ -74,28 +103,39 @@ export class DebugPanel {
 
   addLog(log: LogMessage) {
     this.logs.push(log);
-    this.renderLog(log);
+    this.renderLogs();
     this.scrollToBottom();
   }
 
-  private renderLog(log: LogMessage) {
+  private renderLogs() {
     const container = document.getElementById("debug-logs-container");
     if (!container) return;
+    container.innerHTML = "";
+    this.logs
+      .filter((log) => this.filter.has(log.level))
+      .forEach((log) => {
+        const logElement = document.createElement("div");
+        logElement.className = `debug-log-entry debug-log-${log.level}`;
+        const timestamp = new Date(log.timestamp).toLocaleTimeString();
+        const icon = this.getIconForLevel(log.level);
+        let content = `<div class="debug-log-time">${timestamp}</div> <div class="debug-log-message"><span class="debug-log-icon">${icon}</span> <span>${this.escapeHtml(log.message)}</span></div>`;
+        if (log.data !== undefined) {
+          content += `<pre class="debug-log-data">${this.escapeHtml(JSON.stringify(log.data, null, 2))}</pre>`;
+        }
+        logElement.innerHTML = content;
+        container.appendChild(logElement);
+      });
+  }
 
-    const logElement = document.createElement("div");
-    logElement.className = `debug-log-entry debug-log-${log.level}`;
-
-    const timestamp = new Date(log.timestamp).toLocaleTimeString();
-    const icon = this.getIconForLevel(log.level);
-
-    let content = `<div class="debug-log-time">${timestamp}</div> <div class="debug-log-message"><span class="debug-log-icon">${icon}</span> <span>${this.escapeHtml(log.message)}</span></div>`;
-
-    if (log.data !== undefined) {
-      content += `<pre class="debug-log-data">${this.escapeHtml(JSON.stringify(log.data, null, 2))}</pre>`;
+  private toggleFilter(level: LogMessage["level"], btn: HTMLButtonElement) {
+    if (this.filter.has(level)) {
+      this.filter.delete(level);
+    } else {
+      this.filter.add(level);
     }
-
-    logElement.innerHTML = content;
-    container.appendChild(logElement);
+    btn.classList.toggle("active", this.filter.has(level));
+    this.renderLogs();
+    this.scrollToBottom();
   }
 
   private getIconForLevel(level: string): string {
@@ -124,10 +164,7 @@ export class DebugPanel {
 
   clearLogs() {
     this.logs = [];
-    const container = document.getElementById("debug-logs-container");
-    if (container) {
-      container.innerHTML = "";
-    }
+    this.renderLogs();
   }
 
   show() {
