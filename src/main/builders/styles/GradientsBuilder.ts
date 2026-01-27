@@ -60,7 +60,7 @@ export async function generateGradients(
           color: {
             type: "VARIABLE_ALIAS",
             id: colors.find(
-              (c) => c.name === `brand/${key}/shade/${shade}`.toLowerCase(),
+              (c) => c.name === `brand/${key}/${shade}`.toLowerCase(),
             )!.id,
           },
         },
@@ -92,8 +92,7 @@ export async function generateGradients(
               type: "VARIABLE_ALIAS",
               id: colors.find(
                 (c) =>
-                  c.name ===
-                  `brand/${combo[i]}/shade/${shades[i]}`.toLowerCase(),
+                  c.name === `brand/${combo[i]}/${shades[i]}`.toLowerCase(),
               )!.id,
             },
           },
@@ -127,7 +126,7 @@ export async function generateGradients(
             color: {
               type: "VARIABLE_ALIAS",
               id: colors.find(
-                (c) => c.name === `brand/${key}/shade/${value}`.toLowerCase(),
+                (c) => c.name === `brand/${key}/${value}`.toLowerCase(),
               )!.id,
             },
           },

@@ -30,13 +30,13 @@ export async function generateColorPalette(
 ): Promise<Variable[]> {
   const variables: VariableConfig[] = [];
 
-  // Génère les nuances et opacités pour chaque couleur de base
+  // Génère les nuances pour chaque couleur de base
   for (const [name, baseColor] of Object.entries(colors)) {
     // Génère les nuances
     const shades = generateShades(baseColor);
     shades.forEach(({ step, color }) => {
       variables.push({
-        name: `${colorFamily}/${name}/shade/${step}`.toLowerCase(),
+        name: `${colorFamily}/${name}/${step}`.toLowerCase(),
         collection: COLLECTION_NAME,
         type: "COLOR",
         value: color,

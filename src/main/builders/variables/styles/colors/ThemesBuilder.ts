@@ -151,7 +151,7 @@ export async function generateColorThemes(
 
         // Construire le nom de la variable cible dans la palette
         const targetVariableName =
-          `${colorFamily}/${category}/shade/${shadeValue}`.toLowerCase();
+          `${colorFamily}/${category}/${shadeValue}`.toLowerCase();
 
         const { alias, targetValue } = await getOrCreateTargetColor(
           targetVariableName,
@@ -283,7 +283,7 @@ export async function generateColorsThemesCollections(
   for (const [name, baseColor] of Object.entries(colors)) {
     for (const step of SHADE_STEPS) {
       const targetShadeVariableName =
-        `${colorFamily}/${name}/shade/${step}`.toLowerCase();
+        `${colorFamily}/${name}/${step}`.toLowerCase();
       const { alias: shadeAlias } = await getTargetValue(
         targetShadeVariableName,
         "Style\\Colors\\Palette",
