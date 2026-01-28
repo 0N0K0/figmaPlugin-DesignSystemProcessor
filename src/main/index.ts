@@ -24,7 +24,12 @@ import {
 import { logger } from "./utils/logger";
 import { generateTypography } from "./builders/variables/styles/TypographyBuilder";
 import { generateTextDatas } from "./builders/variables/TextDatasBuilder";
-import { generateImagesComponents } from "./builders/components/ImagesBuilder";
+import {
+  generateGallery,
+  generateImagesDatas,
+  generateMedia,
+  generateMediaInstance,
+} from "./builders/components/ImagesBuilder";
 import { generateGradients } from "./builders/styles/GradientsBuilder";
 import { generateTypographyStyles } from "./builders/styles/TypographyBuilder";
 import { generateViewportsPages } from "./builders/pages/ViewportsBuilder";
@@ -376,7 +381,10 @@ figma.ui.onmessage = async (msg) => {
       return;
     } else {
       try {
-        await generateImagesComponents(imagesDatas, radiusDatas, layoutGuide);
+        await generateImagesDatas(imagesDatas, layoutGuide);
+        await generateMediaInstance(layoutGuide);
+        await generateMedia(imagesDatas, radiusDatas);
+        await generateGallery(layoutGuide);
         figma.notify("✅ Images générées avec succès");
       } catch (error) {
         await logger.error("Erreur lors de la génération des images:", error);

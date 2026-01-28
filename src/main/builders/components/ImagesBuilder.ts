@@ -374,6 +374,23 @@ export async function generateGallery(layoutGuide: layoutGuide) {
           },
         )) as ComponentNode;
 
+      const widthVariable = await variableBuilder.findVariable(
+        "System\\Breakpoints",
+        `content-width/columns/${properties.columns}/min`,
+      );
+      if (widthVariable) {
+        galleryComponent.setBoundVariable("width", widthVariable);
+        const breakpointMode = await variableBuilder.getModeFromCollection(
+          "System\\Breakpoints",
+          breakpoint,
+        );
+        if (breakpointMode.mode)
+          galleryComponent.setExplicitVariableModeForCollection(
+            breakpointMode.collection,
+            breakpointMode.mode.modeId,
+          );
+      }
+
       const mediaInstances = [];
       for (let i = 0; i < 24; i++) {
         const ratioOrientationIndex = i % ratiosByOrientations.length;
