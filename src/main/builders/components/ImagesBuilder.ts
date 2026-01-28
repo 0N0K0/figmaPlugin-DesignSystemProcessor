@@ -476,7 +476,6 @@ export async function generateGallery(layoutGuide: layoutGuide) {
             for (const [index, item] of itemsForRow.entries()) {
               const sizes = { width: widths[index], height: height };
               await elementBuilder.updateElement(item, rowFrame, {}, sizes);
-              await elementBuilder.updateElement(rowFrame);
             }
           }
         }
