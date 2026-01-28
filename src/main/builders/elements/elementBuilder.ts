@@ -2,26 +2,25 @@ import { logger } from "../../utils/logger";
 
 export class ElementBuilder {
   /**
-   * Obtient une frame par son nom
+   * Obtient un élément par son nom
    */
-  async getFrame(
+  async getElement(
     name: string,
-    parent: PageNode | FrameNode,
-  ): Promise<FrameNode | undefined> {
+    parent: PageNode | FrameNode | ComponentNode,
+  ): Promise<SceneNode | undefined> {
     try {
-      const frames = await this.getFrames(parent);
-      const frame = frames.find((f) => f.name === name) as
-        | FrameNode
+      const elements = await this.getElements(parent);
+      const element = elements.find((e) => e.name === name) as
+        | SceneNode
         | undefined;
-      if (!frame) {
-        await logger.info(`[getFrame] Frame '${name}' non trouvée.`);
+      if (!element) {
+        await logger.info(`[getElement] Element '${name}' non trouvé.`);
         return undefined;
       }
-      await logger.info(`[getFrame] Frame '${name}' trouvée.`);
-      return frame;
+      return element;
     } catch (error) {
       await logger.error(
-        `[getFrame] Erreur lors de la récupération de la frame '${name}':`,
+        `[getElement] Erreur lors de la récupération de l'élément '${name}':`,
         error,
       );
       throw error;
@@ -29,20 +28,20 @@ export class ElementBuilder {
   }
 
   /**
-   * Obtient toutes les frames d'un parent
+   * Obtient tous les éléments d'un parent
    */
-  async getFrames(parent: PageNode | FrameNode): Promise<FrameNode[]> {
+  async getElements(
+    parent: PageNode | FrameNode | ComponentNode,
+  ): Promise<readonly SceneNode[]> {
     try {
-      const frames = parent.findChildren(
-        (child) => child.type === "FRAME",
-      ) as FrameNode[];
+      const elements = parent.children;
       await logger.info(
-        `[getFrames] Nombre de frames trouvées: ${frames.length}`,
+        `[getElements] Nombre d'éléments trouvés: ${elements.length}`,
       );
-      return frames;
+      return elements;
     } catch (error) {
       await logger.error(
-        `[getFrames] Erreur lors de la récupération des frames:`,
+        `[getElements] Erreur lors de la récupération des éléments:`,
         error,
       );
       throw error;
@@ -50,55 +49,85 @@ export class ElementBuilder {
   }
 
   /**
-   * Crée une frame
+   * Crée un élément
    */
-  async createFrame(
+  async createElement(
     name: string,
-    parent: PageNode | FrameNode,
-    properties: Partial<FrameNode>,
-  ): Promise<FrameNode> {
+    type: "FRAME" | "COMPONENT",
+    parent: PageNode | FrameNode | ComponentNode,
+    properties?: Partial<FrameNode | ComponentNode>,
+    size?: { width: number; height: number },
+    lockAspectRatio?: boolean,
+  ): Promise<FrameNode | ComponentNode> {
     try {
-      const frame = figma.createFrame();
-      frame.name = name;
-      await this.setFrameProperties(frame, properties);
-      await this.setElementParent(frame, parent);
-      return frame;
+      let element: FrameNode | ComponentNode;
+      switch (type) {
+        case "FRAME":
+          element = figma.createFrame();
+          break;
+        case "COMPONENT":
+          element = figma.createComponent();
+          break;
+        default:
+          throw new Error(`[createElement] Type d'élément inconnu: ${type}`);
+      }
+
+      element.name = name;
+      if (
+        properties !== undefined ||
+        size !== undefined ||
+        lockAspectRatio !== undefined
+      )
+        await this.updateElement(
+          element,
+          parent,
+          properties,
+          size,
+          lockAspectRatio,
+        );
+
+      return element;
     } catch (error) {
       await logger.error(
-        `[createFrame] Erreur lors de la création de la frame '${name}':`,
+        `[createElement] Erreur lors de la création de l'élément '${name}':`,
         error,
       );
       throw error;
     }
   }
 
-  /**
-   * Définit le parent d'une frame
-   */
-  async setElementParent(
+  async updateElement(
+    element: FrameNode | ComponentNode | InstanceNode,
+    parent?: FrameNode | ComponentNode | PageNode,
+    properties?: Partial<FrameNode | ComponentNode | InstanceNode>,
+    size?: { width: number; height: number },
+    lockAspectRatio?: boolean,
+  ): Promise<FrameNode | ComponentNode | InstanceNode> {
+    try {
+      if (parent !== undefined) parent.appendChild(element);
+      if (properties !== undefined) Object.assign(element, properties);
+      if (size !== undefined && size.width && size.height)
+        element.resize(size.width, size.height);
+      if (lockAspectRatio) element.lockAspectRatio();
+      return element;
+    } catch (error) {
+      await logger.error(
+        `[updateElement] Erreur lors de la mise à jour de l'élément '${element.name}':`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async setParent(
     element: SceneNode,
-    parent: PageNode | FrameNode,
+    parent: FrameNode | ComponentNode | PageNode,
   ): Promise<void> {
     try {
       parent.appendChild(element);
     } catch (error) {
       await logger.error(
-        `[setElementParent] Erreur lors de l'ajout de l'élément '${element.name}' au parent '${parent.name}':`,
-        error,
-      );
-      throw error;
-    }
-  }
-
-  async setFrameProperties(
-    frame: FrameNode,
-    properties: Partial<FrameNode>,
-  ): Promise<void> {
-    try {
-      Object.assign(frame, properties);
-    } catch (error) {
-      await logger.error(
-        `[setFrameProperties] Erreur lors de la définition des propriétés pour la frame '${frame.name}':`,
+        `[setParent] Erreur lors de la définition du parent de l'élément '${element.name}':`,
         error,
       );
       throw error;
@@ -106,21 +135,24 @@ export class ElementBuilder {
   }
 
   /**
-   * Supprime une frame par son nom
+   * Supprime un élément par son nom
    */
-  async removeFrame(name: string, parent: PageNode | FrameNode): Promise<void> {
+  async removeElement(
+    name: string,
+    parent: PageNode | FrameNode,
+  ): Promise<void> {
     try {
-      const frame = await this.getFrame(name, parent);
-      if (!frame) {
+      const element = await this.getElement(name, parent);
+      if (!element) {
         await logger.warn(
-          `[removeFrame] Impossible de supprimer la frame '${name}': frame non trouvée.`,
+          `[removeElement] Impossible de supprimer l'élément '${name}': élément non trouvé.`,
         );
         return;
       }
-      frame.remove();
+      element.remove();
     } catch (error) {
       await logger.error(
-        `[removeFrame] Erreur lors de la suppression de la frame '${name}':`,
+        `[removeElement] Erreur lors de la suppression de l'élément '${name}':`,
         error,
       );
       throw error;

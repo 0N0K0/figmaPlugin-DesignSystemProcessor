@@ -8,12 +8,20 @@ export async function generateRadius(
 ): Promise<Variable[]> {
   try {
     const variables: VariableConfig[] = [];
-    radius["square"] = 0;
-    radius["rounded"] = 9999;
+    const radiusConfig: { name: string; value: number }[] = [];
 
+    radiusConfig.push({ name: "square", value: 0 });
     for (const [name, value] of Object.entries(radius)) {
-      variables.push({
+      radiusConfig.push({
         name: name.toLowerCase(),
+        value,
+      });
+    }
+    radiusConfig.push({ name: "rounded", value: 9999 });
+
+    for (const { name, value } of radiusConfig) {
+      variables.push({
+        name,
         collection: "Style\\Radius",
         type: "FLOAT",
         value,

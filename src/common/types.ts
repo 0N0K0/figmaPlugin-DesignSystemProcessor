@@ -1,4 +1,4 @@
-export type layoutGuideType = {
+export type layoutGuide = {
   minColumnWidth: number;
   gutter: number;
   horizontalBodyPadding: number;
@@ -8,3 +8,10 @@ export type layoutGuideType = {
   maxContentHeight: number;
   offsetHeight: number;
 };
+
+export type imageDatas = Record<
+  string,
+  Array<{ name: string; data: ArrayBuffer; width: number; height: number }>
+>;
+
+export type radiusDatas = Record<string, number>;

@@ -37,6 +37,16 @@ export interface ModeConfig {
   contentWidth: Record<string, Record<string, Record<string, number>>>;
 }
 
+export type BreakpointsConfig = Record<
+  string,
+  {
+    columns: number;
+    viewportWidth: { min: number; max: number };
+    viewportHeight: Record<string, Record<string, Record<string, number>>>;
+    contentWidth: Record<string, Record<string, Record<string, number>>>;
+  }
+>;
+
 // Types des modes de densité
 export type DensitiesMode = "tight" | "compact" | "loose";
 

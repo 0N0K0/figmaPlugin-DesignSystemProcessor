@@ -6,7 +6,8 @@ import {
   VariableConfig,
 } from "../../types/variablesTypes";
 import { variableBuilder } from "./variableBuilder";
-import { layoutGuideType } from "../../../common/types";
+import { layoutGuide } from "../../../common/types";
+import { breakpointsConfig } from "../../utils/displayContextUtils";
 
 export async function generateBreakpoints({
   minColumnWidth,
@@ -14,180 +15,187 @@ export async function generateBreakpoints({
   horizontalBodyPadding,
   minViewportHeight,
   horizontalMainPadding,
-}: layoutGuideType): Promise<Variable[]> {
+}: layoutGuide): Promise<Variable[]> {
   const newVariables: Variable[] = [];
 
   const breackpointsVariables: VariableConfig[] = [];
 
-  // Configuration des modes
-  const modesConfig: Record<
-    string,
-    {
-      columns: number;
-      viewportWidth: { min: number; max: number };
-      viewportHeight: Record<string, Record<string, Record<string, number>>>;
-      contentWidth: Record<string, Record<string, Record<string, number>>>;
-    }
-  > = {};
+  const modesConfig = breakpointsConfig(
+    minColumnWidth,
+    gutter,
+    horizontalBodyPadding,
+    minViewportHeight,
+    horizontalMainPadding,
+  );
+  // // Configuration des modes
+  // const modesConfig: Record<
+  //   string,
+  //   {
+  //     columns: number;
+  //     viewportWidth: { min: number; max: number };
+  //     viewportHeight: Record<string, Record<string, Record<string, number>>>;
+  //     contentWidth: Record<string, Record<string, Record<string, number>>>;
+  //   }
+  // > = {};
 
-  for (const [key, value] of Object.entries(COLUMNS)) {
-    modesConfig[key as keyof typeof COLUMNS] = {
-      columns: value,
-      viewportWidth: {
-        min: 0,
-        max: 0,
-      },
-      viewportHeight: {},
-      contentWidth: {
-        divisions: {},
-        columns: {},
-      },
-    };
-    if (key === "xxl") {
-      modesConfig[key as keyof typeof COLUMNS].viewportWidth.min = 1920;
-      modesConfig[key as keyof typeof COLUMNS].viewportWidth.max = 9999;
-    }
-  }
+  // for (const [key, value] of Object.entries(COLUMNS)) {
+  //   modesConfig[key as keyof typeof COLUMNS] = {
+  //     columns: value,
+  //     viewportWidth: {
+  //       min: 0,
+  //       max: 0,
+  //     },
+  //     viewportHeight: {},
+  //     contentWidth: {
+  //       divisions: {},
+  //       columns: {},
+  //     },
+  //   };
+  //   if (key === "xxl") {
+  //     modesConfig[key as keyof typeof COLUMNS].viewportWidth.min = 1920;
+  //     modesConfig[key as keyof typeof COLUMNS].viewportWidth.max = 9999;
+  //   }
+  // }
 
-  /***
-   * Calcul des minviewportWidth
-   */
-  for (const [key, value] of Object.entries(modesConfig)) {
-    if (key === "xxl") continue;
-    modesConfig[key as keyof typeof modesConfig].viewportWidth.min =
-      minColumnWidth * value.columns +
-      gutter * (value.columns - 1) +
-      horizontalBodyPadding * 2 +
-      horizontalMainPadding * 2;
-  }
+  // /***
+  //  * Calcul des minviewportWidth
+  //  */
+  // for (const [key, value] of Object.entries(modesConfig)) {
+  //   if (key === "xxl") continue;
+  //   modesConfig[key as keyof typeof modesConfig].viewportWidth.min =
+  //     minColumnWidth * value.columns +
+  //     gutter * (value.columns - 1) +
+  //     horizontalBodyPadding * 2 +
+  //     horizontalMainPadding * 2;
+  // }
 
-  /***
-   * Calcul des maxviewportWidth
-   */
-  for (const key of Object.keys(modesConfig)) {
-    if (key === "xxl") continue;
-    const nextKey =
-      Object.keys(modesConfig)[Object.keys(modesConfig).indexOf(key) + 1];
-    modesConfig[key as keyof typeof modesConfig].viewportWidth!.max =
-      modesConfig[nextKey as keyof typeof modesConfig].viewportWidth.min - 1;
-  }
+  // /***
+  //  * Calcul des maxviewportWidth
+  //  */
+  // for (const key of Object.keys(modesConfig)) {
+  //   if (key === "xxl") continue;
+  //   const nextKey =
+  //     Object.keys(modesConfig)[Object.keys(modesConfig).indexOf(key) + 1];
+  //   modesConfig[key as keyof typeof modesConfig].viewportWidth!.max =
+  //     modesConfig[nextKey as keyof typeof modesConfig].viewportWidth.min - 1;
+  // }
 
-  /***
-   * Calcul des viewportHeight
-   */
-  for (const [key, value] of Object.entries(modesConfig)) {
-    const viewportHeight: Record<
-      string,
-      Record<string, Record<string, number>>
-    > = {};
-    ORIENTATIONS.forEach((orientation) => {
-      viewportHeight[orientation] = {};
-      RATIOS.forEach((ratio) => {
-        viewportHeight[orientation][ratio] = {};
-        const [widthRatio, heightRatio] = ratio.split(":").map(Number);
-        const calculatedRatio = heightRatio / widthRatio;
-        let minHeight: number;
-        let maxHeight: number;
-        if (orientation === "portrait") {
-          minHeight = Math.round(value.viewportWidth.min * calculatedRatio);
-          maxHeight = Math.round(value.viewportWidth.max * calculatedRatio);
-        } else {
-          minHeight = Math.round(value.viewportWidth.min / calculatedRatio);
-          maxHeight = Math.round(value.viewportWidth.max / calculatedRatio);
-        }
-        minHeight = Math.max(minHeight, minViewportHeight);
-        maxHeight = Math.max(maxHeight, minViewportHeight);
+  // /***
+  //  * Calcul des viewportHeight
+  //  */
+  // for (const [key, value] of Object.entries(modesConfig)) {
+  //   const viewportHeight: Record<
+  //     string,
+  //     Record<string, Record<string, number>>
+  //   > = {};
+  //   ORIENTATIONS.forEach((orientation) => {
+  //     viewportHeight[orientation] = {};
+  //     RATIOS.forEach((ratio) => {
+  //       viewportHeight[orientation][ratio] = {};
+  //       const [widthRatio, heightRatio] = ratio.split(":").map(Number);
+  //       const calculatedRatio = heightRatio / widthRatio;
+  //       let minHeight: number;
+  //       let maxHeight: number;
+  //       if (orientation === "portrait") {
+  //         minHeight = Math.round(value.viewportWidth.min * calculatedRatio);
+  //         maxHeight = Math.round(value.viewportWidth.max * calculatedRatio);
+  //       } else {
+  //         minHeight = Math.round(value.viewportWidth.min / calculatedRatio);
+  //         maxHeight = Math.round(value.viewportWidth.max / calculatedRatio);
+  //       }
+  //       minHeight = Math.max(minHeight, minViewportHeight);
+  //       maxHeight = Math.max(maxHeight, minViewportHeight);
 
-        viewportHeight[orientation][ratio]["min"] = minHeight;
-        viewportHeight[orientation][ratio]["max"] = Math.round(maxHeight);
-      });
-    });
-    modesConfig[key as keyof typeof modesConfig]["viewportHeight"] =
-      viewportHeight;
-  }
+  //       viewportHeight[orientation][ratio]["min"] = minHeight;
+  //       viewportHeight[orientation][ratio]["max"] = Math.round(maxHeight);
+  //     });
+  //   });
+  //   modesConfig[key as keyof typeof modesConfig]["viewportHeight"] =
+  //     viewportHeight;
+  // }
 
-  /***
-   * Calcul des maxColumnWidth
-   */
-  const maxColumnWidth: Record<string, number> = {};
-  for (const [key, mode] of Object.entries(modesConfig)) {
-    maxColumnWidth[key] =
-      (mode.viewportWidth.max -
-        horizontalBodyPadding * 2 -
-        horizontalMainPadding * 2 -
-        gutter * (mode.columns - 1)) /
-      mode.columns;
-  }
+  // /***
+  //  * Calcul des maxColumnWidth
+  //  */
+  // const maxColumnWidth: Record<string, number> = {};
+  // for (const [key, mode] of Object.entries(modesConfig)) {
+  //   maxColumnWidth[key] =
+  //     (mode.viewportWidth.max -
+  //       horizontalBodyPadding * 2 -
+  //       horizontalMainPadding * 2 -
+  //       gutter * (mode.columns - 1)) /
+  //     mode.columns;
+  // }
 
-  /***
-   * Calcul des contentWidth
-   */
-  for (const [key, mode] of Object.entries(modesConfig)) {
-    const contentWidth: Record<string, any> = {
-      columns: {},
-      divisions: {},
-    };
+  // /***
+  //  * Calcul des contentWidth
+  //  */
+  // for (const [key, mode] of Object.entries(modesConfig)) {
+  //   const contentWidth: Record<string, any> = {
+  //     columns: {},
+  //     divisions: {},
+  //   };
 
-    // Largeurs pour chaque nombre de colonnes
-    for (let i = 1; i <= 12; i++) {
-      const maxContentWidth =
-        1920 - horizontalBodyPadding * 2 - horizontalMainPadding * 2;
+  //   // Largeurs pour chaque nombre de colonnes
+  //   for (let i = 1; i <= 12; i++) {
+  //     const maxContentWidth =
+  //       1920 - horizontalBodyPadding * 2 - horizontalMainPadding * 2;
 
-      let minWidth: number;
-      if (i > mode.columns) {
-        minWidth =
-          mode.viewportWidth.max -
-          horizontalBodyPadding * 2 -
-          horizontalMainPadding * 2;
-      } else {
-        minWidth = minColumnWidth * i + gutter * (i - 1);
-      }
+  //     let minWidth: number;
+  //     if (i > mode.columns) {
+  //       minWidth =
+  //         mode.viewportWidth.max -
+  //         horizontalBodyPadding * 2 -
+  //         horizontalMainPadding * 2;
+  //     } else {
+  //       minWidth = minColumnWidth * i + gutter * (i - 1);
+  //     }
 
-      let maxWidth: number;
-      if (i >= mode.columns) {
-        maxWidth =
-          mode.viewportWidth.max -
-          horizontalBodyPadding * 2 -
-          horizontalMainPadding * 2;
-      } else {
-        maxWidth = maxColumnWidth[key] * i + gutter * (i - 1);
-      }
-      contentWidth["columns"][i] = {
-        min: Math.round(Math.min(minWidth, maxContentWidth)),
-        max: Math.round(Math.min(maxWidth, maxContentWidth)),
-      };
-    }
+  //     let maxWidth: number;
+  //     if (i >= mode.columns) {
+  //       maxWidth =
+  //         mode.viewportWidth.max -
+  //         horizontalBodyPadding * 2 -
+  //         horizontalMainPadding * 2;
+  //     } else {
+  //       maxWidth = maxColumnWidth[key] * i + gutter * (i - 1);
+  //     }
+  //     contentWidth["columns"][i] = {
+  //       min: Math.round(Math.min(minWidth, maxContentWidth)),
+  //       max: Math.round(Math.min(maxWidth, maxContentWidth)),
+  //     };
+  //   }
 
-    // Largeurs pour chaque division des colonnes
-    const divisions = [4, 3, 2, 1];
-    divisions.forEach((division) => {
-      let minWidth: number;
-      let maxWidth: number;
-      if (mode.columns % division === 0) {
-        minWidth =
-          (minColumnWidth * mode.columns) / division +
-          gutter * (mode.columns / division - 1);
-        maxWidth =
-          (maxColumnWidth[key] * mode.columns) / division +
-          gutter * (mode.columns / division - 1);
-      } else {
-        const validDivision = divisions
-          .slice(divisions.indexOf(division) + 1)
-          .find((d) => mode.columns % d === 0)!;
-        minWidth =
-          (minColumnWidth * mode.columns) / validDivision +
-          gutter * (mode.columns / validDivision - 1);
-        maxWidth =
-          (maxColumnWidth[key] * mode.columns) / validDivision +
-          gutter * (mode.columns / validDivision - 1);
-      }
-      contentWidth["divisions"][`1:${division}`] = {
-        min: Math.round(minWidth),
-        max: Math.round(maxWidth),
-      };
-    });
-    modesConfig[key as keyof typeof modesConfig]["contentWidth"] = contentWidth;
-  }
+  //   // Largeurs pour chaque division des colonnes
+  //   const divisions = [4, 3, 2, 1];
+  //   divisions.forEach((division) => {
+  //     let minWidth: number;
+  //     let maxWidth: number;
+  //     if (mode.columns % division === 0) {
+  //       minWidth =
+  //         (minColumnWidth * mode.columns) / division +
+  //         gutter * (mode.columns / division - 1);
+  //       maxWidth =
+  //         (maxColumnWidth[key] * mode.columns) / division +
+  //         gutter * (mode.columns / division - 1);
+  //     } else {
+  //       const validDivision = divisions
+  //         .slice(divisions.indexOf(division) + 1)
+  //         .find((d) => mode.columns % d === 0)!;
+  //       minWidth =
+  //         (minColumnWidth * mode.columns) / validDivision +
+  //         gutter * (mode.columns / validDivision - 1);
+  //       maxWidth =
+  //         (maxColumnWidth[key] * mode.columns) / validDivision +
+  //         gutter * (mode.columns / validDivision - 1);
+  //     }
+  //     contentWidth["divisions"][`1:${division}`] = {
+  //       min: Math.round(minWidth),
+  //       max: Math.round(maxWidth),
+  //     };
+  //   });
+  //   modesConfig[key as keyof typeof modesConfig]["contentWidth"] = contentWidth;
+  // }
 
   for (const [modeName, mode] of Object.entries(modesConfig)) {
     for (const [sizeType, value] of Object.entries(mode.viewportWidth)) {
@@ -310,7 +318,7 @@ export async function generateBreakpoints({
 
 export async function generateDensities({
   baselineGrid,
-}: layoutGuideType): Promise<Variable[]> {
+}: layoutGuide): Promise<Variable[]> {
   const modes: DensitiesMode[] = ["tight", "compact", "loose"];
 
   // Échelle d'espacement (multiplicateurs de BASELINE_GRID)
@@ -518,7 +526,7 @@ export async function generateFontSizes(
 export async function generateContentHeights({
   baselineGrid,
   maxContentHeight,
-}: layoutGuideType): Promise<Variable[]> {
+}: layoutGuide): Promise<Variable[]> {
   const variables: VariableConfig[] = [];
 
   for (let i = baselineGrid; i <= maxContentHeight; i += baselineGrid) {
@@ -541,7 +549,7 @@ export async function generateDevices({
   horizontalMainPadding,
   baselineGrid,
   offsetHeight,
-}: layoutGuideType): Promise<Variable[]> {
+}: layoutGuide): Promise<Variable[]> {
   const variables: VariableConfig[] = [];
 
   const config: Record<

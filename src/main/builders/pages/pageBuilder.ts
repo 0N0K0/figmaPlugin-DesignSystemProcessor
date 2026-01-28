@@ -57,6 +57,14 @@ export class PageBuilder {
     }
   }
 
+  async getOrCreatePage(name: string): Promise<PageNode> {
+    let page = await this.getPage(name);
+    if (!page) {
+      page = await this.createPage(name);
+    }
+    return page;
+  }
+
   /**
    * Supprime une page par son nom
    */

@@ -5,7 +5,7 @@ import {
 } from "../../common/utils/textUtils";
 import { FormData, getFormData } from "../utils/formData";
 import { debugPanel } from "../components/debugPanel";
-import { layoutGuideType } from "../../common/types";
+import { layoutGuide } from "../../common/types";
 import { stringify } from "querystring";
 
 // List of button IDs corresponding to different actions
@@ -144,7 +144,7 @@ export function attachButtonListeners() {
         const feedbackCoreThemes = manageCoreThemes("feedback", formData);
 
         // Handle Layout Guide
-        const layoutGuide: layoutGuideType = {
+        const layoutGuide: layoutGuide = {
           minColumnWidth: formData["minColumnWidth"] as number,
           gutter: formData["gutter"] as number,
           horizontalBodyPadding: formData["horizontalBodyPadding"] as number,

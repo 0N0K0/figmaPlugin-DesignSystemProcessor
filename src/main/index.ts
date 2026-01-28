@@ -367,6 +367,8 @@ figma.ui.onmessage = async (msg) => {
   ) {
     const imagesDatas = msg.datas?.imagesDatasList;
     const radiusDatas = msg.datas?.radius;
+    const layoutGuide = msg.datas?.layoutGuide;
+
     if (imagesDatas === undefined) {
       figma.notify("⚠️ Aucune donnée d'images fournie fournie", {
         error: true,
@@ -374,7 +376,7 @@ figma.ui.onmessage = async (msg) => {
       return;
     } else {
       try {
-        await generateImagesComponents(imagesDatas, radiusDatas);
+        await generateImagesComponents(imagesDatas, radiusDatas, layoutGuide);
         figma.notify("✅ Images générées avec succès");
       } catch (error) {
         await logger.error("Erreur lors de la génération des images:", error);

@@ -101,7 +101,7 @@ export class VariableBuilder {
   /**
    * Obtient un mode d'une collection par nom
    */
-  private async getModeFromCollection(
+  async getModeFromCollection(
     collectionName: string,
     modeName: string,
   ): Promise<{
