@@ -105,10 +105,10 @@ export class ElementBuilder {
   ): Promise<FrameNode | ComponentNode | InstanceNode> {
     try {
       if (parent !== undefined) parent.appendChild(element);
-      if (properties !== undefined) Object.assign(element, properties);
       if (size !== undefined && size.width && size.height)
         element.resize(size.width, size.height);
       if (lockAspectRatio) element.lockAspectRatio();
+      if (properties !== undefined) Object.assign(element, properties);
       return element;
     } catch (error) {
       await logger.error(

@@ -141,8 +141,8 @@ export async function generateMediaInstance(layoutGuide: layoutGuide) {
     "COMPONENT",
     mediaPage,
     {
-      fills: [{ type: "SOLID", color: { r: 0.85, g: 0.85, b: 0.85 } }],
-      strokes: [{ type: "SOLID", color: { r: 0.6, g: 0.6, b: 0.6 } }],
+      fills: [{ type: "SOLID", color: { r: 0.5, g: 0.5, b: 0.5 } }],
+      strokes: [{ type: "SOLID", color: { r: 0.15, g: 0.15, b: 0.15 } }],
       strokeWeight: 1,
       strokeAlign: "INSIDE",
       x: 0,
@@ -156,10 +156,10 @@ export async function generateMediaInstance(layoutGuide: layoutGuide) {
     line.resize(Math.hypot(width, height), 0);
     line.rotation =
       Math.atan2(i === 0 ? height : -height, width) * (180 / Math.PI);
-    line.strokes = [{ type: "SOLID", color: { r: 0.6, g: 0.6, b: 0.6 } }];
+    line.strokes = [{ type: "SOLID", color: { r: 0.15, g: 0.15, b: 0.15 } }];
     line.strokeWeight = 1;
     line.x = 0;
-    line.y = i === 0 ? 0 : height;
+    line.y = i === 0 ? height : 0;
     mediaComponent.appendChild(line);
   }
 
@@ -341,6 +341,7 @@ export async function generateGallery(layoutGuide: layoutGuide) {
 
   for (const layout of layouts) {
     for (const [breakpoint, properties] of Object.entries(breakpoints)) {
+      if (breakpoint === "xxl") continue;
       if (properties.columns % 3 !== 0) continue;
       const columns = properties.columns / 3;
       const columnWidth = properties.contentWidth.columns[3].min;
@@ -358,15 +359,10 @@ export async function generateGallery(layoutGuide: layoutGuide) {
                 ? layoutGuide.baselineGrid
                 : layoutGuide.gutter,
             counterAxisSpacing:
-              layout === "grid" ? layoutGuide.baselineGrid : undefined,
-            layoutWrap:
-              layout === "grid"
-                ? "WRAP"
-                : layout === "carousel"
-                  ? "NO_WRAP"
-                  : undefined,
+              layout === "grid" ? layoutGuide.baselineGrid : 0,
+            layoutWrap: layout === "grid" ? "WRAP" : "NO_WRAP",
             clipsContent: layout === "carousel",
-            overflowDirection: layout === "carousel" ? "HORIZONTAL" : undefined,
+            overflowDirection: layout === "carousel" ? "HORIZONTAL" : "NONE",
           },
           {
             width: properties.contentWidth.columns[properties.columns].min,
@@ -480,12 +476,7 @@ export async function generateGallery(layoutGuide: layoutGuide) {
             for (const [index, item] of itemsForRow.entries()) {
               const sizes = { width: widths[index], height: height };
               await elementBuilder.updateElement(item, rowFrame, {}, sizes);
-              await elementBuilder.updateElement(
-                rowFrame,
-                undefined,
-                {},
-                sizes,
-              );
+              await elementBuilder.updateElement(rowFrame);
             }
           }
         }

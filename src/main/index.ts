@@ -383,7 +383,7 @@ figma.ui.onmessage = async (msg) => {
       try {
         await generateImagesDatas(imagesDatas, layoutGuide);
         await generateMediaInstance(layoutGuide);
-        await generateMedia(imagesDatas, radiusDatas);
+        await generateMedia(radiusDatas, layoutGuide);
         await generateGallery(layoutGuide);
         figma.notify("✅ Images générées avec succès");
       } catch (error) {
